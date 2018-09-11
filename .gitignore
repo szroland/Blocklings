@@ -1,6 +1,6 @@
 *
 
 !.gitignore
-!*.bat
+!/*.bat
 
-!**/src/main/*
+!**/src/main/**
