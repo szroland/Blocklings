@@ -8,7 +8,7 @@
 !*.info
 !*.lang
 
-*/
+!*/
 
 !.gitignore
 !branch-into-trunk (remote).bat

@@ -1,0 +1,49 @@
+entity.entity_blockling.name=Blockling
+
+item.wood_upgrade.name=Wood Upgrade
+item.stone_upgrade.name=Stone Upgrade
+item.iron_upgrade.name=Iron Upgrade
+item.quartz_upgrade.name=Quartz Upgrade
+item.gold_upgrade.name=Gold Upgrade
+item.lapis_upgrade.name=Lapis Upgrade
+item.emerald_upgrade.name=Emerald Upgrade
+item.diamond_upgrade.name=Diamond Upgrade
+item.obisian_upgrade.name=Obsidian Upgrade
+
+item.health_upgrade1.name=Health Upgrade 1
+item.health_upgrade2.name=Health Upgrade 2
+item.health_upgrade3.name=Health Upgrade 3
+
+item.damage_upgrade1.name=Damage Upgrade 1
+item.damage_upgrade2.name=Damage Upgrade 2
+item.damage_upgrade3.name=Damage Upgrade 3
+
+item.speed_upgrade1.name=Speed Upgrade 1
+item.speed_upgrade2.name=Speed Upgrade 2
+item.speed_upgrade3.name=Speed Upgrade 3
+
+item.swing_upgrade1.name=Swing Speed Upgrade 1
+item.swing_upgrade2.name=Swing Speed Upgrade 2
+item.swing_upgrade3.name=Swing Speed Upgrade 3
+
+item.defence_upgrade1.name=Defence Upgrade 1
+item.defence_upgrade2.name=Defence Upgrade 2
+item.defence_upgrade3.name=Defence Upgrade 3
+
+item.poison_upgrade.name=Poison Upgrade
+item.jump_upgrade.name=Jump Upgrade
+item.strength_upgrade.name=Strength Upgrade
+item.slowness_upgrade.name=Slowness Upgrade
+item.weakness_upgrade.name=Weakness Upgrade
+item.wither_upgrade.name=Wither Upgrade
+
+item.glowing_upgrade.name=Glowing Upgrade
+item.range_upgrade.name=Range Upgrade
+item.effect_upgrade.name=Potion Effect Upgrade
+item.imine_upgrade.name=Instant Mine Upgrade
+item.ichop_upgrade.name=Instant Chop Upgrade
+item.ifarm_upgrade.name=Instant Farm Upgrade
+
+item.blockling.name=Blockling
+
+itemGroup.tab_blocklings=Blocklings
