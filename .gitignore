@@ -1,10 +1,6 @@
 *
 
 # But not these files...
-!.gitignore
-!branch-into-trunk (remote).bat
-!latest-trunk-into-branch (locally).bat
-!setup.bat
 !*.java
 !*.png
 !*.json
@@ -13,3 +9,8 @@
 !*.lang
 
 */
+
+!.gitignore
+!branch-into-trunk (remote).bat
+!latest-trunk-into-branch (locally).bat
+!setup.bat
