@@ -3,4 +3,4 @@
 !.gitignore
 !/*.bat
 
-!**/src/main/**
+!**/src/main
