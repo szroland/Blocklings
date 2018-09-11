@@ -3,7 +3,7 @@ package com.blocklings.util.helpers;
 import com.blocklings.main.Blocklings;
 import com.blocklings.network.GuiIDMessage;
 import com.blocklings.network.OpenGuiMessage;
-
+import com.blocklings.network.GeneralLevelMessage;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
@@ -20,6 +20,8 @@ public class NetworkHelper
     network.registerMessage(GuiIDMessage.Handler.class, com.blocklings.network.GuiIDMessage.class, id++, Side.SERVER);
     network.registerMessage(OpenGuiMessage.Handler.class, com.blocklings.network.OpenGuiMessage.class, id++, Side.CLIENT);
     network.registerMessage(OpenGuiMessage.Handler.class, com.blocklings.network.OpenGuiMessage.class, id++, Side.SERVER);
+    network.registerMessage(GeneralLevelMessage.Handler.class, com.blocklings.network.GeneralLevelMessage.class, id++, Side.CLIENT);
+    network.registerMessage(GeneralLevelMessage.Handler.class, com.blocklings.network.GeneralLevelMessage.class, id++, Side.SERVER);
   }
   
   public static void sendToAll(IMessage message) {
