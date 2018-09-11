@@ -221,16 +221,19 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
 		}
 	}
 
-	public int getGuiID() {
+	public int getGuiID()
+	{
 		return guiID;
 	}
-	
-	public void setGuiID(int guiIDValue) {
+
+	public void setGuiID(int guiIDValue)
+	{
 		guiID = guiIDValue;
 		NetworkHelper.sync(world, new GuiIDMessage(guiIDValue, getEntityId()));
 	}
-	
-	public void setGuiIDFromPacket(int guiIDValue) {
+
+	public void setGuiIDFromPacket(int guiIDValue)
+	{
 		guiID = guiIDValue;
 	}
 	

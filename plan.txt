@@ -10,7 +10,7 @@ GENERAL:
 - Abilities
   - Overall level determines Abilitypoints
   - Abilitieshave a 
-- Flowers are still the center pf everything
+- Flowers are still the center of everything
 
 
 UI:
@@ -33,3 +33,6 @@ MODEL/ANIMATION:
 
 
 QOL:
+- Interaction
+- Minimise remembering things
+- No crafting 
