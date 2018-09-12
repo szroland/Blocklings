@@ -4,6 +4,9 @@ import com.blocklings.main.Blocklings;
 import com.blocklings.network.GuiIDMessage;
 import com.blocklings.network.OpenGuiMessage;
 import com.blocklings.network.GeneralLevelMessage;
+import com.blocklings.network.CombatLevelMessage;
+import com.blocklings.network.MiningLevelMessage;
+import com.blocklings.network.WoodcuttingLevelMessage;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
@@ -22,6 +25,12 @@ public class NetworkHelper
         network.registerMessage(OpenGuiMessage.Handler.class, com.blocklings.network.OpenGuiMessage.class, id++, Side.SERVER);
         network.registerMessage(GeneralLevelMessage.Handler.class, com.blocklings.network.GeneralLevelMessage.class, id++, Side.CLIENT);
         network.registerMessage(GeneralLevelMessage.Handler.class, com.blocklings.network.GeneralLevelMessage.class, id++, Side.SERVER);
+        network.registerMessage(CombatLevelMessage.Handler.class, com.blocklings.network.CombatLevelMessage.class, id++, Side.CLIENT);
+        network.registerMessage(CombatLevelMessage.Handler.class, com.blocklings.network.CombatLevelMessage.class, id++, Side.SERVER);
+        network.registerMessage(MiningLevelMessage.Handler.class, com.blocklings.network.MiningLevelMessage.class, id++, Side.CLIENT);
+        network.registerMessage(MiningLevelMessage.Handler.class, com.blocklings.network.MiningLevelMessage.class, id++, Side.SERVER);
+        network.registerMessage(WoodcuttingLevelMessage.Handler.class, com.blocklings.network.WoodcuttingLevelMessage.class, id++, Side.CLIENT);
+        network.registerMessage(WoodcuttingLevelMessage.Handler.class, com.blocklings.network.WoodcuttingLevelMessage.class, id++, Side.SERVER);
     }
 
     public static void sendToAll(IMessage message)
