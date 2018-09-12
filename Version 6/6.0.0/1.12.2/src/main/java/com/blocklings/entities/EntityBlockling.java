@@ -2,26 +2,19 @@ package com.blocklings.entities;
 
 import com.blocklings.inventories.InventoryBlockling;
 import com.blocklings.main.Blocklings;
-import com.blocklings.network.GeneralLevelMessage;
 import com.blocklings.network.GuiIDMessage;
 import com.blocklings.network.OpenGuiMessage;
+import com.blocklings.network.GeneralLevelMessage;
+import com.blocklings.network.CombatLevelMessage;
+import com.blocklings.network.MiningLevelMessage;
+import com.blocklings.network.WoodcuttingLevelMessage;
 import com.blocklings.util.helpers.NetworkHelper;
-
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.EntityAgeable;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
-import net.minecraft.entity.ai.EntityAIAttackMelee;
-import net.minecraft.entity.ai.EntityAIFollowOwner;
-import net.minecraft.entity.ai.EntityAIHurtByTarget;
-import net.minecraft.entity.ai.EntityAILookIdle;
-import net.minecraft.entity.ai.EntityAIOwnerHurtByTarget;
-import net.minecraft.entity.ai.EntityAIOwnerHurtTarget;
-import net.minecraft.entity.ai.EntityAISit;
-import net.minecraft.entity.ai.EntityAISwimming;
-import net.minecraft.entity.ai.EntityAIWander;
-import net.minecraft.entity.ai.EntityAIWatchClosest;
+import net.minecraft.entity.ai.*;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.passive.EntityTameable;
 import net.minecraft.entity.player.EntityPlayer;
@@ -30,7 +23,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumHand;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
-import org.jline.utils.Log;
 
 public class EntityBlockling extends EntityTameable implements IEntityAdditionalSpawnData
 {
@@ -42,7 +34,8 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
 
     private int guiID = 1;
 
-    private int generalLevel = 1;
+    private int generalLevel = 1, combatLevel = 1, miningLevel = 1, woodcuttingLevel = 1;
+    private int generalXp = 0, combatXp = 0, miningXp = 0, wooducttingXp = 0;
 
     private EntityAIFollowOwner aiFollow;
     private EntityAIWander aiWander;
@@ -246,7 +239,7 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
         setTamedBy(player);
         navigator.clearPath();
         setAttackTarget((EntityLivingBase) null);
-        aiSit.setSitting(true);
+        //aiSit.setSitting(true);
         playTameEffect(true);
         world.setEntityState(this, (byte) 7);
     }
@@ -282,32 +275,87 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
         return guiID;
     }
 
-    public void setGuiID(int guiIDValue)
+    public void setGuiID(int value)
     {
-        guiID = guiIDValue;
-        NetworkHelper.sync(world, new GuiIDMessage(guiIDValue, getEntityId()));
+        guiID = value;
+        NetworkHelper.sync(world, new GuiIDMessage(value, getEntityId()));
     }
 
-    public void setGuiIDFromPacket(int guiIDValue)
+    public void setGuiIDFromPacket(int value)
     {
-        guiID = guiIDValue;
+        guiID = value;
     }
-
-
+    
+    
+    
     public int getGeneralLevel()
     {
         return generalLevel;
     }
 
-    public void setGeneralLevel(int generalLevelValue)
+    public void setGeneralLevel(int value)
     {
-        generalLevel = generalLevelValue;
-        NetworkHelper.sync(world, new GeneralLevelMessage(generalLevelValue, getEntityId()));
+        generalLevel = value;
+        NetworkHelper.sync(world, new GeneralLevelMessage(value, getEntityId()));
     }
 
-    public void setGeneralLevelFromPacket(int generalLevelValue)
+    public void setGeneralLevelFromPacket(int value)
     {
-        generalLevel = generalLevelValue;
+        generalLevel = value;
+    }
+
+
+
+    public int getCombatLevel()
+    {
+        return combatLevel;
+    }
+
+    public void setCombatLevel(int value)
+    {
+        combatLevel = value;
+        NetworkHelper.sync(world, new CombatLevelMessage(value, getEntityId()));
+    }
+
+    public void setCombatLevelFromPacket(int value)
+    {
+        combatLevel = value;
+    }
+
+
+
+    public int getMiningLevel()
+    {
+        return miningLevel;
+    }
+
+    public void setMiningLevel(int value)
+    {
+        miningLevel = value;
+        NetworkHelper.sync(world, new MiningLevelMessage(value, getEntityId()));
+    }
+
+    public void setMiningLevelFromPacket(int value)
+    {
+        miningLevel = value;
+    }
+
+
+
+    public int getWoodcuttingLevel()
+    {
+        return woodcuttingLevel;
+    }
+
+    public void setWoodcuttingLevel(int value)
+    {
+        woodcuttingLevel = value;
+        NetworkHelper.sync(world, new WoodcuttingLevelMessage(value, getEntityId()));
+    }
+
+    public void setWoodcuttingLevelFromPacket(int value)
+    {
+        woodcuttingLevel = value;
     }
 }
 

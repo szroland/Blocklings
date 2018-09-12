@@ -7,16 +7,16 @@ import net.minecraft.entity.Entity;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
-public class GeneralLevelMessage implements IMessage
+public class MiningLevelMessage implements IMessage
 {
     int value;
     int id;
 
-    public GeneralLevelMessage()
+    public MiningLevelMessage()
     {
     }
 
-    public GeneralLevelMessage(int value, int entityID)
+    public MiningLevelMessage(int value, int entityID)
     {
         this.value = value;
         this.id = entityID;
@@ -34,9 +34,9 @@ public class GeneralLevelMessage implements IMessage
         buf.writeInt(this.id);
     }
 
-    public static class Handler implements net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler<GeneralLevelMessage, IMessage>
+    public static class Handler implements net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler<MiningLevelMessage, IMessage>
     {
-        public IMessage onMessage(GeneralLevelMessage message, MessageContext ctx)
+        public IMessage onMessage(MiningLevelMessage message, MessageContext ctx)
         {
             Entity entity = null;
 
@@ -48,7 +48,7 @@ public class GeneralLevelMessage implements IMessage
                 {
                     EntityBlockling blockling = (EntityBlockling) entity;
 
-                    blockling.setGeneralLevelFromPacket(message.value);
+                    blockling.setMiningLevelFromPacket(message.value);
                 }
             }
             else if (ctx.side.isServer() && Blocklings.proxy.getPlayer(ctx) != null)
@@ -59,7 +59,7 @@ public class GeneralLevelMessage implements IMessage
                 {
                     EntityBlockling blockling = (EntityBlockling) entity;
 
-                    blockling.setGeneralLevelFromPacket(message.value);
+                    blockling.setMiningLevelFromPacket(message.value);
                 }
             }
 

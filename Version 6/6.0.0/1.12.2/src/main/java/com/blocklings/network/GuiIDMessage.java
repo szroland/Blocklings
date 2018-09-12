@@ -9,8 +9,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
 public class GuiIDMessage implements IMessage
 {
-
-    int guiID;
+    int value;
     int id;
 
     public GuiIDMessage()
@@ -19,19 +18,19 @@ public class GuiIDMessage implements IMessage
 
     public GuiIDMessage(int value, int entityID)
     {
-        this.guiID = value;
+        this.value = value;
         this.id = entityID;
     }
 
     public void fromBytes(ByteBuf buf)
     {
-        this.guiID = buf.readInt();
+        this.value = buf.readInt();
         this.id = buf.readInt();
     }
 
     public void toBytes(ByteBuf buf)
     {
-        buf.writeInt(this.guiID);
+        buf.writeInt(this.value);
         buf.writeInt(this.id);
     }
 
@@ -49,7 +48,7 @@ public class GuiIDMessage implements IMessage
                 {
                     EntityBlockling blockling = (EntityBlockling) entity;
 
-                    blockling.setGuiIDFromPacket(message.guiID);
+                    blockling.setGuiIDFromPacket(message.value);
                 }
             }
             else if (ctx.side.isServer() && Blocklings.proxy.getPlayer(ctx) != null)
@@ -60,12 +59,11 @@ public class GuiIDMessage implements IMessage
                 {
                     EntityBlockling blockling = (EntityBlockling) entity;
 
-                    blockling.setGuiIDFromPacket(message.guiID);
+                    blockling.setGuiIDFromPacket(message.value);
                 }
             }
 
             return null;
         }
     }
-
 }
