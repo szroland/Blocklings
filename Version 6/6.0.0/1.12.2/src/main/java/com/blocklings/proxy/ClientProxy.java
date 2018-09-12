@@ -10,17 +10,18 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 
 @Mod.EventBusSubscriber(Side.CLIENT)
-public class ClientProxy extends CommonProxy {
-	
+public class ClientProxy extends CommonProxy
+{
     @Override
-    public void preInit(FMLPreInitializationEvent e) {
+    public void preInit(FMLPreInitializationEvent e)
+    {
         super.preInit(e);
         EntityHelper.registerRenderers();
     }
-    
-	@Override
-	public EntityPlayer getPlayer(MessageContext ctx) {
-		return ctx.side.isClient() ? Minecraft.getMinecraft().player : super.getPlayer(ctx);
-	}
-    
+
+    @Override
+    public EntityPlayer getPlayer(MessageContext ctx)
+    {
+        return ctx.side.isClient() ? Minecraft.getMinecraft().player : super.getPlayer(ctx);
+    }
 }

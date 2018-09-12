@@ -41,9 +41,13 @@ class GuiBlocklingGeneral extends GuiScreen
     private int maxScreenX = 0;
     private int maxScreenY = 0;
 
-    /** Relative x position for ability screen */
+    /**
+     * Relative x position for ability screen
+     */
     private int x;
-    /** Relative y position for ability screen */
+    /**
+     * Relative y position for ability screen
+     */
     private int y;
 
     private int prevMouseX, prevMouseY;
@@ -127,10 +131,14 @@ class GuiBlocklingGeneral extends GuiScreen
             y += mouseY - prevMouseY;
         }
 
-        if (x < minScreenX) x = minScreenX;
-        else if (x > maxScreenX) x = maxScreenX;
-        if (y < minScreenY) y = minScreenY;
-        else if (y > maxScreenY) y = maxScreenY;
+        if (x < minScreenX)
+            x = minScreenX;
+        else if (x > maxScreenX)
+            x = maxScreenX;
+        if (y < minScreenY)
+            y = minScreenY;
+        else if (y > maxScreenY)
+            y = maxScreenY;
 
         drawDefaultBackground();
 
@@ -185,6 +193,11 @@ class GuiBlocklingGeneral extends GuiScreen
         }
     }
 
+    /**
+     * Draw lines between abilities
+     * Won't work if parent abilities are lower than children
+     * Is inefficient so could do with a rework
+     */
     private void drawLines()
     {
         for (Ability ability : abilities)
@@ -213,52 +226,76 @@ class GuiBlocklingGeneral extends GuiScreen
                     endY = i;
                 }
 
-                if (startX < screenLeft) startX = screenLeft;
-                else if (startX > screenLeft + SCREEN_WIDTH) startX = screenLeft + SCREEN_WIDTH;
-                if (startY < screenTop) startY = screenTop;
-                else if (startY > screenTop + SCREEN_HEIGHT) startY = screenTop + SCREEN_HEIGHT;
-                if (endX < screenLeft) endX = screenLeft;
-                else if (endX > screenLeft + SCREEN_WIDTH) endX = screenLeft + SCREEN_WIDTH;
-                if (endY < screenTop) endY = screenTop;
-                else if (endY > screenTop + SCREEN_HEIGHT) endY = screenTop + SCREEN_HEIGHT;
+                if (startX < screenLeft)
+                    startX = screenLeft;
+                else if (startX > screenLeft + SCREEN_WIDTH)
+                    startX = screenLeft + SCREEN_WIDTH;
+                if (startY < screenTop)
+                    startY = screenTop;
+                else if (startY > screenTop + SCREEN_HEIGHT)
+                    startY = screenTop + SCREEN_HEIGHT;
+                if (endX < screenLeft)
+                    endX = screenLeft;
+                else if (endX > screenLeft + SCREEN_WIDTH)
+                    endX = screenLeft + SCREEN_WIDTH;
+                if (endY < screenTop)
+                    endY = screenTop;
+                else if (endY > screenTop + SCREEN_HEIGHT)
+                    endY = screenTop + SCREEN_HEIGHT;
 
                 int changeX = 0;
                 int changeY = 0;
-                if (difX < 0) changeX = -1;
+                if (difX < 0)
+                    changeX = -1;
 
                 drawHorizontalLine(startX + changeX, endX + changeX, startY + changeY, 0xff333333);
-                if (difX > 0) drawVerticalLine(startX + changeX, endY + changeY, startY + changeY, 0xff333333);
-                else drawVerticalLine(endX + changeX, endY + changeY, startY + changeY, 0xff333333);
+                if (difX > 0)
+                    drawVerticalLine(startX + changeX, endY + changeY, startY + changeY, 0xff333333);
+                else
+                    drawVerticalLine(endX + changeX, endY + changeY, startY + changeY, 0xff333333);
 
                 changeX = -1;
                 changeY = -1;
-                if (difX < 0) changeX = 0;
+                if (difX < 0)
+                    changeX = 0;
 
                 drawHorizontalLine(startX + changeX, endX + changeX, startY + changeY, 0xff333333);
-                if (difX > 0) drawVerticalLine(startX + changeX, endY + changeY, startY + changeY, 0xff333333);
-                else drawVerticalLine(endX + changeX, endY + changeY, startY + changeY, 0xff333333);
+                if (difX > 0)
+                    drawVerticalLine(startX + changeX, endY + changeY, startY + changeY, 0xff333333);
+                else
+                    drawVerticalLine(endX + changeX, endY + changeY, startY + changeY, 0xff333333);
 
                 changeX = -2;
                 changeY = -2;
-                if (difX < 0) changeX = 1;
+                if (difX < 0)
+                    changeX = 1;
 
                 drawHorizontalLine(startX + changeX, endX + changeX, startY + changeY, 0xffffffff);
-                if (difX > 0) drawVerticalLine(startX + changeX, endY + changeY, startY + changeY, 0xffffffff);
-                else drawVerticalLine(endX + changeX, endY + changeY, startY + changeY, 0xffffffff);
+                if (difX > 0)
+                    drawVerticalLine(startX + changeX, endY + changeY, startY + changeY, 0xffffffff);
+                else
+                    drawVerticalLine(endX + changeX, endY + changeY, startY + changeY, 0xffffffff);
 
                 changeX = 1;
                 changeY = 1;
-                if (difX < 0) changeX = -2;
+                if (difX < 0)
+                    changeX = -2;
 
                 drawHorizontalLine(startX + changeX, endX + changeX, startY + changeY, 0xffffffff);
-                if (difX > 0) drawVerticalLine(startX + changeX, endY + changeY, startY + changeY, 0xffffffff);
-                else drawVerticalLine(endX + changeX, endY + changeY, startY + changeY, 0xffffffff);
+                if (difX > 0)
+                    drawVerticalLine(startX + changeX, endY + changeY, startY + changeY, 0xffffffff);
+                else
+                    drawVerticalLine(endX + changeX, endY + changeY, startY + changeY, 0xffffffff);
             }
         }
     }
 
+    /**
+     * Draw all abilities in list
+     */
     private void drawAbilities()
     {
+        // Need to bind the abilities texture before drawing
         mc.getTextureManager().bindTexture(ABILITIES);
 
         for (Ability ability : abilities)
@@ -267,6 +304,9 @@ class GuiBlocklingGeneral extends GuiScreen
         }
     }
 
+    /**
+     * Draw tooltip on tab when if mouse is over one
+     */
     private void drawTabTooltip(int mouseX, int mouseY)
     {
         Tab tab = GuiHelper.getTabAt(mouseX, mouseY, width, height);
@@ -277,7 +317,9 @@ class GuiBlocklingGeneral extends GuiScreen
         }
     }
 
-    /** Draw an ability while taking into account the relative position of it */
+    /**
+     * Draw an ability while taking into account the relative position of it
+     */
     private void drawAbility(Ability ability)
     {
         GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
@@ -317,22 +359,29 @@ class GuiBlocklingGeneral extends GuiScreen
             startDrawY = 0;
         }
 
-        if (difX <= ability.width && difY <= ability.height) drawTexturedModalRect(screenLeft + x + ability.x + startX, screenTop + y + ability.y + startY, ability.textureX + startDrawX, ability.textureY + startDrawY, ability.width - difX, ability.height - difY);
+        if (difX <= ability.width && difY <= ability.height)
+            drawTexturedModalRect(screenLeft + x + ability.x + startX, screenTop + y + ability.y + startY, ability.textureX + startDrawX, ability.textureY + startDrawY, ability.width - difX, ability.height - difY);
     }
 
-    /** Check if mouse position is within a certain area */
+    /**
+     * Check if mouse position is within a certain area
+     */
     private boolean isMouseOver(int mouseX, int mouseY, int left, int top, int width, int height)
     {
         return mouseX >= left && mouseX < left + width && mouseY >= top && mouseY <= top + height;
     }
 
-    /** Check if mouse position is currently over the central ability window */
+    /**
+     * Check if mouse position is currently over the central ability window
+     */
     private boolean isMouseOverScreen(int mouseX, int mouseY)
     {
         return isMouseOver(mouseX, mouseY, screenLeft, screenTop, SCREEN_WIDTH, SCREEN_HEIGHT);
     }
 
-    /** Gets the ability currently underneath given mouse position */
+    /**
+     * Gets the ability currently underneath the given mouse position
+     */
     private Ability getAbilityAtMouseLocation(int mouseX, int mouseY)
     {
         if (isMouseOverScreen(mouseX, mouseY))
@@ -352,13 +401,17 @@ class GuiBlocklingGeneral extends GuiScreen
         return null;
     }
 
-    /** Gets the actual x position of the ability on screen */
+    /**
+     * Gets the actual x position of the ability on screen
+     */
     private int actualAbilityX(Ability ability)
     {
         return screenLeft + x + ability.x;
     }
 
-    /** Gets the actual y position of the ability on screen */
+    /**
+     * Gets the actual y position of the ability on screen
+     */
     private int actualAbilityY(Ability ability)
     {
         return screenTop + y + ability.y;

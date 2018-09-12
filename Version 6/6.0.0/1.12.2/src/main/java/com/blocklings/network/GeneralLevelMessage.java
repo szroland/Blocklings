@@ -7,53 +7,65 @@ import net.minecraft.entity.Entity;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
-public class GeneralLevelMessage implements IMessage {
+public class GeneralLevelMessage implements IMessage
+{
 
-	int generalLevel;
-	int id;
+    int generalLevel;
+    int id;
 
-	public GeneralLevelMessage() {
-	}
+    public GeneralLevelMessage()
+    {
+    }
 
-	public GeneralLevelMessage(int guiIDValue, int entityID) {
-		this.generalLevel = guiIDValue;
-		this.id = entityID;
-	}
+    public GeneralLevelMessage(int value, int entityID)
+    {
+        this.generalLevel = value;
+        this.id = entityID;
+    }
 
-	public void fromBytes(ByteBuf buf) {
-		this.generalLevel = buf.readInt();
-		this.id = buf.readInt();
-	}
+    public void fromBytes(ByteBuf buf)
+    {
+        this.generalLevel = buf.readInt();
+        this.id = buf.readInt();
+    }
 
-	public void toBytes(ByteBuf buf) {
-		buf.writeInt(this.generalLevel);
-		buf.writeInt(this.id);
-	}
+    public void toBytes(ByteBuf buf)
+    {
+        buf.writeInt(this.generalLevel);
+        buf.writeInt(this.id);
+    }
 
-	public static class Handler implements net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler<GeneralLevelMessage, IMessage> {
-		public IMessage onMessage(GeneralLevelMessage message, MessageContext ctx) {
-			Entity entity = null;
+    public static class Handler implements net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler<GeneralLevelMessage, IMessage>
+    {
+        public IMessage onMessage(GeneralLevelMessage message, MessageContext ctx)
+        {
+            Entity entity = null;
 
-			if ((ctx.side.isClient()) && (Blocklings.proxy.getPlayer(ctx) != null)) {
-				entity = Blocklings.proxy.getPlayer(ctx).world.getEntityByID(message.id);
+            if ((ctx.side.isClient()) && (Blocklings.proxy.getPlayer(ctx) != null))
+            {
+                entity = Blocklings.proxy.getPlayer(ctx).world.getEntityByID(message.id);
 
-				if (entity instanceof EntityBlockling) {
-					EntityBlockling blockling = (EntityBlockling) entity;
+                if (entity instanceof EntityBlockling)
+                {
+                    EntityBlockling blockling = (EntityBlockling) entity;
 
-					blockling.setGeneralLevelFromPacket(message.generalLevel);
-				}
-			} else if (ctx.side.isServer() && Blocklings.proxy.getPlayer(ctx) != null) {
-				entity = Blocklings.proxy.getPlayer(ctx).world.getEntityByID(message.id);
+                    blockling.setGeneralLevelFromPacket(message.generalLevel);
+                }
+            }
+            else if (ctx.side.isServer() && Blocklings.proxy.getPlayer(ctx) != null)
+            {
+                entity = Blocklings.proxy.getPlayer(ctx).world.getEntityByID(message.id);
 
-				if ((entity instanceof EntityBlockling)) {
-					EntityBlockling blockling = (EntityBlockling) entity;
-					
-					blockling.setGeneralLevelFromPacket(message.generalLevel);
-				}
-			}
+                if ((entity instanceof EntityBlockling))
+                {
+                    EntityBlockling blockling = (EntityBlockling) entity;
 
-			return null;
-		}
-	}
-	
+                    blockling.setGeneralLevelFromPacket(message.generalLevel);
+                }
+            }
+
+            return null;
+        }
+    }
+
 }

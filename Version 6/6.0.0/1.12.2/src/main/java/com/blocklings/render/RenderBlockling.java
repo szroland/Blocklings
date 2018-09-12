@@ -14,27 +14,30 @@ import net.minecraftforge.fml.client.registry.IRenderFactory;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly(net.minecraftforge.fml.relauncher.Side.CLIENT)
-public class RenderBlockling extends RenderLiving<EntityBlockling> {
-	
-	private ResourceLocation texture = new ResourceLocationBlocklings("textures/entities/blockling/blockling_0.png");
+public class RenderBlockling extends RenderLiving<EntityBlockling>
+{
+    private ResourceLocation texture = new ResourceLocationBlocklings("textures/entities/blockling/blockling_0.png");
 
-	public static final Factory FACTORY = new Factory();
+    public static final Factory FACTORY = new Factory();
 
-	public RenderBlockling(RenderManager rendermanagerIn) {
-		super(rendermanagerIn, new ModelBlockling(), 0.5F);
-	}
+    public RenderBlockling(RenderManager rendermanagerIn)
+    {
+        super(rendermanagerIn, new ModelBlockling(), 0.5F);
+    }
 
-	@Override
-	protected ResourceLocation getEntityTexture(@Nonnull EntityBlockling entity) {
-		return texture;
-	}
+    @Override
+    protected ResourceLocation getEntityTexture(@Nonnull EntityBlockling entity)
+    {
+        return texture;
+    }
 
-	public static class Factory implements IRenderFactory<EntityBlockling> {
-		@Override
-		public Render<? super EntityBlockling> createRenderFor(RenderManager manager) {
-			return new RenderBlockling(manager);
-		}
+    public static class Factory implements IRenderFactory<EntityBlockling>
+    {
+        @Override
+        public Render<? super EntityBlockling> createRenderFor(RenderManager manager)
+        {
+            return new RenderBlockling(manager);
+        }
 
-	}
-	
+    }
 }

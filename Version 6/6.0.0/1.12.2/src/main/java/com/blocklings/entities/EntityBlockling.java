@@ -34,7 +34,6 @@ import org.jline.utils.Log;
 
 public class EntityBlockling extends EntityTameable implements IEntityAdditionalSpawnData
 {
-
     public static final double BASE_MAX_HEALTH = 10;
     public static final double BASE_MOVEMENT_SPEED = 0.3;
     public static final double BASE_ATTACK_DAMAGE = 1;
@@ -98,18 +97,21 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
         tasks.addTask(3, aiOwnerHurt);
     }
 
+    // Used to save entity data (variables) when the entity is unloaded
     @Override
     public void writeEntityToNBT(NBTTagCompound compound)
     {
         super.writeEntityToNBT(compound);
     }
 
+    // Used to load entity data (variables) when the entity is loaded
     @Override
     public void readEntityFromNBT(NBTTagCompound compound)
     {
         super.readEntityFromNBT(compound);
     }
 
+    // Used to save the data (variables) that need to be saved and synced
     @Override
     public void writeSpawnData(ByteBuf buf)
     {
@@ -123,22 +125,27 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
 
     }
 
+    // Called once every tick
+    // Used by skeles to check if they are in the sun
     @Override
     public void onLivingUpdate()
     {
         super.onLivingUpdate();
     }
 
+    // Also called once every tick
+    // Not sure what the difference is between the two update methods
     @Override
     public void onUpdate()
     {
         super.onUpdate();
-        if(!world.isRemote){
-            setGeneralLevel(++generalLevel);
-        }
-        Log.info(generalLevel, " ", world.isRemote);
     }
 
+    // Called when a player interacts (right clicks) on entity
+    // Is called on both client and server
+    // And called for each hand
+    // Client and server is useful for taming
+    // This is because we want to set tamed on server but also play effects client side etc
     @Override
     public boolean processInteract(EntityPlayer player, EnumHand hand)
     {
@@ -155,9 +162,7 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
                     {
                         if (rand.nextInt(3) == 0)
                         {
-                            setTamedBy(player);
-                            playTameEffect(true);
-                            world.setEntityState(this, (byte) 7);
+                            setTamed(player);
                         }
                         else
                         {
@@ -268,6 +273,10 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
         }
     }
 
+    // GETTERS
+    // AND
+    // SETTERS
+
     public int getGuiID()
     {
         return guiID;
@@ -300,7 +309,6 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
     {
         generalLevel = generalLevelValue;
     }
-
 }
 
 

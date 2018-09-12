@@ -17,29 +17,33 @@ import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
 @Mod.EventBusSubscriber
-public class CommonProxy {
-	
-    public void preInit(FMLPreInitializationEvent e) {
-    	EntityHelper.registerEntities();
-    	NetworkHelper.registerMessages();
-    	NetworkRegistry.INSTANCE.registerGuiHandler(Blocklings.instance, new GuiHandler());
+public class CommonProxy
+{
+    public void preInit(FMLPreInitializationEvent e)
+    {
+        EntityHelper.registerEntities();
+        NetworkHelper.registerMessages();
+        NetworkRegistry.INSTANCE.registerGuiHandler(Blocklings.instance, new GuiHandler());
     }
 
-    public void init(FMLInitializationEvent e) {
-    
+    public void init(FMLInitializationEvent e)
+    {
+
     }
 
-    public void postInit(FMLPostInitializationEvent e) {
-    
+    public void postInit(FMLPostInitializationEvent e)
+    {
+
     }
-    
+
     @SubscribeEvent
-    public static void registerItems(RegistryEvent.Register<Item> event) {
-    	
+    public static void registerItems(RegistryEvent.Register<Item> event)
+    {
+
     }
-    
-	public EntityPlayer getPlayer(MessageContext ctx) {
-		return ctx.getServerHandler().player;
-	}
-    
+
+    public EntityPlayer getPlayer(MessageContext ctx)
+    {
+        return ctx.getServerHandler().player;
+    }
 }

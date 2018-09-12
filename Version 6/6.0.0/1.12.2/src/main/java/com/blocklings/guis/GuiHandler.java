@@ -7,38 +7,45 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.network.IGuiHandler;
 
-public class GuiHandler implements IGuiHandler {
+public class GuiHandler implements IGuiHandler
+{
+    @Override
+    public Object getServerGuiElement(int id, EntityPlayer player, World world, int entityID, int unused1, int unused2)
+    {
+        Entity entity = world.getEntityByID(entityID);
 
-	@Override
-	public Object getServerGuiElement(int id, EntityPlayer player, World world, int entityID, int unused1, int unused2) {
-		Entity entity = world.getEntityByID(entityID);
+        if (entity != null && entity instanceof EntityBlockling)
+        {
+            EntityBlockling blockling = (EntityBlockling) entity;
 
-		if (entity != null && entity instanceof EntityBlockling) {
-			EntityBlockling blockling = (EntityBlockling) entity;
-			
-			if (id == 0) {
-				return new ContainerInventoryBlockling(player.inventory, blockling.inv);
-			}
-		}
-		
-		return null;
-	}
+            if (id == 0)
+            {
+                return new ContainerInventoryBlockling(player.inventory, blockling.inv);
+            }
+        }
 
-	@Override
-	public Object getClientGuiElement(int id, EntityPlayer player, World world, int entityID, int unused1, int unused2) {
-		Entity entity = world.getEntityByID(entityID);
+        return null;
+    }
 
-		if (entity != null && entity instanceof EntityBlockling) {
-			EntityBlockling blockling = (EntityBlockling) entity;
-			
-			if (id == 0) {
-				return new GuiBlocklingInventory(player.inventory, blockling.inv, blockling, player);
-			} else if (id == 1) {
-				return new GuiBlocklingGeneral(blockling, player);
-			}
-		}
-		
-		return null;
-	}
+    @Override
+    public Object getClientGuiElement(int id, EntityPlayer player, World world, int entityID, int unused1, int unused2)
+    {
+        Entity entity = world.getEntityByID(entityID);
 
+        if (entity != null && entity instanceof EntityBlockling)
+        {
+            EntityBlockling blockling = (EntityBlockling) entity;
+
+            if (id == 0)
+            {
+                return new GuiBlocklingInventory(player.inventory, blockling.inv, blockling, player);
+            }
+            else if (id == 1)
+            {
+                return new GuiBlocklingGeneral(blockling, player);
+            }
+        }
+
+        return null;
+    }
 }

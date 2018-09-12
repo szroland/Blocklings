@@ -2,16 +2,17 @@ package com.blocklings.util.helpers;
 
 public class GuiHelper
 {
-
-    /** * Y offset for all GUI drawing/containers */
+    /**
+     * Y offset for all GUI drawing/containers
+     */
     public static final int YOFFSET = -10;
-    
+
     public enum Tab
     {
-        INVENTORY("Inventory", 0, -111, -81, 22, 22), 
-        GENERAL("General", 1, 87, -81, 22, 22), 
-        COMBAT("Combat", 2, 87, -52, 22, 22), 
-        MINING("Mining", 3, 87, -23, 22, 22), 
+        INVENTORY("Inventory", 0, -111, -81, 22, 22),
+        GENERAL("General", 1, 87, -81, 22, 22),
+        COMBAT("Combat", 2, 87, -52, 22, 22),
+        MINING("Mining", 3, 87, -23, 22, 22),
         WOODCUTTING("Woodcutting", 4, 87, 6, 22, 22);
 
         public String name;
@@ -27,7 +28,7 @@ public class GuiHelper
             this.height = height;
         }
     }
-    
+
     public static Tab getTabAt(int mouseX, int mouseY, int width, int height)
     {
         Tab tab = null;

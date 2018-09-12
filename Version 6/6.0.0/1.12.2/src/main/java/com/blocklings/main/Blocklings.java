@@ -11,8 +11,8 @@ import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 
 @Mod(modid = Blocklings.MODID, name = Blocklings.MODNAME, version = Blocklings.VERSION, useMetadata = true)
-public class Blocklings {
-
+public class Blocklings
+{
     public static final String MODID = "blocklings";
     public static final String MODNAME = "Blocklings";
     public static final String VERSION = "5.0.0a";
@@ -43,5 +43,4 @@ public class Blocklings {
     {
         proxy.postInit(e);
     }
-    
 }

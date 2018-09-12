@@ -14,7 +14,6 @@ import net.minecraft.util.ResourceLocation;
 
 public class GuiBlocklingInventory extends GuiContainer
 {
-
     public static final Tab INVENTORY = Tab.INVENTORY;
 
     private static final ResourceLocation INVENTORY_BACKGROUND = new ResourceLocationBlocklings("textures/gui/inventory.png");
@@ -75,7 +74,6 @@ public class GuiBlocklingInventory extends GuiContainer
     @Override
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY)
     {
-
     }
 
     @Override
@@ -102,5 +100,4 @@ public class GuiBlocklingInventory extends GuiContainer
     {
         return false;
     }
-
 }
