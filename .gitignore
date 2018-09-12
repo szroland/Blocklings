@@ -1,5 +1,6 @@
 *
 !/.gitignore
 !setup.bat
+!/*.txt
 !*/
 !**/src/main/**
