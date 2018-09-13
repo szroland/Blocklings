@@ -42,7 +42,11 @@ public class GuiHandler implements IGuiHandler
             }
             else if (id == 1)
             {
-                return new GuiBlocklingGeneral(blockling, player);
+                return new GuiBlocklingOverall(blockling, player);
+            }
+            else if (id == 2)
+            {
+                return new GuiBlocklingOverall(blockling, player);
             }
         }
 

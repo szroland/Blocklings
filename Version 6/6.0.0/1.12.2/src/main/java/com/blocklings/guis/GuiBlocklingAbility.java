@@ -16,80 +16,37 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-class GuiBlocklingGeneral extends GuiScreen
+abstract class GuiBlocklingAbility extends GuiBlocklingBase
 {
-    private static final ResourceLocation BACKGROUND = new ResourceLocationBlocklings("textures/gui/inventory2_overlay.png");
-    private static final ResourceLocation ABILITIES = new ResourceLocationBlocklings("textures/gui/inventory2_abilities.png");
-    private static final ResourceLocation WINDOW = new ResourceLocationBlocklings("textures/gui/inventory2.png");
+    protected static final ResourceLocation BACKGROUND = new ResourceLocationBlocklings("textures/gui/inventory2_overlay.png");
+    protected static final ResourceLocation ABILITIES = new ResourceLocationBlocklings("textures/gui/inventory2_abilities.png");
+    protected static final ResourceLocation WINDOW = new ResourceLocationBlocklings("textures/gui/inventory2.png");
 
-    private static final int TEXTURE_WIDTH = 232;
-    private static final int TEXTURE_HEIGHT = 166;
+    protected int minScreenX = 0;
+    protected int minScreenY = 0;
+    protected int maxScreenX = 0;
+    protected int maxScreenY = 0;
 
-    private static final int SCREEN_WIDTH = 160;
-    private static final int SCREEN_HEIGHT = 150;
-
-    private List<Ability> abilities = new ArrayList<Ability>();
-
-    private EntityBlockling blockling;
-    private EntityPlayer player;
-
-    private int xSize, ySize, left, top;
-    private int screenLeft, screenTop;
-
-    private int minScreenX = 0;
-    private int minScreenY = 0;
-    private int maxScreenX = 0;
-    private int maxScreenY = 0;
+    protected List<Ability> abilities = new ArrayList<Ability>();
 
     /**
      * Relative x position for ability screen
      */
-    private int x;
+    protected int x;
     /**
      * Relative y position for ability screen
      */
-    private int y;
+    protected int y;
 
-    private int prevMouseX, prevMouseY;
-    private boolean isClicking = false;
-
-    GuiBlocklingGeneral(EntityBlockling blockling, EntityPlayer player)
+    GuiBlocklingAbility(EntityBlockling blockling, EntityPlayer player)
     {
-        super();
-
-        this.blockling = blockling;
-        this.player = player;
-
-        Ability ability0 = new Ability(0, null, -10, -20, 24, 0);
-        Ability ability1 = new Ability(1, ability0, 30, 30, 0, 0);
-        Ability ability2 = new Ability(2, ability0, -40, 90, 0, 0);
-        Ability ability3 = new Ability(3, ability1, 90, 140, 24, 0);
-        Ability ability4 = new Ability(3, ability2, 20, 130, 24, 0);
-
-        abilities.add(ability0);
-        abilities.add(ability1);
-        abilities.add(ability2);
-        abilities.add(ability3);
-        abilities.add(ability4);
-    }
-
-    @Override
-    public boolean doesGuiPauseGame()
-    {
-        return false;
+        super(blockling, player);
     }
 
     @Override
     public void initGui()
     {
-        xSize = 232;
-        ySize = 166;
-
-        left = (width - xSize) / 2;
-        top = (height - ySize) / 2 + GuiHelper.YOFFSET;
-
-        screenLeft = (width - SCREEN_WIDTH) / 2;
-        screenTop = (height - SCREEN_HEIGHT) / 2 + GuiHelper.YOFFSET;
+        super.initGui();
 
         int minX = -10000, minY = -10000;
         int maxX = 10000, maxY = 10000;
@@ -115,11 +72,7 @@ class GuiBlocklingGeneral extends GuiScreen
     @Override
     public void updateScreen()
     {
-        left = (width - xSize) / 2;
-        top = (height - ySize) / 2 + GuiHelper.YOFFSET;
-
-        screenLeft = (width - SCREEN_WIDTH) / 2;
-        screenTop = (height - SCREEN_HEIGHT) / 2 + GuiHelper.YOFFSET;
+        super.updateScreen();
     }
 
     @Override
@@ -164,33 +117,18 @@ class GuiBlocklingGeneral extends GuiScreen
         drawTabTooltip(mouseX, mouseY);
 
         super.drawScreen(mouseX, mouseY, partialTicks);
-
-        prevMouseX = mouseX;
-        prevMouseY = mouseY;
     }
 
     @Override
     protected void mouseReleased(int mouseX, int mouseY, int state)
     {
-        Tab tab = GuiHelper.getTabAt(mouseX, mouseY, width, height);
-
-        if (tab != null && blockling.getGuiID() != tab.id)
-        {
-            blockling.openGui(tab.id, player);
-        }
-
-        isClicking = false;
+        super.mouseReleased(mouseX, mouseY, state);
     }
 
     @Override
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException
     {
         super.mouseClicked(mouseX, mouseY, mouseButton);
-
-        if (isMouseOverScreen(mouseX, mouseY))
-        {
-            isClicking = true;
-        }
     }
 
     /**
@@ -305,19 +243,6 @@ class GuiBlocklingGeneral extends GuiScreen
     }
 
     /**
-     * Draw tooltip on tab when if mouse is over one
-     */
-    private void drawTabTooltip(int mouseX, int mouseY)
-    {
-        Tab tab = GuiHelper.getTabAt(mouseX, mouseY, width, height);
-
-        if (tab != null)
-        {
-            drawHoveringText(tab.name, mouseX, mouseY);
-        }
-    }
-
-    /**
      * Draw an ability while taking into account the relative position of it
      */
     private void drawAbility(Ability ability)
@@ -361,22 +286,6 @@ class GuiBlocklingGeneral extends GuiScreen
 
         if (difX <= ability.width && difY <= ability.height)
             drawTexturedModalRect(screenLeft + x + ability.x + startX, screenTop + y + ability.y + startY, ability.textureX + startDrawX, ability.textureY + startDrawY, ability.width - difX, ability.height - difY);
-    }
-
-    /**
-     * Check if mouse position is within a certain area
-     */
-    private boolean isMouseOver(int mouseX, int mouseY, int left, int top, int width, int height)
-    {
-        return mouseX >= left && mouseX < left + width && mouseY >= top && mouseY <= top + height;
-    }
-
-    /**
-     * Check if mouse position is currently over the central ability window
-     */
-    private boolean isMouseOverScreen(int mouseX, int mouseY)
-    {
-        return isMouseOver(mouseX, mouseY, screenLeft, screenTop, SCREEN_WIDTH, SCREEN_HEIGHT);
     }
 
     /**
