@@ -1,4 +1,4 @@
-package com.blocklings.guis;
+package com.blocklings.gui;
 
 import com.blocklings.inventories.InventoryBlockling;
 import com.blocklings.util.helpers.GuiHelper;

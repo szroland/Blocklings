@@ -1,4 +1,4 @@
-package com.blocklings.guis;
+package com.blocklings.gui;
 
 import com.blocklings.entities.EntityBlockling;
 

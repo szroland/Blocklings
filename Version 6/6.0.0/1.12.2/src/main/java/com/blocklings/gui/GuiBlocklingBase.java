@@ -1,20 +1,12 @@
-package com.blocklings.guis;
+package com.blocklings.gui;
 
-import com.blocklings.abilities.Ability;
 import com.blocklings.entities.EntityBlockling;
-import com.blocklings.util.ResourceLocationBlocklings;
 import com.blocklings.util.helpers.GuiHelper;
 import com.blocklings.util.helpers.GuiHelper.Tab;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.ResourceLocation;
-import org.jline.utils.Log;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 abstract class GuiBlocklingBase extends GuiScreen
 {

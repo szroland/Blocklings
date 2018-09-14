@@ -1,11 +1,8 @@
-package com.blocklings.guis;
+package com.blocklings.gui;
 
 import com.blocklings.entities.EntityBlockling;
 import com.blocklings.abilities.Ability;
-import com.blocklings.util.helpers.GuiHelper;
-import com.blocklings.util.helpers.GuiHelper.Tab;
 import com.blocklings.util.ResourceLocationBlocklings;
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.entity.player.EntityPlayer;
@@ -20,6 +17,8 @@ abstract class GuiBlocklingAbility extends GuiBlocklingBase
 {
     protected static final ResourceLocation BACKGROUND = new ResourceLocationBlocklings("textures/gui/inventory2_overlay.png");
     protected static final ResourceLocation ABILITIES = new ResourceLocationBlocklings("textures/gui/inventory2_abilities.png");
+    protected static final ResourceLocation ABILITIES2 = new ResourceLocationBlocklings("textures/gui/inventory2_abilities2.png");
+    protected static final ResourceLocation ABILITIES3 = new ResourceLocationBlocklings("textures/gui/inventory2_abilities3.png");
     protected static final ResourceLocation WINDOW = new ResourceLocationBlocklings("textures/gui/inventory2.png");
 
     protected int minScreenX = 0;
@@ -38,6 +37,10 @@ abstract class GuiBlocklingAbility extends GuiBlocklingBase
      */
     protected int y;
 
+    private int beforeReleaseX, beforeReleaseY;
+
+    protected boolean init = true;
+
     GuiBlocklingAbility(EntityBlockling blockling, EntityPlayer player)
     {
         super(blockling, player);
@@ -48,25 +51,30 @@ abstract class GuiBlocklingAbility extends GuiBlocklingBase
     {
         super.initGui();
 
-        int minX = -10000, minY = -10000;
-        int maxX = 10000, maxY = 10000;
-
-        for (Ability ability : abilities)
+        if (init)
         {
-            minX = ability.x + ability.width > minX ? ability.x + ability.width : minX;
-            minY = ability.y + ability.height > minY ? ability.y + ability.height : minY;
+            int minX = -10000, minY = -10000;
+            int maxX = 10000, maxY = 10000;
 
-            maxX = ability.x < maxX ? ability.x : maxX;
-            maxY = ability.y < maxY ? ability.y : maxY;
+            for (Ability ability : abilities)
+            {
+                minX = ability.x + ability.width > minX ? ability.x + ability.width : minX;
+                minY = ability.y + ability.height > minY ? ability.y + ability.height : minY;
+
+                maxX = ability.x < maxX ? ability.x : maxX;
+                maxY = ability.y < maxY ? ability.y : maxY;
+            }
+
+            minScreenX = SCREEN_WIDTH - minX - 50;
+            minScreenY = SCREEN_HEIGHT - minY - 50;
+            maxScreenX = -maxX + 50;
+            maxScreenY = -maxY + 50;
+
+            x = minScreenX + ((maxScreenX - minScreenX) / 2);
+            y = minScreenY + ((maxScreenY - minScreenY) / 2);
+
+            init = false;
         }
-
-        minScreenX = SCREEN_WIDTH - minX - 50;
-        minScreenY = SCREEN_HEIGHT - minY - 50;
-        maxScreenX = -maxX + 50;
-        maxScreenY = -maxY + 50;
-
-        x = minScreenX + ((maxScreenX - minScreenX) / 2);
-        y = minScreenY + ((maxScreenY - minScreenY) / 2);
     }
 
     @Override
@@ -123,12 +131,24 @@ abstract class GuiBlocklingAbility extends GuiBlocklingBase
     protected void mouseReleased(int mouseX, int mouseY, int state)
     {
         super.mouseReleased(mouseX, mouseY, state);
+
+        Ability ability = getAbilityAtMouseLocation(mouseX, mouseY);
+
+        if (ability != null && beforeReleaseX == x && beforeReleaseY == y)
+        {
+            if (ability.state == Ability.State.UNLOCKED) ability.state = Ability.State.ACQUIRED;
+            else if (ability.state == Ability.State.ACQUIRED) ability.state = Ability.State.LOCKED;
+            else if (ability.state == Ability.State.LOCKED) ability.state = Ability.State.UNLOCKED;
+        }
     }
 
     @Override
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException
     {
         super.mouseClicked(mouseX, mouseY, mouseButton);
+
+        beforeReleaseX = x;
+        beforeReleaseY = y;
     }
 
     /**
@@ -142,6 +162,20 @@ abstract class GuiBlocklingAbility extends GuiBlocklingBase
         {
             for (Ability child : ability.getChildren(abilities))
             {
+                int colour1 = 0xff6a6a6a;
+                int colour2 = 0xff121212;
+
+                if (child.state == Ability.State.LOCKED)
+                {
+                    colour1 = 0xff454545;
+                    colour2 = 0xff121212;
+                }
+                else if (child.state == Ability.State.ACQUIRED)
+                {
+                    colour1 = 0xffdddddd;
+                    colour2 = 0xff121212;
+                }
+
                 int abilityX = ability.x + (ability.width / 2), abilityY = ability.y + (ability.height / 2);
                 int childX = child.x + (child.width / 2), childY = child.y + (child.height / 2);
 
@@ -186,44 +220,44 @@ abstract class GuiBlocklingAbility extends GuiBlocklingBase
                 if (difX < 0)
                     changeX = -1;
 
-                drawHorizontalLine(startX + changeX, endX + changeX, startY + changeY, 0xff333333);
+                drawHorizontalLine(startX + changeX, endX + changeX, startY + changeY, colour1);
                 if (difX > 0)
-                    drawVerticalLine(startX + changeX, endY + changeY, startY + changeY, 0xff333333);
+                    drawVerticalLine(startX + changeX, endY + changeY, startY + changeY, colour1);
                 else
-                    drawVerticalLine(endX + changeX, endY + changeY, startY + changeY, 0xff333333);
+                    drawVerticalLine(endX + changeX, endY + changeY, startY + changeY, colour1);
 
                 changeX = -1;
                 changeY = -1;
                 if (difX < 0)
                     changeX = 0;
 
-                drawHorizontalLine(startX + changeX, endX + changeX, startY + changeY, 0xff333333);
+                drawHorizontalLine(startX + changeX, endX + changeX, startY + changeY, colour1);
                 if (difX > 0)
-                    drawVerticalLine(startX + changeX, endY + changeY, startY + changeY, 0xff333333);
+                    drawVerticalLine(startX + changeX, endY + changeY, startY + changeY, colour1);
                 else
-                    drawVerticalLine(endX + changeX, endY + changeY, startY + changeY, 0xff333333);
+                    drawVerticalLine(endX + changeX, endY + changeY, startY + changeY, colour1);
 
                 changeX = -2;
                 changeY = -2;
                 if (difX < 0)
                     changeX = 1;
 
-                drawHorizontalLine(startX + changeX, endX + changeX, startY + changeY, 0xffffffff);
+                drawHorizontalLine(startX + changeX, endX + changeX, startY + changeY, colour2);
                 if (difX > 0)
-                    drawVerticalLine(startX + changeX, endY + changeY, startY + changeY, 0xffffffff);
+                    drawVerticalLine(startX + changeX, endY + changeY, startY + changeY, colour2);
                 else
-                    drawVerticalLine(endX + changeX, endY + changeY, startY + changeY, 0xffffffff);
+                    drawVerticalLine(endX + changeX, endY + changeY, startY + changeY, colour2);
 
                 changeX = 1;
                 changeY = 1;
                 if (difX < 0)
                     changeX = -2;
 
-                drawHorizontalLine(startX + changeX, endX + changeX, startY + changeY, 0xffffffff);
+                drawHorizontalLine(startX + changeX, endX + changeX, startY + changeY, colour2);
                 if (difX > 0)
-                    drawVerticalLine(startX + changeX, endY + changeY, startY + changeY, 0xffffffff);
+                    drawVerticalLine(startX + changeX, endY + changeY, startY + changeY, colour2);
                 else
-                    drawVerticalLine(endX + changeX, endY + changeY, startY + changeY, 0xffffffff);
+                    drawVerticalLine(endX + changeX, endY + changeY, startY + changeY, colour2);
             }
         }
     }
@@ -233,9 +267,6 @@ abstract class GuiBlocklingAbility extends GuiBlocklingBase
      */
     private void drawAbilities()
     {
-        // Need to bind the abilities texture before drawing
-        mc.getTextureManager().bindTexture(ABILITIES);
-
         for (Ability ability : abilities)
         {
             drawAbility(ability);
@@ -250,6 +281,10 @@ abstract class GuiBlocklingAbility extends GuiBlocklingBase
         GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
         GlStateManager.enableBlend();
         RenderHelper.disableStandardItemLighting();
+
+        mc.getTextureManager().bindTexture(ABILITIES);
+        if (ability.state == Ability.State.ACQUIRED) mc.getTextureManager().bindTexture(ABILITIES2);
+        else if (ability.state == Ability.State.LOCKED) mc.getTextureManager().bindTexture(ABILITIES3);
 
         int startX = 0, startY = 0;
         int startDrawX = 0;
@@ -301,7 +336,7 @@ abstract class GuiBlocklingAbility extends GuiBlocklingBase
                 {
                     if (mouseY >= actualAbilityY(ability) && mouseY < actualAbilityY(ability) + ability.height)
                     {
-                        Log.info(ability.id);
+                        return ability;
                     }
                 }
             }

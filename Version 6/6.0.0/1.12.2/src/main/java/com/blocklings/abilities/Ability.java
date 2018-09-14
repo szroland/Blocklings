@@ -5,7 +5,10 @@ import java.util.List;
 
 public class Ability
 {
+    public enum State { LOCKED, UNLOCKED, ACQUIRED }
+
     public int id, x, y, width = 24, height = 24, textureX, textureY;
+    public State state = State.LOCKED;
     public Ability parentAbility;
 
     public Ability(int id, Ability parentAbility, int textureX, int textureY)
