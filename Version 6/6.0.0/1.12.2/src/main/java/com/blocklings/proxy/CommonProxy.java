@@ -1,6 +1,6 @@
 package com.blocklings.proxy;
 
-import com.blocklings.gui.GuiHandler;
+import com.blocklings.guis.GuiHandler;
 import com.blocklings.main.Blocklings;
 import com.blocklings.util.helpers.EntityHelper;
 import com.blocklings.util.helpers.NetworkHelper;

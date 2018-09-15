@@ -1,4 +1,4 @@
-package com.blocklings.gui;
+package com.blocklings.guis;
 
 import com.blocklings.entities.EntityBlockling;
 import com.blocklings.inventories.InventoryBlockling;
@@ -16,7 +16,7 @@ public class GuiBlocklingInventory extends GuiContainer
 {
     public static final Tab INVENTORY = Tab.INVENTORY;
 
-    private static final ResourceLocation INVENTORY_BACKGROUND = new ResourceLocationBlocklings("textures/gui/inventory.png");
+    private static final ResourceLocation INVENTORY_BACKGROUND = new ResourceLocationBlocklings("textures/guis/inventory.png");
 
     private EntityBlockling blockling;
     private EntityPlayer player;

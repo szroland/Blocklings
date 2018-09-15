@@ -1,4 +1,4 @@
-package com.blocklings.gui;
+package com.blocklings.guis;
 
 import com.blocklings.entities.EntityBlockling;
 import com.blocklings.abilities.Ability;
@@ -6,20 +6,23 @@ import com.blocklings.util.ResourceLocationBlocklings;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Items;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import org.jline.utils.Log;
 
+import java.awt.Color;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 abstract class GuiBlocklingAbility extends GuiBlocklingBase
 {
-    protected static final ResourceLocation BACKGROUND = new ResourceLocationBlocklings("textures/gui/inventory2_overlay.png");
-    protected static final ResourceLocation ABILITIES = new ResourceLocationBlocklings("textures/gui/inventory2_abilities.png");
-    protected static final ResourceLocation ABILITIES2 = new ResourceLocationBlocklings("textures/gui/inventory2_abilities2.png");
-    protected static final ResourceLocation ABILITIES3 = new ResourceLocationBlocklings("textures/gui/inventory2_abilities3.png");
-    protected static final ResourceLocation WINDOW = new ResourceLocationBlocklings("textures/gui/inventory2.png");
+    protected static final ResourceLocation BACKGROUND = new ResourceLocationBlocklings("textures/guis/inventory2_overlay.png");
+    protected static final ResourceLocation ABILITIES = new ResourceLocationBlocklings("textures/guis/inventory2_abilities.png");
+    protected static final ResourceLocation ABILITIES2 = new ResourceLocationBlocklings("textures/guis/inventory2_abilities2.png");
+    protected static final ResourceLocation ABILITIES3 = new ResourceLocationBlocklings("textures/guis/inventory2_abilities3.png");
+    protected static final ResourceLocation WINDOW = new ResourceLocationBlocklings("textures/guis/inventory2.png");
 
     protected int minScreenX = 0;
     protected int minScreenY = 0;
@@ -36,6 +39,8 @@ abstract class GuiBlocklingAbility extends GuiBlocklingBase
      * Relative y position for ability screen
      */
     protected int y;
+
+    protected Ability hoveredAbility;
 
     private int beforeReleaseX, beforeReleaseY;
 
@@ -86,6 +91,8 @@ abstract class GuiBlocklingAbility extends GuiBlocklingBase
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
+        hoveredAbility = getAbilityAtMouseLocation(mouseX, mouseY);
+
         if (isClicking)
         {
             x += mouseX - prevMouseX;
@@ -109,7 +116,7 @@ abstract class GuiBlocklingAbility extends GuiBlocklingBase
 
         // Draw background
         mc.getTextureManager().bindTexture(BACKGROUND);
-        drawTexturedModalRect(screenLeft, screenTop, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+        drawTexturedModalRect(screenLeft, screenTop, 16 - Math.abs((x + 10000) % 16), 16 - Math.abs((y + 10000) % 16), SCREEN_WIDTH, SCREEN_HEIGHT);
 
         drawLines();
         drawAbilities();
@@ -118,11 +125,28 @@ abstract class GuiBlocklingAbility extends GuiBlocklingBase
         GlStateManager.enableBlend();
         RenderHelper.disableStandardItemLighting();
 
+        int colour = 0x00ffffff;
+        if (getAbilityAtMouseLocation(mouseX, mouseY) != null) colour = 0x6a000000;
+        drawRect(screenLeft, screenTop, screenLeft + SCREEN_WIDTH, screenTop + SCREEN_HEIGHT, colour);
+
+        GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+        GlStateManager.enableBlend();
+        RenderHelper.disableStandardItemLighting();
+
         // Draw main window
         mc.getTextureManager().bindTexture(WINDOW);
+
+        zLevel += 10;
         drawTexturedModalRect(left, top, 0, 0, TEXTURE_WIDTH, TEXTURE_HEIGHT);
+        GlStateManager.translate(0, 0, 11);
+        fontRenderer.drawString("30", screenLeft + 12, screenTop - 1, 0x333333);
+        fontRenderer.drawString("30", screenLeft + 11, screenTop - 2, 0xffffff);
+        GlStateManager.translate(0, 0, -11);
+        zLevel -= 10;
 
         drawTabTooltip(mouseX, mouseY);
+
+        drawHover();
 
         super.drawScreen(mouseX, mouseY, partialTicks);
     }
@@ -149,6 +173,40 @@ abstract class GuiBlocklingAbility extends GuiBlocklingBase
 
         beforeReleaseX = x;
         beforeReleaseY = y;
+    }
+
+    protected void drawHover()
+    {
+        mc.getTextureManager().bindTexture(WINDOW);
+        zLevel += 10;
+
+        if (hoveredAbility != null)
+        {
+            String text1 = hoveredAbility.text1;
+            String text2 = hoveredAbility.text2;
+            int width1 = fontRenderer.getStringWidth(text1);
+            int width2 = fontRenderer.getStringWidth(text2);
+
+            int startX = actualAbilityX(hoveredAbility) - 5, startY = actualAbilityY(hoveredAbility) + 3;
+            int width = 90;
+
+            if (width1 > width2) width = width1 + 34;
+            else width = width2;
+
+            drawTexturedModalRect(startX, startY + 14, 0, TEXTURE_HEIGHT + 20, width, 20);
+            drawTexturedModalRect(startX + width, startY + 14, 192, TEXTURE_HEIGHT + 20, 8, 20);
+            GlStateManager.color(hoveredAbility.colour.getRed() / 255f, hoveredAbility.colour.getGreen() / 255f, hoveredAbility.colour.getBlue() / 255f);
+            drawTexturedModalRect(startX, startY, 0, TEXTURE_HEIGHT, width, 20);
+            drawTexturedModalRect(startX + width, startY, 192, TEXTURE_HEIGHT, 8, 20);
+            GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+
+            GlStateManager.translate(0, 0, 25);
+            fontRenderer.drawString(text1, startX + 34, startY + 6, 0xffffff, true);
+            fontRenderer.drawString(text2, startX + 4, startY + 22, 0xeeeeee, true);
+            GlStateManager.translate(0, 0, -25);
+        }
+
+        zLevel -= 10;
     }
 
     /**
@@ -185,6 +243,7 @@ abstract class GuiBlocklingAbility extends GuiBlocklingBase
                 int startX = screenLeft + x + abilityX, endX = screenLeft + x + cornerX;
                 int startY = screenTop + y + abilityY, endY = screenTop + y + cornerY;
 
+                // Swap start and end x values so always draw left to right
                 if (difX > 0)
                 {
                     int i = startX;
@@ -204,16 +263,16 @@ abstract class GuiBlocklingAbility extends GuiBlocklingBase
                     startX = screenLeft + SCREEN_WIDTH;
                 if (startY < screenTop)
                     startY = screenTop;
-                else if (startY > screenTop + SCREEN_HEIGHT)
-                    startY = screenTop + SCREEN_HEIGHT;
+                else if (startY > screenTop + SCREEN_HEIGHT + 4)
+                    startY = screenTop + SCREEN_HEIGHT + 4;
                 if (endX < screenLeft)
                     endX = screenLeft;
                 else if (endX > screenLeft + SCREEN_WIDTH)
                     endX = screenLeft + SCREEN_WIDTH;
                 if (endY < screenTop)
                     endY = screenTop;
-                else if (endY > screenTop + SCREEN_HEIGHT)
-                    endY = screenTop + SCREEN_HEIGHT;
+                else if (endY > screenTop + SCREEN_HEIGHT + 4)
+                    endY = screenTop + SCREEN_HEIGHT + 4;
 
                 int changeX = 0;
                 int changeY = 0;
@@ -222,9 +281,15 @@ abstract class GuiBlocklingAbility extends GuiBlocklingBase
 
                 drawHorizontalLine(startX + changeX, endX + changeX, startY + changeY, colour1);
                 if (difX > 0)
+                {
                     drawVerticalLine(startX + changeX, endY + changeY, startY + changeY, colour1);
+                    drawVerticalLine(startX + changeX, endY + changeY - 2, endY + changeY, colour2);
+                }
                 else
+                {
                     drawVerticalLine(endX + changeX, endY + changeY, startY + changeY, colour1);
+                    drawVerticalLine(endX + changeX, endY + changeY - 2, endY + changeY, colour2);
+                }
 
                 changeX = -1;
                 changeY = -1;
@@ -233,9 +298,15 @@ abstract class GuiBlocklingAbility extends GuiBlocklingBase
 
                 drawHorizontalLine(startX + changeX, endX + changeX, startY + changeY, colour1);
                 if (difX > 0)
+                {
                     drawVerticalLine(startX + changeX, endY + changeY, startY + changeY, colour1);
+                    drawVerticalLine(startX + changeX, endY + changeY - 2, endY + changeY, colour2);
+                }
                 else
+                {
                     drawVerticalLine(endX + changeX, endY + changeY, startY + changeY, colour1);
+                    drawVerticalLine(endX + changeX, endY + changeY - 2, endY + changeY, colour2);
+                }
 
                 changeX = -2;
                 changeY = -2;
@@ -244,9 +315,13 @@ abstract class GuiBlocklingAbility extends GuiBlocklingBase
 
                 drawHorizontalLine(startX + changeX, endX + changeX, startY + changeY, colour2);
                 if (difX > 0)
-                    drawVerticalLine(startX + changeX, endY + changeY, startY + changeY, colour2);
+                {
+                    drawVerticalLine(startX + changeX, endY + changeY - 2, startY + changeY, colour2);
+                }
                 else
-                    drawVerticalLine(endX + changeX, endY + changeY, startY + changeY, colour2);
+                {
+                    drawVerticalLine(endX + changeX, endY + changeY - 2, startY + changeY, colour2);
+                }
 
                 changeX = 1;
                 changeY = 1;
@@ -255,9 +330,13 @@ abstract class GuiBlocklingAbility extends GuiBlocklingBase
 
                 drawHorizontalLine(startX + changeX, endX + changeX, startY + changeY, colour2);
                 if (difX > 0)
-                    drawVerticalLine(startX + changeX, endY + changeY, startY + changeY, colour2);
+                {
+                    drawVerticalLine(startX + changeX, endY + changeY - 2, startY + changeY, colour2);
+                }
                 else
-                    drawVerticalLine(endX + changeX, endY + changeY, startY + changeY, colour2);
+                {
+                    drawVerticalLine(endX + changeX, endY + changeY - 2, startY + changeY, colour2);
+                }
             }
         }
     }
@@ -291,36 +370,52 @@ abstract class GuiBlocklingAbility extends GuiBlocklingBase
         int startDrawY = 0;
         int difX = 0, difY = 0;
 
-        if (x + ability.x < 0)
+        if (hoveredAbility == null || hoveredAbility != ability)
         {
-            difX = -(x + ability.x);
-            startX = difX;
-            startDrawX = difX;
-        }
+            if (x + ability.x < 0)
+            {
+                difX = -(x + ability.x);
+                startX = difX;
+                startDrawX = difX;
+            }
 
-        if (x + ability.x + ability.width > SCREEN_WIDTH)
-        {
-            difX = -(SCREEN_WIDTH - (x + ability.x + ability.width));
-            startX = 0;
-            startDrawX = 0;
-        }
+            if (x + ability.x + ability.width > SCREEN_WIDTH)
+            {
+                difX = -(SCREEN_WIDTH - (x + ability.x + ability.width));
+                startX = 0;
+                startDrawX = 0;
+            }
 
-        if (y + ability.y < 0)
-        {
-            difY = -(y + ability.y);
-            startY = difY;
-            startDrawY = difY;
-        }
+            if (y + ability.y < 0)
+            {
+                difY = -(y + ability.y);
+                startY = difY;
+                startDrawY = difY;
+            }
 
-        if (y + ability.y + ability.height > SCREEN_HEIGHT)
-        {
-            difY = -(SCREEN_HEIGHT - (y + ability.y + ability.height));
-            startY = 0;
-            startDrawY = 0;
+            if (y + ability.y + ability.height > SCREEN_HEIGHT)
+            {
+                difY = -(SCREEN_HEIGHT - (y + ability.y + ability.height));
+                startY = 0;
+                startDrawY = 0;
+            }
         }
 
         if (difX <= ability.width && difY <= ability.height)
-            drawTexturedModalRect(screenLeft + x + ability.x + startX, screenTop + y + ability.y + startY, ability.textureX + startDrawX, ability.textureY + startDrawY, ability.width - difX, ability.height - difY);
+        {
+            if (hoveredAbility != null)
+            {
+                int i = hoveredAbility == ability ? 15 : 0;
+
+                zLevel+=i;
+                drawTexturedModalRect(screenLeft + x + ability.x + startX, screenTop + y + ability.y + startY, ability.textureX + startDrawX, ability.textureY + startDrawY, ability.width - difX, ability.height - difY);
+                zLevel-=i;
+            }
+            else
+            {
+                drawTexturedModalRect(screenLeft + x + ability.x + startX, screenTop + y + ability.y + startY, ability.textureX + startDrawX, ability.textureY + startDrawY, ability.width - difX, ability.height - difY);
+            }
+        }
     }
 
     /**
