@@ -9,6 +9,8 @@ import com.blocklings.network.CombatLevelMessage;
 import com.blocklings.network.MiningLevelMessage;
 import com.blocklings.network.WoodcuttingLevelMessage;
 import com.blocklings.util.helpers.NetworkHelper;
+import com.blocklings.util.helpers.GuiHelper.Tab;
+
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.EntityAgeable;
 import net.minecraft.entity.EntityLiving;
@@ -214,16 +216,32 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
     {
         if (world.isRemote)
         {
-            if (guiID == 0)
+            if (guiID == Tab.STATS.id)
+                player.openGui(Blocklings.instance, guiID, world, getEntityId(), 0, 0);
+            else if (guiID == Tab.INVENTORY.id)
                 NetworkHelper.sync(world, new OpenGuiMessage(getEntityId()));
-            if (guiID == 1)
+            else if (guiID == Tab.GENERAL.id)
+                player.openGui(Blocklings.instance, guiID, world, getEntityId(), 0, 0);
+            else if (guiID == Tab.COMBAT.id)
+                player.openGui(Blocklings.instance, guiID, world, getEntityId(), 0, 0);
+            else if (guiID == Tab.MINING.id)
+                player.openGui(Blocklings.instance, guiID, world, getEntityId(), 0, 0);
+            else if (guiID == Tab.WOODCUTTING.id)
                 player.openGui(Blocklings.instance, guiID, world, getEntityId(), 0, 0);
         }
         else
         {
-            if (guiID == 0)
+            if (guiID == Tab.STATS.id)
+                NetworkHelper.sync(world, new OpenGuiMessage(getEntityId()));
+            else if (guiID == Tab.INVENTORY.id)
                 player.openGui(Blocklings.instance, guiID, world, getEntityId(), 0, 0);
-            if (guiID == 1)
+            else if (guiID == Tab.GENERAL.id)
+                NetworkHelper.sync(world, new OpenGuiMessage(getEntityId()));
+            else if (guiID == Tab.COMBAT.id)
+                NetworkHelper.sync(world, new OpenGuiMessage(getEntityId()));
+            else if (guiID == Tab.MINING.id)
+                NetworkHelper.sync(world, new OpenGuiMessage(getEntityId()));
+            else if (guiID == Tab.WOODCUTTING.id)
                 NetworkHelper.sync(world, new OpenGuiMessage(getEntityId()));
         }
     }

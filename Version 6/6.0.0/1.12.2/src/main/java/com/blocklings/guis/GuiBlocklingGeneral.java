@@ -2,14 +2,16 @@ package com.blocklings.guis;
 
 import com.blocklings.abilities.Ability;
 import com.blocklings.entities.EntityBlockling;
+import com.blocklings.util.ResourceLocationBlocklings;
+import com.blocklings.util.helpers.GuiHelper;
 import net.minecraft.entity.player.EntityPlayer;
 
 import java.awt.*;
 import java.io.IOException;
 
-class GuiBlocklingOverall extends GuiBlocklingAbility
+class GuiBlocklingGeneral extends GuiBlocklingAbility
 {
-    GuiBlocklingOverall(EntityBlockling blockling, EntityPlayer player)
+    GuiBlocklingGeneral(EntityBlockling blockling, EntityPlayer player)
     {
         super(blockling, player);
     }
@@ -40,32 +42,10 @@ class GuiBlocklingOverall extends GuiBlocklingAbility
             abilities.add(ability4);
             abilities.add(ability5);
             abilities.add(ability6);
+
+            WINDOW = new ResourceLocationBlocklings("textures/guis/inventory" + GuiHelper.Tab.GENERAL.id + ".png");
         }
 
         super.initGui();
-    }
-
-    @Override
-    public void updateScreen()
-    {
-        super.updateScreen();
-    }
-
-    @Override
-    public void drawScreen(int mouseX, int mouseY, float partialTicks)
-    {
-        super.drawScreen(mouseX, mouseY, partialTicks);
-    }
-
-    @Override
-    protected void mouseReleased(int mouseX, int mouseY, int state)
-    {
-        super.mouseReleased(mouseX, mouseY, state);
-    }
-
-    @Override
-    protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException
-    {
-        super.mouseClicked(mouseX, mouseY, mouseButton);
     }
 }

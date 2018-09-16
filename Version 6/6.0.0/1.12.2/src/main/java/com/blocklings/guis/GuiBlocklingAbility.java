@@ -3,26 +3,23 @@ package com.blocklings.guis;
 import com.blocklings.entities.EntityBlockling;
 import com.blocklings.abilities.Ability;
 import com.blocklings.util.ResourceLocationBlocklings;
+import com.blocklings.util.helpers.GuiHelper;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Items;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
-import org.jline.utils.Log;
 
-import java.awt.Color;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 abstract class GuiBlocklingAbility extends GuiBlocklingBase
 {
-    protected static final ResourceLocation BACKGROUND = new ResourceLocationBlocklings("textures/guis/inventory2_overlay.png");
-    protected static final ResourceLocation ABILITIES = new ResourceLocationBlocklings("textures/guis/inventory2_abilities.png");
-    protected static final ResourceLocation ABILITIES2 = new ResourceLocationBlocklings("textures/guis/inventory2_abilities2.png");
-    protected static final ResourceLocation ABILITIES3 = new ResourceLocationBlocklings("textures/guis/inventory2_abilities3.png");
-    protected static final ResourceLocation WINDOW = new ResourceLocationBlocklings("textures/guis/inventory2.png");
+    protected static final ResourceLocation BACKGROUND = new ResourceLocationBlocklings("textures/guis/inventory_overlay.png");
+    protected static final ResourceLocation ABILITIES = new ResourceLocationBlocklings("textures/guis/inventory_abilities.png");
+    protected static final ResourceLocation ABILITIES2 = new ResourceLocationBlocklings("textures/guis/inventory_abilities2.png");
+    protected static final ResourceLocation ABILITIES3 = new ResourceLocationBlocklings("textures/guis/inventory_abilities3.png");
+    protected static ResourceLocation WINDOW = new ResourceLocationBlocklings("textures/guis/inventory3.png");
 
     protected int minScreenX = 0;
     protected int minScreenY = 0;
@@ -40,11 +37,19 @@ abstract class GuiBlocklingAbility extends GuiBlocklingBase
      */
     protected int y;
 
+    /**
+     * Current ability the mouse is over
+     * Will return null if no ability
+     */
     protected Ability hoveredAbility;
 
-    private int beforeReleaseX, beforeReleaseY;
-
+    /**
+     * Needed to ensure screen isn't reset when resizing window/maximising
+     * This is because initGui is called again on any screen size change
+     */
     protected boolean init = true;
+
+    private int beforeReleaseX, beforeReleaseY;
 
     GuiBlocklingAbility(EntityBlockling blockling, EntityPlayer player)
     {
@@ -70,10 +75,10 @@ abstract class GuiBlocklingAbility extends GuiBlocklingBase
                 maxY = ability.y < maxY ? ability.y : maxY;
             }
 
-            minScreenX = SCREEN_WIDTH - minX - 50;
-            minScreenY = SCREEN_HEIGHT - minY - 50;
-            maxScreenX = -maxX + 50;
-            maxScreenY = -maxY + 50;
+            minScreenX = SCREEN_WIDTH - minX - 35;
+            minScreenY = SCREEN_HEIGHT - minY - 35;
+            maxScreenX = -maxX + 35;
+            maxScreenY = -maxY + 35;
 
             x = minScreenX + ((maxScreenX - minScreenX) / 2);
             y = minScreenY + ((maxScreenY - minScreenY) / 2);
@@ -93,26 +98,10 @@ abstract class GuiBlocklingAbility extends GuiBlocklingBase
     {
         hoveredAbility = getAbilityAtMouseLocation(mouseX, mouseY);
 
-        if (isClicking)
-        {
-            x += mouseX - prevMouseX;
-            y += mouseY - prevMouseY;
-        }
-
-        if (x < minScreenX)
-            x = minScreenX;
-        else if (x > maxScreenX)
-            x = maxScreenX;
-        if (y < minScreenY)
-            y = minScreenY;
-        else if (y > maxScreenY)
-            y = maxScreenY;
+        updateXY(mouseX, mouseY);
 
         drawDefaultBackground();
-
-        GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-        GlStateManager.enableBlend();
-        RenderHelper.disableStandardItemLighting();
+        setDefaultRenderSettings();
 
         // Draw background
         mc.getTextureManager().bindTexture(BACKGROUND);
@@ -121,30 +110,19 @@ abstract class GuiBlocklingAbility extends GuiBlocklingBase
         drawLines();
         drawAbilities();
 
-        GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-        GlStateManager.enableBlend();
-        RenderHelper.disableStandardItemLighting();
+        setDefaultRenderSettings();
 
+        // Darken ability area when hovering over ability
         int colour = 0x00ffffff;
         if (getAbilityAtMouseLocation(mouseX, mouseY) != null) colour = 0x6a000000;
         drawRect(screenLeft, screenTop, screenLeft + SCREEN_WIDTH, screenTop + SCREEN_HEIGHT, colour);
 
-        GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-        GlStateManager.enableBlend();
-        RenderHelper.disableStandardItemLighting();
+        setDefaultRenderSettings();
 
         // Draw main window
         mc.getTextureManager().bindTexture(WINDOW);
 
-        zLevel += 10;
-        drawTexturedModalRect(left, top, 0, 0, TEXTURE_WIDTH, TEXTURE_HEIGHT);
-        GlStateManager.translate(0, 0, 11);
-        fontRenderer.drawString("30", screenLeft + 12, screenTop - 1, 0x333333);
-        fontRenderer.drawString("30", screenLeft + 11, screenTop - 2, 0xffffff);
-        GlStateManager.translate(0, 0, -11);
-        zLevel -= 10;
-
-        drawTabTooltip(mouseX, mouseY);
+        drawWindow();
 
         drawHover();
 
@@ -154,16 +132,26 @@ abstract class GuiBlocklingAbility extends GuiBlocklingBase
     @Override
     protected void mouseReleased(int mouseX, int mouseY, int state)
     {
-        super.mouseReleased(mouseX, mouseY, state);
-
-        Ability ability = getAbilityAtMouseLocation(mouseX, mouseY);
-
-        if (ability != null && beforeReleaseX == x && beforeReleaseY == y)
+        if (beforeReleaseX == x && beforeReleaseY == y)
         {
-            if (ability.state == Ability.State.UNLOCKED) ability.state = Ability.State.ACQUIRED;
-            else if (ability.state == Ability.State.ACQUIRED) ability.state = Ability.State.LOCKED;
-            else if (ability.state == Ability.State.LOCKED) ability.state = Ability.State.UNLOCKED;
+            Ability ability = getAbilityAtMouseLocation(mouseX, mouseY);
+
+            if (ability != null)
+            {
+                if (ability.state == Ability.State.UNLOCKED) ability.state = Ability.State.ACQUIRED;
+                else if (ability.state == Ability.State.ACQUIRED) ability.state = Ability.State.LOCKED;
+                else if (ability.state == Ability.State.LOCKED) ability.state = Ability.State.UNLOCKED;
+            }
+
+            GuiHelper.Tab tab = GuiHelper.getTabAt(mouseX, mouseY, width, height);
+
+            if (tab != null && blockling.getGuiID() != tab.id)
+            {
+                blockling.openGui(tab.id, player);
+            }
         }
+
+        isClicking = false;
     }
 
     @Override
@@ -178,7 +166,7 @@ abstract class GuiBlocklingAbility extends GuiBlocklingBase
     protected void drawHover()
     {
         mc.getTextureManager().bindTexture(WINDOW);
-        zLevel += 10;
+        zLevel += 15;
 
         if (hoveredAbility != null)
         {
@@ -206,6 +194,17 @@ abstract class GuiBlocklingAbility extends GuiBlocklingBase
             GlStateManager.translate(0, 0, -25);
         }
 
+        zLevel -= 15;
+    }
+
+    protected void drawWindow()
+    {
+        zLevel += 10;
+        drawTexturedModalRect(left, top, 0, 0, TEXTURE_WIDTH, TEXTURE_HEIGHT);
+        GlStateManager.translate(0, 0, 11);
+        fontRenderer.drawString("30", screenLeft + 12, screenTop - 1, 0x333333);
+        fontRenderer.drawString("30", screenLeft + 11, screenTop - 2, 0xffffff);
+        GlStateManager.translate(0, 0, -11);
         zLevel -= 10;
     }
 
@@ -405,7 +404,7 @@ abstract class GuiBlocklingAbility extends GuiBlocklingBase
         {
             if (hoveredAbility != null)
             {
-                int i = hoveredAbility == ability ? 15 : 0;
+                int i = hoveredAbility == ability ? 20 : 0;
 
                 zLevel+=i;
                 drawTexturedModalRect(screenLeft + x + ability.x + startX, screenTop + y + ability.y + startY, ability.textureX + startDrawX, ability.textureY + startDrawY, ability.width - difX, ability.height - difY);
@@ -416,6 +415,24 @@ abstract class GuiBlocklingAbility extends GuiBlocklingBase
                 drawTexturedModalRect(screenLeft + x + ability.x + startX, screenTop + y + ability.y + startY, ability.textureX + startDrawX, ability.textureY + startDrawY, ability.width - difX, ability.height - difY);
             }
         }
+    }
+
+    private void updateXY(int mouseX, int mouseY)
+    {
+        if (isClicking)
+        {
+            x += mouseX - prevMouseX;
+            y += mouseY - prevMouseY;
+        }
+
+        if (x < minScreenX)
+            x = minScreenX;
+        else if (x > maxScreenX)
+            x = maxScreenX;
+        if (y < minScreenY)
+            y = minScreenY;
+        else if (y > maxScreenY)
+            y = maxScreenY;
     }
 
     /**

@@ -4,7 +4,10 @@ import com.blocklings.entities.EntityBlockling;
 import com.blocklings.util.helpers.GuiHelper;
 import com.blocklings.util.helpers.GuiHelper.Tab;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.entity.player.EntityPlayer;
+import org.jline.utils.Log;
 
 import java.io.IOException;
 
@@ -67,6 +70,8 @@ abstract class GuiBlocklingBase extends GuiScreen
     {
         super.drawScreen(mouseX, mouseY, partialTicks);
 
+        drawTabTooltip(mouseX, mouseY);
+
         prevMouseX = mouseX;
         prevMouseY = mouseY;
     }
@@ -93,6 +98,16 @@ abstract class GuiBlocklingBase extends GuiScreen
         {
             isClicking = true;
         }
+    }
+
+    /**
+     * Just condensing the three statements into one
+     */
+    protected void setDefaultRenderSettings()
+    {
+        GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+        GlStateManager.enableBlend();
+        RenderHelper.disableStandardItemLighting();
     }
 
     /**
