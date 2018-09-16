@@ -11,12 +11,11 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.util.ResourceLocation;
+import org.jline.utils.Log;
 
 public class GuiBlocklingInventory extends GuiContainer
 {
-    public static final Tab INVENTORY = Tab.INVENTORY;
-
-    private static final ResourceLocation INVENTORY_BACKGROUND = new ResourceLocationBlocklings("textures/gui/inventory.png");
+    private static final ResourceLocation WINDOW = new ResourceLocationBlocklings("textures/guis/inventory" + Tab.INVENTORY.id + ".png");
 
     private EntityBlockling blockling;
     private EntityPlayer player;
@@ -80,7 +79,7 @@ public class GuiBlocklingInventory extends GuiContainer
     protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY)
     {
         GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-        this.mc.getTextureManager().bindTexture(INVENTORY_BACKGROUND);
+        this.mc.getTextureManager().bindTexture(WINDOW);
         this.drawTexturedModalRect(left, top, 0, 0, textureWidth, textureHeight);
     }
 

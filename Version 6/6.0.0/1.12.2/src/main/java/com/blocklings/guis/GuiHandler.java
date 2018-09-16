@@ -1,11 +1,13 @@
 package com.blocklings.guis;
 
 import com.blocklings.entities.EntityBlockling;
+import com.blocklings.util.helpers.GuiHelper.Tab;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.network.IGuiHandler;
+import org.jline.utils.Log;
 
 public class GuiHandler implements IGuiHandler
 {
@@ -18,7 +20,7 @@ public class GuiHandler implements IGuiHandler
         {
             EntityBlockling blockling = (EntityBlockling) entity;
 
-            if (id == 0)
+            if (id == Tab.INVENTORY.id)
             {
                 return new ContainerInventoryBlockling(player.inventory, blockling.inv);
             }
@@ -36,13 +38,29 @@ public class GuiHandler implements IGuiHandler
         {
             EntityBlockling blockling = (EntityBlockling) entity;
 
-            if (id == 0)
+            if (id == Tab.STATS.id)
+            {
+                return new GuiBlocklingStats(blockling, player);
+            }
+            else if (id == Tab.INVENTORY.id)
             {
                 return new GuiBlocklingInventory(player.inventory, blockling.inv, blockling, player);
             }
-            else if (id == 1)
+            else if (id == Tab.GENERAL.id)
             {
                 return new GuiBlocklingGeneral(blockling, player);
+            }
+            else if (id == Tab.COMBAT.id)
+            {
+                return new GuiBlocklingCombat(blockling, player);
+            }
+            else if (id == Tab.MINING.id)
+            {
+                return new GuiBlocklingMining(blockling, player);
+            }
+            else if (id == Tab.WOODCUTTING.id)
+            {
+                return new GuiBlocklingWoodcutting(blockling, player);
             }
         }
 
