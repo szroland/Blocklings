@@ -51,7 +51,7 @@ abstract class GuiBlocklingAbility extends GuiBlocklingBase
 
     private int beforeReleaseX, beforeReleaseY;
 
-    GuiBlocklingAbility(EntityBlockling blockling, EntityPlayer player)
+    protected GuiBlocklingAbility(EntityBlockling blockling, EntityPlayer player)
     {
         super(blockling, player);
     }

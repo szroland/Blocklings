@@ -28,7 +28,7 @@ abstract class GuiBlocklingBase extends GuiScreen
     protected int xSize, ySize, left, top;
     protected int screenLeft, screenTop;
 
-    GuiBlocklingBase(EntityBlockling blockling, EntityPlayer player)
+    protected GuiBlocklingBase(EntityBlockling blockling, EntityPlayer player)
     {
         super();
 

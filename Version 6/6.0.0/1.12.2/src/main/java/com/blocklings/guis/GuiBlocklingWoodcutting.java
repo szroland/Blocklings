@@ -10,7 +10,7 @@ import java.awt.*;
 
 class GuiBlocklingWoodcutting extends GuiBlocklingAbility
 {
-    GuiBlocklingWoodcutting(EntityBlockling blockling, EntityPlayer player)
+     GuiBlocklingWoodcutting(EntityBlockling blockling, EntityPlayer player)
     {
         super(blockling, player);
     }

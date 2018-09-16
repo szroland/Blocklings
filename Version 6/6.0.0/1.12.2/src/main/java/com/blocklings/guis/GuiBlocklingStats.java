@@ -16,7 +16,7 @@ public class GuiBlocklingStats extends GuiBlocklingBase
 {
     private static final ResourceLocation WINDOW = new ResourceLocationBlocklings("textures/guis/inventory" + Tab.STATS.id + ".png");
 
-    public GuiBlocklingStats(EntityBlockling blockling, EntityPlayer player)
+    GuiBlocklingStats(EntityBlockling blockling, EntityPlayer player)
     {
         super(blockling, player);
     }

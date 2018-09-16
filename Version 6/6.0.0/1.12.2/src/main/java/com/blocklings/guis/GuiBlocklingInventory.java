@@ -13,7 +13,7 @@ import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.util.ResourceLocation;
 import org.jline.utils.Log;
 
-public class GuiBlocklingInventory extends GuiContainer
+class GuiBlocklingInventory extends GuiContainer
 {
     private static final ResourceLocation WINDOW = new ResourceLocationBlocklings("textures/guis/inventory" + Tab.INVENTORY.id + ".png");
 
@@ -25,7 +25,7 @@ public class GuiBlocklingInventory extends GuiContainer
 
     private int left, top;
 
-    public GuiBlocklingInventory(InventoryPlayer playerInv, InventoryBlockling blocklingInv, EntityBlockling blockling, EntityPlayer player)
+    GuiBlocklingInventory(InventoryPlayer playerInv, InventoryBlockling blocklingInv, EntityBlockling blockling, EntityPlayer player)
     {
         super(new ContainerInventoryBlockling(playerInv, blocklingInv));
 
