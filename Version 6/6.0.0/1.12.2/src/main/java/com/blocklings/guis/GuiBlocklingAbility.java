@@ -141,6 +141,7 @@ abstract class GuiBlocklingAbility extends GuiBlocklingBase
                 if (ability.state == Ability.State.UNLOCKED) ability.state = Ability.State.ACQUIRED;
                 else if (ability.state == Ability.State.ACQUIRED) ability.state = Ability.State.LOCKED;
                 else if (ability.state == Ability.State.LOCKED) ability.state = Ability.State.UNLOCKED;
+                blockling.syncAbilities();
             }
 
             GuiHelper.Tab tab = GuiHelper.getTabAt(mouseX, mouseY, width, height);
@@ -170,8 +171,8 @@ abstract class GuiBlocklingAbility extends GuiBlocklingBase
 
         if (hoveredAbility != null)
         {
-            String text1 = hoveredAbility.text1;
-            String text2 = hoveredAbility.text2;
+            String text1 = hoveredAbility.name;
+            String text2 = hoveredAbility.description;
             int width1 = fontRenderer.getStringWidth(text1);
             int width2 = fontRenderer.getStringWidth(text2);
 

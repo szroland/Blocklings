@@ -2,14 +2,11 @@ package com.blocklings.entities;
 
 import com.blocklings.inventories.InventoryBlockling;
 import com.blocklings.main.Blocklings;
-import com.blocklings.network.GuiIDMessage;
-import com.blocklings.network.OpenGuiMessage;
-import com.blocklings.network.GeneralLevelMessage;
-import com.blocklings.network.CombatLevelMessage;
-import com.blocklings.network.MiningLevelMessage;
-import com.blocklings.network.WoodcuttingLevelMessage;
+import com.blocklings.network.*;
+import com.blocklings.util.helpers.ItemHelper;
 import com.blocklings.util.helpers.NetworkHelper;
 import com.blocklings.util.helpers.GuiHelper.Tab;
+import com.blocklings.abilities.Ability;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.EntityAgeable;
@@ -20,11 +17,17 @@ import net.minecraft.entity.ai.*;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.passive.EntityTameable;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumHand;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
+import org.jline.utils.Log;
+
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class EntityBlockling extends EntityTameable implements IEntityAdditionalSpawnData
 {
@@ -33,6 +36,11 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
     public static final double BASE_ATTACK_DAMAGE = 1;
 
     public InventoryBlockling inv;
+
+    public List<Ability> generalAbilities;
+    public List<Ability> combatAbilities;
+    public List<Ability> miningAbilities;
+    public List<Ability> woodcuttingAbilities;
 
     private int guiID = 1;
 
@@ -59,6 +67,33 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
 
         setCanPickUpLoot(true);
         setupInventory();
+
+        generalAbilities = new ArrayList<Ability>();
+        combatAbilities = new ArrayList<Ability>();
+        miningAbilities = new ArrayList<Ability>();
+        woodcuttingAbilities = new ArrayList<Ability>();
+
+        Ability ability0 = new Ability(0, null, -10, -20, 24, 0, "Ability 0 Super Long Ability Name", "Ability 0 description");
+        Ability ability1 = new Ability(1, ability0, 30, 30, 0, 0, "Ability 1", "Ability 1 description 1");
+        Ability ability6 = new Ability(1, ability0, 110, 30, 0, 0, "Ability 6", "Ability 6 description 12");
+        Ability ability2 = new Ability(2, ability0, -40, 90, 0, 0, "Ability 2", "Ability 2 description 123");
+        Ability ability5 = new Ability(2, ability0, -76, 90, 0, 0, "Ability 5", "Ability 5 description 1234");
+        Ability ability3 = new Ability(3, ability1, 90, 140, 24, 0, "Ability 3", "Ability 3 description 12345");
+        Ability ability4 = new Ability(4, ability2, 20, 130, 24, 0, "Ability 4", "Ability 4 description 123456");
+
+        ability0.colour = new Color(0xaa55aa);
+        ability1.colour = new Color(0x500F89);
+        ability0.colour = new Color(0xB98F2C);
+        ability2.colour = new Color(0x920C07);
+        ability5.colour = new Color(0x0A8C2E);
+
+        generalAbilities.add(ability0);
+        generalAbilities.add(ability1);
+        generalAbilities.add(ability2);
+        generalAbilities.add(ability3);
+        generalAbilities.add(ability4);
+        generalAbilities.add(ability5);
+        generalAbilities.add(ability6);
     }
 
     @Override
@@ -117,7 +152,9 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
     @Override
     public void readSpawnData(ByteBuf buf)
     {
-
+        generalAbilities.remove(5);
+        generalAbilities.remove(5);
+        syncAbilities();
     }
 
     // Called once every tick
@@ -145,6 +182,7 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
     public boolean processInteract(EntityPlayer player, EnumHand hand)
     {
         ItemStack stack = player.getHeldItem(hand);
+        Item item = stack.getItem();
         boolean isMainHand = hand.equals(EnumHand.MAIN_HAND);
 
         if (isMainHand)
@@ -155,14 +193,25 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
                 {
                     if (player != getOwner())
                     {
-                        if (rand.nextInt(3) == 0)
+                        if (ItemHelper.isFlower(item))
                         {
-                            setTamed(player);
-                        }
-                        else
-                        {
-                            playTameEffect(false);
-                            world.setEntityState(this, (byte) 6);
+                            if (!player.capabilities.isCreativeMode)
+                            {
+                                stack.shrink(1);
+                            }
+
+                            if (!world.isRemote)
+                            {
+                                if (rand.nextInt(3) == 0)
+                                {
+                                    setTamed(player);
+                                }
+                                else
+                                {
+                                    playTameEffect(false);
+                                    world.setEntityState(this, (byte) 6);
+                                }
+                            }
                         }
                     }
                 }
@@ -282,6 +331,11 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
                 }
             }
         }
+    }
+
+    public void syncAbilities()
+    {
+        NetworkHelper.sync(world, new AbilitiesMessage(generalAbilities, combatAbilities, miningAbilities, woodcuttingAbilities, getEntityId()));
     }
 
     // GETTERS

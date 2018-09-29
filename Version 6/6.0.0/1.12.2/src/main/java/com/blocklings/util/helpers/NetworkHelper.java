@@ -1,6 +1,7 @@
 package com.blocklings.util.helpers;
 
 import com.blocklings.main.Blocklings;
+import com.blocklings.network.AbilitiesMessage;
 import com.blocklings.network.GuiIDMessage;
 import com.blocklings.network.OpenGuiMessage;
 import com.blocklings.network.GeneralLevelMessage;
@@ -19,18 +20,20 @@ public class NetworkHelper
 
     public static void registerMessages()
     {
-        network.registerMessage(GuiIDMessage.Handler.class, com.blocklings.network.GuiIDMessage.class, id++, Side.CLIENT);
-        network.registerMessage(GuiIDMessage.Handler.class, com.blocklings.network.GuiIDMessage.class, id++, Side.SERVER);
-        network.registerMessage(OpenGuiMessage.Handler.class, com.blocklings.network.OpenGuiMessage.class, id++, Side.CLIENT);
-        network.registerMessage(OpenGuiMessage.Handler.class, com.blocklings.network.OpenGuiMessage.class, id++, Side.SERVER);
-        network.registerMessage(GeneralLevelMessage.Handler.class, com.blocklings.network.GeneralLevelMessage.class, id++, Side.CLIENT);
-        network.registerMessage(GeneralLevelMessage.Handler.class, com.blocklings.network.GeneralLevelMessage.class, id++, Side.SERVER);
-        network.registerMessage(CombatLevelMessage.Handler.class, com.blocklings.network.CombatLevelMessage.class, id++, Side.CLIENT);
-        network.registerMessage(CombatLevelMessage.Handler.class, com.blocklings.network.CombatLevelMessage.class, id++, Side.SERVER);
-        network.registerMessage(MiningLevelMessage.Handler.class, com.blocklings.network.MiningLevelMessage.class, id++, Side.CLIENT);
-        network.registerMessage(MiningLevelMessage.Handler.class, com.blocklings.network.MiningLevelMessage.class, id++, Side.SERVER);
-        network.registerMessage(WoodcuttingLevelMessage.Handler.class, com.blocklings.network.WoodcuttingLevelMessage.class, id++, Side.CLIENT);
-        network.registerMessage(WoodcuttingLevelMessage.Handler.class, com.blocklings.network.WoodcuttingLevelMessage.class, id++, Side.SERVER);
+        network.registerMessage(AbilitiesMessage.Handler.class, AbilitiesMessage.class, id++, Side.CLIENT);
+        network.registerMessage(AbilitiesMessage.Handler.class, AbilitiesMessage.class, id++, Side.SERVER);
+        network.registerMessage(GuiIDMessage.Handler.class, GuiIDMessage.class, id++, Side.CLIENT);
+        network.registerMessage(GuiIDMessage.Handler.class, GuiIDMessage.class, id++, Side.SERVER);
+        network.registerMessage(OpenGuiMessage.Handler.class, OpenGuiMessage.class, id++, Side.CLIENT);
+        network.registerMessage(OpenGuiMessage.Handler.class, OpenGuiMessage.class, id++, Side.SERVER);
+        network.registerMessage(GeneralLevelMessage.Handler.class, GeneralLevelMessage.class, id++, Side.CLIENT);
+        network.registerMessage(GeneralLevelMessage.Handler.class, GeneralLevelMessage.class, id++, Side.SERVER);
+        network.registerMessage(CombatLevelMessage.Handler.class, CombatLevelMessage.class, id++, Side.CLIENT);
+        network.registerMessage(CombatLevelMessage.Handler.class, CombatLevelMessage.class, id++, Side.SERVER);
+        network.registerMessage(MiningLevelMessage.Handler.class, MiningLevelMessage.class, id++, Side.CLIENT);
+        network.registerMessage(MiningLevelMessage.Handler.class, MiningLevelMessage.class, id++, Side.SERVER);
+        network.registerMessage(WoodcuttingLevelMessage.Handler.class, WoodcuttingLevelMessage.class, id++, Side.CLIENT);
+        network.registerMessage(WoodcuttingLevelMessage.Handler.class, WoodcuttingLevelMessage.class, id++, Side.SERVER);
     }
 
     public static void sendToAll(IMessage message)
