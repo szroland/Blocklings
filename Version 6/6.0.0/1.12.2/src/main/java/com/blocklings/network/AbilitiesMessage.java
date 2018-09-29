@@ -29,9 +29,9 @@ public class AbilitiesMessage implements IMessage
     public AbilitiesMessage(List<Ability> generalAbilities, List<Ability> combatAbilities, List<Ability> miningAbilities, List<Ability> woodcuttingAbilities, int entityID)
     {
         this.generalAbilities = generalAbilities;
-//        this.combatAbilities = combatAbilities;
-//        this.miningAbilities = miningAbilities;
-//        this.woodcuttingAbilities = woodcuttingAbilities;
+        this.combatAbilities = combatAbilities;
+        this.miningAbilities = miningAbilities;
+        this.woodcuttingAbilities = woodcuttingAbilities;
         this.id = entityID;
     }
 
@@ -76,7 +76,7 @@ public class AbilitiesMessage implements IMessage
                 }
             }
         }
-        for (int i = 0; i < g; i++)
+        for (int i = 0; i < c; i++)
         {
             Ability ability = new Ability();
             ability.id = buf.readInt();
@@ -105,7 +105,7 @@ public class AbilitiesMessage implements IMessage
                 }
             }
         }
-        for (int i = 0; i < g; i++)
+        for (int i = 0; i < m; i++)
         {
             Ability ability = new Ability();
             ability.id = buf.readInt();
@@ -134,7 +134,7 @@ public class AbilitiesMessage implements IMessage
                 }
             }
         }
-        for (int i = 0; i < g; i++)
+        for (int i = 0; i < w; i++)
         {
             Ability ability = new Ability();
             ability.id = buf.readInt();

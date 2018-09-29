@@ -73,27 +73,98 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
         miningAbilities = new ArrayList<Ability>();
         woodcuttingAbilities = new ArrayList<Ability>();
 
-        Ability ability0 = new Ability(0, null, -10, -20, 24, 0, "Ability 0 Super Long Ability Name", "Ability 0 description");
-        Ability ability1 = new Ability(1, ability0, 30, 30, 0, 0, "Ability 1", "Ability 1 description 1");
-        Ability ability6 = new Ability(1, ability0, 110, 30, 0, 0, "Ability 6", "Ability 6 description 12");
-        Ability ability2 = new Ability(2, ability0, -40, 90, 0, 0, "Ability 2", "Ability 2 description 123");
-        Ability ability5 = new Ability(2, ability0, -76, 90, 0, 0, "Ability 5", "Ability 5 description 1234");
-        Ability ability3 = new Ability(3, ability1, 90, 140, 24, 0, "Ability 3", "Ability 3 description 12345");
-        Ability ability4 = new Ability(4, ability2, 20, 130, 24, 0, "Ability 4", "Ability 4 description 123456");
+        {
+            Ability ability0 = new Ability(0, null, -10, -20, 24, 0, "Ability 0 Super Long Ability Name", "Ability 0 description");
+            Ability ability1 = new Ability(1, ability0, 30, 30, 0, 0, "Ability 1", "Ability 1 description 1");
+            Ability ability6 = new Ability(1, ability0, 110, 30, 0, 0, "Ability 6", "Ability 6 description 12");
+            Ability ability2 = new Ability(2, ability0, -40, 90, 0, 0, "Ability 2", "Ability 2 description 123");
+            Ability ability5 = new Ability(2, ability0, -76, 90, 0, 0, "Ability 5", "Ability 5 description 1234");
+            Ability ability3 = new Ability(3, ability1, 90, 140, 24, 0, "Ability 3", "Ability 3 description 12345");
+            Ability ability4 = new Ability(4, ability2, 20, 130, 24, 0, "Ability 4", "Ability 4 description 123456");
 
-        ability0.colour = new Color(0xaa55aa);
-        ability1.colour = new Color(0x500F89);
-        ability0.colour = new Color(0xB98F2C);
-        ability2.colour = new Color(0x920C07);
-        ability5.colour = new Color(0x0A8C2E);
+            ability0.colour = new Color(0xaa55aa);
+            ability1.colour = new Color(0x500F89);
+            ability0.colour = new Color(0xB98F2C);
+            ability2.colour = new Color(0x920C07);
+            ability5.colour = new Color(0x0A8C2E);
 
-        generalAbilities.add(ability0);
-        generalAbilities.add(ability1);
-        generalAbilities.add(ability2);
-        generalAbilities.add(ability3);
-        generalAbilities.add(ability4);
-        generalAbilities.add(ability5);
-        generalAbilities.add(ability6);
+            generalAbilities.add(ability0);
+            generalAbilities.add(ability1);
+            generalAbilities.add(ability2);
+            generalAbilities.add(ability3);
+            generalAbilities.add(ability4);
+            generalAbilities.add(ability5);
+            generalAbilities.add(ability6);
+        }
+        {
+            Ability ability0 = new Ability(0, null, -40, -40, 24, 0, "Ability 0 Super Long Ability Name", "Ability 0 description");
+            Ability ability1 = new Ability(1, ability0, 10, 11, 0, 0, "Ability 1", "Ability 1 description 1");
+            Ability ability6 = new Ability(1, ability0, 120, 15, 0, 0, "Ability 6", "Ability 6 description 12");
+            Ability ability2 = new Ability(2, ability0, -20, 70, 0, 0, "Ability 2", "Ability 2 description 123");
+            Ability ability5 = new Ability(2, ability0, -90, 90, 0, 0, "Ability 5", "Ability 5 description 1234");
+            Ability ability3 = new Ability(3, ability1, 56, 120, 24, 0, "Ability 3", "Ability 3 description 12345");
+            Ability ability4 = new Ability(4, ability2, 20, 110, 24, 0, "Ability 4", "Ability 4 description 123456");
+
+            ability0.colour = new Color(0xaa55aa);
+            ability1.colour = new Color(0x500F89);
+            ability0.colour = new Color(0xB98F2C);
+            ability2.colour = new Color(0x920C07);
+            ability5.colour = new Color(0x0A8C2E);
+
+            combatAbilities.add(ability0);
+            combatAbilities.add(ability1);
+            combatAbilities.add(ability2);
+            combatAbilities.add(ability3);
+            combatAbilities.add(ability4);
+            combatAbilities.add(ability5);
+            combatAbilities.add(ability6);
+        }
+        {
+            Ability ability0 = new Ability(0, null, -2, -3, 24, 0, "Ability 0 Super Long Ability Name", "Ability 0 description");
+            Ability ability1 = new Ability(1, ability0, 45, 45, 0, 0, "Ability 1", "Ability 1 description 1");
+            Ability ability6 = new Ability(1, ability0, 150, 90, 0, 0, "Ability 6", "Ability 6 description 12");
+            Ability ability2 = new Ability(2, ability0, -20, 95, 0, 0, "Ability 2", "Ability 2 description 123");
+            Ability ability5 = new Ability(2, ability0, -56, 99, 0, 0, "Ability 5", "Ability 5 description 1234");
+            Ability ability3 = new Ability(3, ability1, 100, 150, 24, 0, "Ability 3", "Ability 3 description 12345");
+            Ability ability4 = new Ability(4, ability2, 34, 120, 24, 0, "Ability 4", "Ability 4 description 123456");
+
+            ability0.colour = new Color(0xaa55aa);
+            ability1.colour = new Color(0x500F89);
+            ability0.colour = new Color(0xB98F2C);
+            ability2.colour = new Color(0x920C07);
+            ability5.colour = new Color(0x0A8C2E);
+
+            miningAbilities.add(ability0);
+            miningAbilities.add(ability1);
+            miningAbilities.add(ability2);
+            miningAbilities.add(ability3);
+            miningAbilities.add(ability4);
+            miningAbilities.add(ability5);
+            miningAbilities.add(ability6);
+        }
+        {
+            Ability ability0 = new Ability(0, null, -10, -2, 24, 0, "Ability 0 Super Long Ability Name", "Ability 0 description");
+            Ability ability1 = new Ability(1, ability0, 33, 45, 0, 0, "Ability 1", "Ability 1 description 1");
+            Ability ability6 = new Ability(1, ability0, 130, 27, 0, 0, "Ability 6", "Ability 6 description 12");
+            Ability ability2 = new Ability(2, ability0, -56, 120, 0, 0, "Ability 2", "Ability 2 description 123");
+            Ability ability5 = new Ability(2, ability0, -80, 98, 0, 0, "Ability 5", "Ability 5 description 1234");
+            Ability ability3 = new Ability(3, ability1, 56, 130, 24, 0, "Ability 3", "Ability 3 description 12345");
+            Ability ability4 = new Ability(4, ability2, 20, 134, 24, 0, "Ability 4", "Ability 4 description 123456");
+
+            ability0.colour = new Color(0xaa55aa);
+            ability1.colour = new Color(0x500F89);
+            ability0.colour = new Color(0xB98F2C);
+            ability2.colour = new Color(0x920C07);
+            ability5.colour = new Color(0x0A8C2E);
+
+            woodcuttingAbilities.add(ability0);
+            woodcuttingAbilities.add(ability1);
+            woodcuttingAbilities.add(ability2);
+            woodcuttingAbilities.add(ability3);
+            woodcuttingAbilities.add(ability4);
+            woodcuttingAbilities.add(ability5);
+            woodcuttingAbilities.add(ability6);
+        }
     }
 
     @Override
@@ -152,8 +223,6 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
     @Override
     public void readSpawnData(ByteBuf buf)
     {
-        generalAbilities.remove(5);
-        generalAbilities.remove(5);
         syncAbilities();
     }
 
