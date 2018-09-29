@@ -23,6 +23,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumHand;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
+import org.apache.commons.lang3.SerializationUtils;
 import org.jline.utils.Log;
 
 import java.awt.*;
@@ -45,7 +46,7 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
     private int guiID = 1;
 
     private int generalLevel = 1, combatLevel = 1, miningLevel = 1, woodcuttingLevel = 1;
-    private int generalXp = 0, combatXp = 0, miningXp = 0, wooducttingXp = 0;
+    private int generalXp = 0, combatXp = 0, miningXp = 0, woodcuttingXp = 0;
 
     private EntityAIFollowOwner aiFollow;
     private EntityAIWander aiWander;
@@ -53,6 +54,7 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
     private EntityAIOwnerHurtByTarget aiOwnerHurtBy;
     private EntityAIOwnerHurtTarget aiOwnerHurt;
 
+    // CLIENT SERVER
     public EntityBlockling(World worldIn)
     {
         super(worldIn);
@@ -60,6 +62,7 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
         setSize(1.0f, 1.0f);
     }
 
+    // CLIENT SERVER
     @Override
     protected void entityInit()
     {
@@ -199,6 +202,7 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
     }
 
     // Used to save entity data (variables) when the entity is unloaded
+    // SERVER
     @Override
     public void writeEntityToNBT(NBTTagCompound compound)
     {
@@ -206,6 +210,7 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
     }
 
     // Used to load entity data (variables) when the entity is loaded
+    // SERVER
     @Override
     public void readEntityFromNBT(NBTTagCompound compound)
     {
@@ -213,6 +218,7 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
     }
 
     // Used to save the data (variables) that need to be saved and synced
+    // SERVER
     @Override
     public void writeSpawnData(ByteBuf buf)
     {
@@ -220,6 +226,7 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
     }
 
     // Used to sync client with server on spawn
+    // CLIENT
     @Override
     public void readSpawnData(ByteBuf buf)
     {
@@ -228,6 +235,7 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
 
     // Called once every tick
     // Used by skeles to check if they are in the sun
+    // CLIENT SERVER
     @Override
     public void onLivingUpdate()
     {
@@ -236,6 +244,7 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
 
     // Also called once every tick
     // Not sure what the difference is between the two update methods
+    // CLIENT SERVER
     @Override
     public void onUpdate()
     {
@@ -497,6 +506,78 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
     public void setWoodcuttingLevelFromPacket(int value)
     {
         woodcuttingLevel = value;
+    }
+
+
+
+    public int getGeneralXp()
+    {
+        return generalXp;
+    }
+
+    public void setGeneralXp(int value)
+    {
+        generalXp = value;
+        NetworkHelper.sync(world, new GeneralXpMessage(value, getEntityId()));
+    }
+
+    public void setGeneralXpFromPacket(int value)
+    {
+        generalXp = value;
+    }
+
+
+
+    public int getCombatXp()
+    {
+        return combatXp;
+    }
+
+    public void setCombatXp(int value)
+    {
+        combatXp = value;
+        NetworkHelper.sync(world, new CombatXpMessage(value, getEntityId()));
+    }
+
+    public void setCombatXpFromPacket(int value)
+    {
+        combatXp = value;
+    }
+
+
+
+    public int getMiningXp()
+    {
+        return miningXp;
+    }
+
+    public void setMiningXp(int value)
+    {
+        miningXp = value;
+        NetworkHelper.sync(world, new MiningXpMessage(value, getEntityId()));
+    }
+
+    public void setMiningXpFromPacket(int value)
+    {
+        miningXp = value;
+    }
+
+
+
+    public int getWoodcuttingXp()
+    {
+        return woodcuttingXp;
+    }
+
+    public void setWoodcuttingXp(int value)
+    {
+        woodcuttingXp = value;
+        NetworkHelper.sync(world, new WoodcuttingXpMessage(value, getEntityId()));
+    }
+
+    public void setWoodcuttingXpFromPacket(int value)
+    {
+        woodcuttingXp = value;
     }
 }
 
