@@ -5,6 +5,7 @@ import com.blocklings.entities.EntityBlockling;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.entity.Entity;
+import org.jline.utils.Log;
 
 public class ModelBlockling extends ModelBase
 {
@@ -15,13 +16,13 @@ public class ModelBlockling extends ModelBase
     ModelRenderer leftArm;
     ModelRenderer rightEye;
     ModelRenderer leftEye;
-    float bodyBaseX = 0.0872665F;
-    float rightLegBaseX = -0.0872665F;
-    float leftLegBaseX = -0.0872665F;
-    float rightArmBaseX = 0.7853982F - this.bodyBaseX;
-    float leftArmBaseX = 0.7853982F - this.bodyBaseX;
-    float rightEyeBaseX = 0.0F;
-    float leftEyeBaseX = 0.0F;
+    float bodyBaseX = 0.0872665f;
+    float rightLegBaseX = -0.0872665f;
+    float leftLegBaseX = -0.0872665f;
+    float rightArmBaseX = 0.785398f - this.bodyBaseX;
+    float leftArmBaseX =  0.785398f - this.bodyBaseX;
+    float rightEyeBaseX = 0.0f;
+    float leftEyeBaseX = 0.0f;
 
     private int[] attackAnimation = { 0, 18, 39, 62, 85, 70, 58, 47, 37, 28, 20, 14, 8, 3, 0 };
 
@@ -53,13 +54,13 @@ public class ModelBlockling extends ModelBase
         this.rightArm.setRotationPoint(-8.0F, -3.0F, 0.0F);
         this.rightArm.setTextureSize(128, 64);
         this.rightArm.showModel = true;
-        setRotation(this.rightArm, 0.6981317F, 0.0F, 0.0F);
+        setRotation(this.rightArm, rightArmBaseX, 0.0F, 0.0F);
         this.leftArm = new ModelRenderer(this, 0, 18);
         this.leftArm.addBox(0.0F, 0.0F, -7.0F, 3, 7, 7);
         this.leftArm.setRotationPoint(8.0F, -3.0F, 0.0F);
         this.leftArm.setTextureSize(128, 64);
         this.leftArm.showModel = true;
-        setRotation(this.leftArm, 0.6981317F, 0.0F, 0.0F);
+        setRotation(this.leftArm, leftArmBaseX, 0.0F, 0.0F);
         this.rightEye = new ModelRenderer(this, 30, 12);
         this.rightEye.addBox(-1.0F, -1.5F, -0.5F, 2, 3, 1);
         this.rightEye.setRotationPoint(-2.0F, 3.0F, -8.0F);
@@ -91,6 +92,30 @@ public class ModelBlockling extends ModelBase
     public void setRotationAngles(float time, float speed, float age, float yaw, float pitch, float scale, Entity entity)
     {
         super.setRotationAngles(time, speed, age, yaw, pitch, scale, entity);
+
+        EntityBlockling blockling = (EntityBlockling) entity;
+
+        if (blockling.getAnimationState() == EntityBlockling.AnimationState.IDLE)
+        {
+            float logSpeed = (float) Math.log(speed + 1);
+            float swingHeight = (0.05f + logSpeed / 7.0f) / 12.0f;
+            float swingSpeed = 0.6f;
+            body.rotateAngleX = bodyBaseX + (flipFlopper(age + time * 30.0f, swingSpeed) * (swingHeight));
+
+            swingHeight = 0.05f + logSpeed / 4.0f;
+            swingSpeed = 1.2f;
+            leftArm.rotateAngleX = leftArmBaseX + (flipFlopper(age + time * 30.0f, swingSpeed) * (swingHeight));
+            rightArm.rotateAngleX = rightArmBaseX - (flipFlopper(age + time * 30.0f, swingSpeed) * (swingHeight));
+
+            swingHeight = logSpeed / 4.0f;
+            leftLeg.rotateAngleX = leftLegBaseX - (flipFlopper(age + time * 30.0f, swingSpeed) * (swingHeight));
+            rightLeg.rotateAngleX = rightLegBaseX + (flipFlopper(age + time * 30.0f, swingSpeed) * (swingHeight));
+        }
+    }
+    // Goes from -PI to PI and back again
+    private float flipFlopper(float age, float coef)
+    {
+        return ((float) Math.sin(Math.toRadians((coef * age) % 360.0f))) * (float) Math.PI;
     }
 
     private void setRotation(ModelRenderer model, float x, float y, float z)
@@ -98,10 +123,5 @@ public class ModelBlockling extends ModelBase
         model.rotateAngleX = x;
         model.rotateAngleY = y;
         model.rotateAngleZ = z;
-    }
-
-    private float degToRad(float degrees)
-    {
-        return (float) (degrees * 3.141592653589793D / 180.0D);
     }
 }

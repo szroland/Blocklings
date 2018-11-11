@@ -1,61 +1,135 @@
-package com.blocklings.network;
+package com.blocklings.util.helpers;
 
 import com.blocklings.abilities.Ability;
 import com.blocklings.abilities.AbilityGroup;
 import com.blocklings.entities.EntityBlockling;
-import com.blocklings.main.Blocklings;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.entity.Entity;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AbilitiesMessage implements IMessage
+public class AbilityHelper
 {
-    AbilityGroup generalAbilities;
-    AbilityGroup combatAbilities;
-    AbilityGroup miningAbilities;
-    AbilityGroup woodcuttingAbilities;
-    int id;
+    public static List<Ability> generalAbilities = new ArrayList<Ability>();
+    public static List<Ability> combatAbilities = new ArrayList<Ability>();
+    public static List<Ability> miningAbilities = new ArrayList<Ability>();
+    public static List<Ability> woodcuttingAbilities = new ArrayList<Ability>();
 
-    public AbilitiesMessage()
+    static
     {
+        Ability ability0 = new Ability(0, null, -10, -20, 24, 0, "Ability 0 Super Long Ability Name", "Ability 0 description");
+        Ability ability1 = new Ability(1, ability0, 30, 30, 0, 0, "Ability 1", "Ability 1 description 1");
+        Ability ability6 = new Ability(2, ability0, 110, 30, 0, 0, "Ability 6", "Ability 6 description 12");
+        Ability ability2 = new Ability(3, ability0, -40, 90, 0, 0, "Ability 2", "Ability 2 description 123");
+        Ability ability5 = new Ability(4, ability0, -76, 90, 0, 0, "Ability 5", "Ability 5 description 1234");
+        Ability ability3 = new Ability(5, ability1, 90, 140, 24, 0, "Ability 3", "Ability 3 description 12345");
+        Ability ability4 = new Ability(6, ability2, 20, 130, 24, 0, "Ability 4", "Ability 4 description 123456");
+
+        ability0.colour = new Color(0xaa55aa);
+        ability1.colour = new Color(0x500F89);
+        ability0.colour = new Color(0xB98F2C);
+        ability2.colour = new Color(0x920C07);
+        ability5.colour = new Color(0x0A8C2E);
+
+        generalAbilities.add(ability0);
+        generalAbilities.add(ability1);
+        generalAbilities.add(ability2);
+        generalAbilities.add(ability3);
+        generalAbilities.add(ability4);
+        generalAbilities.add(ability5);
+        generalAbilities.add(ability6);
+    }
+    static
+    {
+        Ability ability0 = new Ability(0, null, -40, -40, 24, 0, "Ability 0 Super Long Ability Name", "Ability 0 description");
+        Ability ability1 = new Ability(1, ability0, 10, 11, 0, 0, "Ability 1", "Ability 1 description 1");
+        Ability ability6 = new Ability(2, ability0, 120, 15, 0, 0, "Ability 6", "Ability 6 description 12");
+        Ability ability2 = new Ability(3, ability0, -20, 70, 0, 0, "Ability 2", "Ability 2 description 123");
+        Ability ability5 = new Ability(4, ability0, -90, 90, 0, 0, "Ability 5", "Ability 5 description 1234");
+        Ability ability3 = new Ability(5, ability1, 56, 120, 24, 0, "Ability 3", "Ability 3 description 12345");
+        Ability ability4 = new Ability(6, ability2, 20, 110, 24, 0, "Ability 4", "Ability 4 description 123456");
+
+        ability0.colour = new Color(0xaa55aa);
+        ability1.colour = new Color(0x500F89);
+        ability0.colour = new Color(0xB98F2C);
+        ability2.colour = new Color(0x920C07);
+        ability5.colour = new Color(0x0A8C2E);
+
+        combatAbilities.add(ability0);
+        combatAbilities.add(ability1);
+        combatAbilities.add(ability2);
+        combatAbilities.add(ability3);
+        combatAbilities.add(ability4);
+        combatAbilities.add(ability5);
+        combatAbilities.add(ability6);
+    }
+    static
+    {
+        Ability ability0 = new Ability(0, null, -2, -3, 24, 0, "Ability 0 Super Long Ability Name", "Ability 0 description");
+        Ability ability1 = new Ability(1, ability0, 45, 45, 0, 0, "Ability 1", "Ability 1 description 1");
+        Ability ability6 = new Ability(2, ability0, 150, 90, 0, 0, "Ability 6", "Ability 6 description 12");
+        Ability ability2 = new Ability(3, ability0, -20, 95, 0, 0, "Ability 2", "Ability 2 description 123");
+        Ability ability5 = new Ability(4, ability0, -56, 99, 0, 0, "Ability 5", "Ability 5 description 1234");
+        Ability ability3 = new Ability(5, ability1, 100, 150, 24, 0, "Ability 3", "Ability 3 description 12345");
+        Ability ability4 = new Ability(6, ability2, 34, 120, 24, 0, "Ability 4", "Ability 4 description 123456");
+
+        ability0.colour = new Color(0xaa55aa);
+        ability1.colour = new Color(0x500F89);
+        ability0.colour = new Color(0xB98F2C);
+        ability2.colour = new Color(0x920C07);
+        ability5.colour = new Color(0x0A8C2E);
+
+        miningAbilities.add(ability0);
+        miningAbilities.add(ability1);
+        miningAbilities.add(ability2);
+        miningAbilities.add(ability3);
+        miningAbilities.add(ability4);
+        miningAbilities.add(ability5);
+        miningAbilities.add(ability6);
+    }
+    static
+    {
+        Ability ability0 = new Ability(0, null, -10, -2, 24, 0, "Ability 0 Super Long Ability Name", "Ability 0 description");
+        Ability ability1 = new Ability(1, ability0, 33, 45, 0, 0, "Ability 1", "Ability 1 description 1");
+        Ability ability6 = new Ability(2, ability0, 130, 27, 0, 0, "Ability 6", "Ability 6 description 12");
+        Ability ability2 = new Ability(3, ability0, -56, 120, 0, 0, "Ability 2", "Ability 2 description 123");
+        Ability ability5 = new Ability(4, ability0, -80, 98, 0, 0, "Ability 5", "Ability 5 description 1234");
+        Ability ability3 = new Ability(5, ability1, 56, 130, 24, 0, "Ability 3", "Ability 3 description 12345");
+        Ability ability4 = new Ability(6, ability2, 20, 134, 24, 0, "Ability 4", "Ability 4 description 123456");
+
+        ability0.colour = new Color(0xaa55aa);
+        ability1.colour = new Color(0x500F89);
+        ability0.colour = new Color(0xB98F2C);
+        ability2.colour = new Color(0x920C07);
+        ability5.colour = new Color(0x0A8C2E);
+
+        woodcuttingAbilities.add(ability0);
+        woodcuttingAbilities.add(ability1);
+        woodcuttingAbilities.add(ability2);
+        woodcuttingAbilities.add(ability3);
+        woodcuttingAbilities.add(ability4);
+        woodcuttingAbilities.add(ability5);
+        woodcuttingAbilities.add(ability6);
     }
 
-    public AbilitiesMessage(AbilityGroup generalAbilities, AbilityGroup combatAbilities, AbilityGroup miningAbilities, AbilityGroup woodcuttingAbilities, int entityID)
-    {
-        this.generalAbilities = generalAbilities;
-        this.combatAbilities = combatAbilities;
-        this.miningAbilities = miningAbilities;
-        this.woodcuttingAbilities = woodcuttingAbilities;
-        this.id = entityID;
-    }
-
-    public void fromBytes(ByteBuf buf)
+    public static void readSpawnData(ByteBuf buf, EntityBlockling blockling)
     {
         int g = buf.readInt();
         int c = buf.readInt();
         int m = buf.readInt();
         int w = buf.readInt();
 
-        generalAbilities = new AbilityGroup();
-        combatAbilities = new AbilityGroup();
-        miningAbilities = new AbilityGroup();
-        woodcuttingAbilities = new AbilityGroup();
+        blockling.generalAbilities.id = buf.readInt();
+        blockling.combatAbilities.id = buf.readInt();
+        blockling.miningAbilities.id = buf.readInt();
+        blockling.woodcuttingAbilities.id = buf.readInt();
 
-        generalAbilities.id = buf.readInt();
-        combatAbilities.id = buf.readInt();
-        miningAbilities.id = buf.readInt();
-        woodcuttingAbilities.id = buf.readInt();
-
-        generalAbilities.groupName = ByteBufUtils.readUTF8String(buf);
-        combatAbilities.groupName = ByteBufUtils.readUTF8String(buf);
-        miningAbilities.groupName = ByteBufUtils.readUTF8String(buf);
-        woodcuttingAbilities.groupName = ByteBufUtils.readUTF8String(buf);
+        blockling.generalAbilities.groupName = ByteBufUtils.readUTF8String(buf);
+        blockling.combatAbilities.groupName = ByteBufUtils.readUTF8String(buf);
+        blockling.miningAbilities.groupName = ByteBufUtils.readUTF8String(buf);
+        blockling.woodcuttingAbilities.groupName = ByteBufUtils.readUTF8String(buf);
 
         List<Ability> generalAbilitiesList = new ArrayList<Ability>();
         List<Ability> combatAbilitiesList = new ArrayList<Ability>();
@@ -179,32 +253,30 @@ public class AbilitiesMessage implements IMessage
             }
         }
 
-        generalAbilities.abilities = generalAbilitiesList;
-        combatAbilities.abilities = combatAbilitiesList;
-        miningAbilities.abilities = miningAbilitiesList;
-        woodcuttingAbilities.abilities = woodcuttingAbilitiesList;
-
-        this.id = buf.readInt();
+        blockling.generalAbilities.abilities = generalAbilitiesList;
+        blockling.combatAbilities.abilities = combatAbilitiesList;
+        blockling.miningAbilities.abilities = miningAbilitiesList;
+        blockling.woodcuttingAbilities.abilities = woodcuttingAbilitiesList;
     }
 
-    public void toBytes(ByteBuf buf)
+    public static void writeSpawnData(ByteBuf buf, EntityBlockling blockling)
     {
-        buf.writeInt(generalAbilities.abilities.size());
-        buf.writeInt(combatAbilities.abilities.size());
-        buf.writeInt(miningAbilities.abilities.size());
-        buf.writeInt(woodcuttingAbilities.abilities.size());
+        buf.writeInt(blockling.generalAbilities.abilities.size());
+        buf.writeInt(blockling.combatAbilities.abilities.size());
+        buf.writeInt(blockling.miningAbilities.abilities.size());
+        buf.writeInt(blockling.woodcuttingAbilities.abilities.size());
 
-        buf.writeInt(generalAbilities.id);
-        buf.writeInt(combatAbilities.id);
-        buf.writeInt(miningAbilities.id);
-        buf.writeInt(woodcuttingAbilities.id);
+        buf.writeInt(blockling.generalAbilities.id);
+        buf.writeInt(blockling.combatAbilities.id);
+        buf.writeInt(blockling.miningAbilities.id);
+        buf.writeInt(blockling.woodcuttingAbilities.id);
 
-        ByteBufUtils.writeUTF8String(buf, generalAbilities.groupName);
-        ByteBufUtils.writeUTF8String(buf, combatAbilities.groupName);
-        ByteBufUtils.writeUTF8String(buf, miningAbilities.groupName);
-        ByteBufUtils.writeUTF8String(buf, woodcuttingAbilities.groupName);
+        ByteBufUtils.writeUTF8String(buf, blockling.generalAbilities.groupName);
+        ByteBufUtils.writeUTF8String(buf, blockling.combatAbilities.groupName);
+        ByteBufUtils.writeUTF8String(buf, blockling.miningAbilities.groupName);
+        ByteBufUtils.writeUTF8String(buf, blockling.woodcuttingAbilities.groupName);
 
-        for (Ability ability : generalAbilities.abilities)
+        for (Ability ability : blockling.generalAbilities.abilities)
         {
             buf.writeInt(ability.id);
             if (ability.parentAbility != null) buf.writeInt(ability.parentAbility.id);
@@ -220,7 +292,7 @@ public class AbilitiesMessage implements IMessage
             ByteBufUtils.writeUTF8String(buf, ability.name);
             ByteBufUtils.writeUTF8String(buf, ability.description);
         }
-        for (Ability ability : combatAbilities.abilities)
+        for (Ability ability : blockling.combatAbilities.abilities)
         {
             buf.writeInt(ability.id);
             if (ability.parentAbility != null) buf.writeInt(ability.parentAbility.id);
@@ -236,7 +308,7 @@ public class AbilitiesMessage implements IMessage
             ByteBufUtils.writeUTF8String(buf, ability.name);
             ByteBufUtils.writeUTF8String(buf, ability.description);
         }
-        for (Ability ability : miningAbilities.abilities)
+        for (Ability ability : blockling.miningAbilities.abilities)
         {
             buf.writeInt(ability.id);
             if (ability.parentAbility != null) buf.writeInt(ability.parentAbility.id);
@@ -252,7 +324,7 @@ public class AbilitiesMessage implements IMessage
             ByteBufUtils.writeUTF8String(buf, ability.name);
             ByteBufUtils.writeUTF8String(buf, ability.description);
         }
-        for (Ability ability : woodcuttingAbilities.abilities)
+        for (Ability ability : blockling.woodcuttingAbilities.abilities)
         {
             buf.writeInt(ability.id);
             if (ability.parentAbility != null) buf.writeInt(ability.parentAbility.id);
@@ -267,47 +339,6 @@ public class AbilitiesMessage implements IMessage
             buf.writeInt(ability.y);
             ByteBufUtils.writeUTF8String(buf, ability.name);
             ByteBufUtils.writeUTF8String(buf, ability.description);
-        }
-
-        buf.writeInt(this.id);
-    }
-
-    public static class Handler implements net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler<AbilitiesMessage, IMessage>
-    {
-        public IMessage onMessage(AbilitiesMessage message, MessageContext ctx)
-        {
-            Entity entity = null;
-
-            if ((ctx.side.isClient()) && (Blocklings.proxy.getPlayer(ctx) != null))
-            {
-                entity = Blocklings.proxy.getPlayer(ctx).world.getEntityByID(message.id);
-
-                if (entity instanceof EntityBlockling)
-                {
-                    EntityBlockling blockling = (EntityBlockling) entity;
-
-                    blockling.generalAbilities = message.generalAbilities;
-                    blockling.combatAbilities = message.combatAbilities;
-                    blockling.miningAbilities = message.miningAbilities;
-                    blockling.woodcuttingAbilities = message.woodcuttingAbilities;
-                }
-            }
-            else if (ctx.side.isServer() && Blocklings.proxy.getPlayer(ctx) != null)
-            {
-                entity = Blocklings.proxy.getPlayer(ctx).world.getEntityByID(message.id);
-
-                if ((entity instanceof EntityBlockling))
-                {
-                    EntityBlockling blockling = (EntityBlockling) entity;
-
-                    blockling.generalAbilities = message.generalAbilities;
-                    blockling.combatAbilities = message.combatAbilities;
-                    blockling.miningAbilities = message.miningAbilities;
-                    blockling.woodcuttingAbilities = message.woodcuttingAbilities;
-                }
-            }
-
-            return null;
         }
     }
 }

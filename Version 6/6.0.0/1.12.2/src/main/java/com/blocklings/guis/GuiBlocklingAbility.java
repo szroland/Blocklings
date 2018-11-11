@@ -49,6 +49,7 @@ abstract class GuiBlocklingAbility extends GuiBlocklingBase
      */
     protected boolean init = true;
 
+    private boolean haveNotMovedSinceMouseClick = false;
     private int beforeReleaseX, beforeReleaseY;
 
     protected GuiBlocklingAbility(EntityBlockling blockling, EntityPlayer player)
@@ -138,10 +139,23 @@ abstract class GuiBlocklingAbility extends GuiBlocklingBase
 
             if (ability != null)
             {
-                if (ability.state == Ability.State.UNLOCKED) ability.state = Ability.State.ACQUIRED;
-                else if (ability.state == Ability.State.ACQUIRED) ability.state = Ability.State.LOCKED;
-                else if (ability.state == Ability.State.LOCKED) ability.state = Ability.State.UNLOCKED;
-                blockling.syncAbilities();
+                boolean isParentGreater = (ability.parentAbility == null || ability.parentAbility.state.ordinal() > ability.state.ordinal() || ability.state.ordinal() == Ability.State.values().length - 1);
+                boolean areChildrenLower = true;
+                for (Ability childAbility : ability.getChildren(abilities))
+                {
+                    if (childAbility.state.ordinal() > 0)
+                    {
+                        areChildrenLower = false;
+                    }
+                }
+
+                if (isParentGreater)
+                {
+                    if (ability.state == Ability.State.UNLOCKED) ability.state = Ability.State.ACQUIRED;
+                    else if (ability.state == Ability.State.ACQUIRED && areChildrenLower) ability.state = Ability.State.LOCKED;
+                    else if (ability.state == Ability.State.LOCKED) ability.state = Ability.State.UNLOCKED;
+                    blockling.syncAbilities();
+                }
             }
 
             GuiHelper.Tab tab = GuiHelper.getTabAt(mouseX, mouseY, width, height);
@@ -153,6 +167,7 @@ abstract class GuiBlocklingAbility extends GuiBlocklingBase
         }
 
         isClicking = false;
+        haveNotMovedSinceMouseClick = false;
     }
 
     @Override
@@ -160,6 +175,7 @@ abstract class GuiBlocklingAbility extends GuiBlocklingBase
     {
         super.mouseClicked(mouseX, mouseY, mouseButton);
 
+        haveNotMovedSinceMouseClick = true;
         beforeReleaseX = x;
         beforeReleaseY = y;
     }
@@ -418,12 +434,25 @@ abstract class GuiBlocklingAbility extends GuiBlocklingBase
         }
     }
 
+    private int totalDifX = 0, totalDifY = 0;
+    private int timeMoving = 0;
     private void updateXY(int mouseX, int mouseY)
     {
-        if (isClicking)
+        if (isClicking && (getAbilityAtMouseLocation(mouseX, mouseY) == null || !haveNotMovedSinceMouseClick || totalDifX > 12 || totalDifY > 12 || timeMoving > 10))
         {
             x += mouseX - prevMouseX;
             y += mouseY - prevMouseY;
+
+            totalDifX = 0;
+            totalDifY = 0;
+            timeMoving = 0;
+            haveNotMovedSinceMouseClick = false;
+        }
+        else if (isClicking)
+        {
+            totalDifX += Math.abs(mouseX - prevMouseX);
+            totalDifY += Math.abs(mouseY - prevMouseY);
+            timeMoving += 1;
         }
 
         if (x < minScreenX)
@@ -434,6 +463,7 @@ abstract class GuiBlocklingAbility extends GuiBlocklingBase
             y = minScreenY;
         else if (y > maxScreenY)
             y = maxScreenY;
+
     }
 
     /**

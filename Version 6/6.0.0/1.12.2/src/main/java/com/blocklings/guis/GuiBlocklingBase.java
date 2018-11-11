@@ -7,7 +7,6 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.entity.player.EntityPlayer;
-import org.jline.utils.Log;
 
 import java.io.IOException;
 
@@ -53,6 +52,8 @@ abstract class GuiBlocklingBase extends GuiScreen
 
         screenLeft = (width - SCREEN_WIDTH) / 2;
         screenTop = (height - SCREEN_HEIGHT) / 2 + GuiHelper.YOFFSET;
+
+        blockling.isInGui = true;
     }
 
     @Override
@@ -137,5 +138,12 @@ abstract class GuiBlocklingBase extends GuiScreen
     protected boolean isMouseOverScreen(int mouseX, int mouseY)
     {
         return isMouseOver(mouseX, mouseY, screenLeft, screenTop, SCREEN_WIDTH, SCREEN_HEIGHT);
+    }
+
+    @Override
+    public void onGuiClosed()
+    {
+        blockling.isInGui = false;
+        super.onGuiClosed();
     }
 }

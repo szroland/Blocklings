@@ -2,6 +2,7 @@ package com.blocklings.util.helpers;
 
 import com.blocklings.main.Blocklings;
 import com.blocklings.network.*;
+import javafx.scene.transform.Scale;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
@@ -16,6 +17,12 @@ public class NetworkHelper
     {
         network.registerMessage(AbilitiesMessage.Handler.class, AbilitiesMessage.class, id++, Side.CLIENT);
         network.registerMessage(AbilitiesMessage.Handler.class, AbilitiesMessage.class, id++, Side.SERVER);
+        network.registerMessage(ScaleMessage.Handler.class, ScaleMessage.class, id++, Side.CLIENT);
+        network.registerMessage(ScaleMessage.Handler.class, ScaleMessage.class, id++, Side.SERVER);
+        network.registerMessage(NameMessage.Handler.class, NameMessage.class, id++, Side.CLIENT);
+        network.registerMessage(NameMessage.Handler.class, NameMessage.class, id++, Side.SERVER);
+        network.registerMessage(AnimationStateMessage.Handler.class, AnimationStateMessage.class, id++, Side.CLIENT);
+        network.registerMessage(AnimationStateMessage.Handler.class, AnimationStateMessage.class, id++, Side.SERVER);
         network.registerMessage(GuiIDMessage.Handler.class, GuiIDMessage.class, id++, Side.CLIENT);
         network.registerMessage(GuiIDMessage.Handler.class, GuiIDMessage.class, id++, Side.SERVER);
         network.registerMessage(OpenGuiMessage.Handler.class, OpenGuiMessage.class, id++, Side.CLIENT);

@@ -14,7 +14,7 @@ class GuiBlocklingCombat extends GuiBlocklingAbility
     {
         super(blockling, player);
 
-        abilities = blockling.combatAbilities;
+        abilities = blockling.combatAbilities.abilities;
     }
 
     @Override
@@ -33,6 +33,6 @@ class GuiBlocklingCombat extends GuiBlocklingAbility
     {
         super.updateScreen();
 
-        abilities = blockling.combatAbilities;
+        abilities = blockling.combatAbilities.abilities;
     }
 }

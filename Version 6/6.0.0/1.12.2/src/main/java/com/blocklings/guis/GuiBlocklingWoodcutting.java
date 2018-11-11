@@ -14,7 +14,7 @@ class GuiBlocklingWoodcutting extends GuiBlocklingAbility
     {
         super(blockling, player);
 
-        abilities = blockling.woodcuttingAbilities;
+        abilities = blockling.woodcuttingAbilities.abilities;
     }
 
     @Override
@@ -33,6 +33,6 @@ class GuiBlocklingWoodcutting extends GuiBlocklingAbility
     {
         super.updateScreen();
 
-        abilities = blockling.woodcuttingAbilities;
+        abilities = blockling.woodcuttingAbilities.abilities;
     }
 }

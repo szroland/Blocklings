@@ -15,7 +15,7 @@ class GuiBlocklingMining extends GuiBlocklingAbility
     {
         super(blockling, player);
 
-        abilities = blockling.miningAbilities;
+        abilities = blockling.miningAbilities.abilities;
     }
 
     @Override
@@ -34,6 +34,6 @@ class GuiBlocklingMining extends GuiBlocklingAbility
     {
         super.updateScreen();
 
-        abilities = blockling.miningAbilities;
+        abilities = blockling.miningAbilities.abilities;
     }
 }

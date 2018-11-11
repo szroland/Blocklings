@@ -1,5 +1,6 @@
 package com.blocklings.util.helpers;
 
+import com.blocklings.abilities.Ability;
 import com.blocklings.entities.EntityBlockling;
 import com.blocklings.main.Blocklings;
 import com.blocklings.render.RenderBlockling;
@@ -10,8 +11,15 @@ import net.minecraftforge.fml.common.registry.EntityRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import java.awt.Color;
+import java.util.List;
+import java.util.ArrayList;
+
 public class EntityHelper
 {
+    public static final float BASE_SCALE = 0.75f;
+    public static final float BASE_SCALE_FOR_HITBOX = BASE_SCALE * 1.1f;
+
     public static void registerEntities()
     {
         int id = 1;

@@ -1,12 +1,14 @@
 package com.blocklings.entities;
 
+import com.blocklings.abilities.AbilityGroup;
 import com.blocklings.inventories.InventoryBlockling;
 import com.blocklings.main.Blocklings;
 import com.blocklings.network.*;
+import com.blocklings.util.helpers.AbilityHelper;
+import com.blocklings.util.helpers.EntityHelper;
 import com.blocklings.util.helpers.ItemHelper;
 import com.blocklings.util.helpers.NetworkHelper;
 import com.blocklings.util.helpers.GuiHelper.Tab;
-import com.blocklings.abilities.Ability;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.EntityAgeable;
@@ -22,26 +24,36 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumHand;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
-import org.apache.commons.lang3.SerializationUtils;
-import org.jline.utils.Log;
 
-import java.awt.*;
-import java.util.ArrayList;
-import java.util.List;
+import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+
+import java.util.Random;
 
 public class EntityBlockling extends EntityTameable implements IEntityAdditionalSpawnData
 {
+    public static final Random RANDOM = new Random();
+
+    public enum AnimationState { IDLE }
+
     public static final double BASE_MAX_HEALTH = 10;
-    public static final double BASE_MOVEMENT_SPEED = 0.3;
+    public static final double BASE_MOVEMENT_SPEED = 0.6;
     public static final double BASE_ATTACK_DAMAGE = 1;
 
     public InventoryBlockling inv;
 
-    public List<Ability> generalAbilities;
-    public List<Ability> combatAbilities;
-    public List<Ability> miningAbilities;
-    public List<Ability> woodcuttingAbilities;
+    public AbilityGroup generalAbilities;
+    public AbilityGroup combatAbilities;
+    public AbilityGroup miningAbilities;
+    public AbilityGroup woodcuttingAbilities;
+
+    @SideOnly(Side.CLIENT)
+    public boolean isInGui = false;
+
+    private float scale;
+
+    private AnimationState animationState = AnimationState.IDLE;
 
     private int guiID = 1;
 
@@ -58,8 +70,6 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
     public EntityBlockling(World worldIn)
     {
         super(worldIn);
-
-        setSize(1.0f, 1.0f);
     }
 
     // CLIENT SERVER
@@ -71,102 +81,21 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
         setCanPickUpLoot(true);
         setupInventory();
 
-        generalAbilities = new ArrayList<Ability>();
-        combatAbilities = new ArrayList<Ability>();
-        miningAbilities = new ArrayList<Ability>();
-        woodcuttingAbilities = new ArrayList<Ability>();
-
+        if ((generalAbilities == null || generalAbilities.abilities.size() == 0))
         {
-            Ability ability0 = new Ability(0, null, -10, -20, 24, 0, "Ability 0 Super Long Ability Name", "Ability 0 description");
-            Ability ability1 = new Ability(1, ability0, 30, 30, 0, 0, "Ability 1", "Ability 1 description 1");
-            Ability ability6 = new Ability(1, ability0, 110, 30, 0, 0, "Ability 6", "Ability 6 description 12");
-            Ability ability2 = new Ability(2, ability0, -40, 90, 0, 0, "Ability 2", "Ability 2 description 123");
-            Ability ability5 = new Ability(2, ability0, -76, 90, 0, 0, "Ability 5", "Ability 5 description 1234");
-            Ability ability3 = new Ability(3, ability1, 90, 140, 24, 0, "Ability 3", "Ability 3 description 12345");
-            Ability ability4 = new Ability(4, ability2, 20, 130, 24, 0, "Ability 4", "Ability 4 description 123456");
-
-            ability0.colour = new Color(0xaa55aa);
-            ability1.colour = new Color(0x500F89);
-            ability0.colour = new Color(0xB98F2C);
-            ability2.colour = new Color(0x920C07);
-            ability5.colour = new Color(0x0A8C2E);
-
-            generalAbilities.add(ability0);
-            generalAbilities.add(ability1);
-            generalAbilities.add(ability2);
-            generalAbilities.add(ability3);
-            generalAbilities.add(ability4);
-            generalAbilities.add(ability5);
-            generalAbilities.add(ability6);
+            generalAbilities = new AbilityGroup(0, "General", AbilityHelper.generalAbilities);
+            combatAbilities = new AbilityGroup(1, "Combat", AbilityHelper.combatAbilities);
+            miningAbilities = new AbilityGroup(2, "Mining", AbilityHelper.miningAbilities);
+            woodcuttingAbilities = new AbilityGroup(3, "Woodcutting", AbilityHelper.woodcuttingAbilities);
         }
+
+        if (!world.isRemote)
         {
-            Ability ability0 = new Ability(0, null, -40, -40, 24, 0, "Ability 0 Super Long Ability Name", "Ability 0 description");
-            Ability ability1 = new Ability(1, ability0, 10, 11, 0, 0, "Ability 1", "Ability 1 description 1");
-            Ability ability6 = new Ability(1, ability0, 120, 15, 0, 0, "Ability 6", "Ability 6 description 12");
-            Ability ability2 = new Ability(2, ability0, -20, 70, 0, 0, "Ability 2", "Ability 2 description 123");
-            Ability ability5 = new Ability(2, ability0, -90, 90, 0, 0, "Ability 5", "Ability 5 description 1234");
-            Ability ability3 = new Ability(3, ability1, 56, 120, 24, 0, "Ability 3", "Ability 3 description 12345");
-            Ability ability4 = new Ability(4, ability2, 20, 110, 24, 0, "Ability 4", "Ability 4 description 123456");
-
-            ability0.colour = new Color(0xaa55aa);
-            ability1.colour = new Color(0x500F89);
-            ability0.colour = new Color(0xB98F2C);
-            ability2.colour = new Color(0x920C07);
-            ability5.colour = new Color(0x0A8C2E);
-
-            combatAbilities.add(ability0);
-            combatAbilities.add(ability1);
-            combatAbilities.add(ability2);
-            combatAbilities.add(ability3);
-            combatAbilities.add(ability4);
-            combatAbilities.add(ability5);
-            combatAbilities.add(ability6);
-        }
-        {
-            Ability ability0 = new Ability(0, null, -2, -3, 24, 0, "Ability 0 Super Long Ability Name", "Ability 0 description");
-            Ability ability1 = new Ability(1, ability0, 45, 45, 0, 0, "Ability 1", "Ability 1 description 1");
-            Ability ability6 = new Ability(1, ability0, 150, 90, 0, 0, "Ability 6", "Ability 6 description 12");
-            Ability ability2 = new Ability(2, ability0, -20, 95, 0, 0, "Ability 2", "Ability 2 description 123");
-            Ability ability5 = new Ability(2, ability0, -56, 99, 0, 0, "Ability 5", "Ability 5 description 1234");
-            Ability ability3 = new Ability(3, ability1, 100, 150, 24, 0, "Ability 3", "Ability 3 description 12345");
-            Ability ability4 = new Ability(4, ability2, 34, 120, 24, 0, "Ability 4", "Ability 4 description 123456");
-
-            ability0.colour = new Color(0xaa55aa);
-            ability1.colour = new Color(0x500F89);
-            ability0.colour = new Color(0xB98F2C);
-            ability2.colour = new Color(0x920C07);
-            ability5.colour = new Color(0x0A8C2E);
-
-            miningAbilities.add(ability0);
-            miningAbilities.add(ability1);
-            miningAbilities.add(ability2);
-            miningAbilities.add(ability3);
-            miningAbilities.add(ability4);
-            miningAbilities.add(ability5);
-            miningAbilities.add(ability6);
-        }
-        {
-            Ability ability0 = new Ability(0, null, -10, -2, 24, 0, "Ability 0 Super Long Ability Name", "Ability 0 description");
-            Ability ability1 = new Ability(1, ability0, 33, 45, 0, 0, "Ability 1", "Ability 1 description 1");
-            Ability ability6 = new Ability(1, ability0, 130, 27, 0, 0, "Ability 6", "Ability 6 description 12");
-            Ability ability2 = new Ability(2, ability0, -56, 120, 0, 0, "Ability 2", "Ability 2 description 123");
-            Ability ability5 = new Ability(2, ability0, -80, 98, 0, 0, "Ability 5", "Ability 5 description 1234");
-            Ability ability3 = new Ability(3, ability1, 56, 130, 24, 0, "Ability 3", "Ability 3 description 12345");
-            Ability ability4 = new Ability(4, ability2, 20, 134, 24, 0, "Ability 4", "Ability 4 description 123456");
-
-            ability0.colour = new Color(0xaa55aa);
-            ability1.colour = new Color(0x500F89);
-            ability0.colour = new Color(0xB98F2C);
-            ability2.colour = new Color(0x920C07);
-            ability5.colour = new Color(0x0A8C2E);
-
-            woodcuttingAbilities.add(ability0);
-            woodcuttingAbilities.add(ability1);
-            woodcuttingAbilities.add(ability2);
-            woodcuttingAbilities.add(ability3);
-            woodcuttingAbilities.add(ability4);
-            woodcuttingAbilities.add(ability5);
-            woodcuttingAbilities.add(ability6);
+            do
+            {
+                scale = 1.0f + ((float) RANDOM.nextGaussian() / 15.0f);
+            }
+            while (scale < 0.75f || scale > 1.25f);
         }
     }
 
@@ -207,6 +136,14 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
     public void writeEntityToNBT(NBTTagCompound compound)
     {
         super.writeEntityToNBT(compound);
+
+        compound.setFloat("Scale", scale);
+        compound.setInteger("GuiID", guiID);
+
+        generalAbilities.writeToNBT(compound);
+        combatAbilities.writeToNBT(compound);
+        miningAbilities.writeToNBT(compound);
+        woodcuttingAbilities.writeToNBT(compound);
     }
 
     // Used to load entity data (variables) when the entity is loaded
@@ -215,14 +152,28 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
     public void readEntityFromNBT(NBTTagCompound compound)
     {
         super.readEntityFromNBT(compound);
+
+        scale = compound.getFloat("Scale");
+        guiID = compound.getInteger("GuiID");
+
+        generalAbilities = AbilityGroup.createFromNBTAndId(compound, 0);
+        combatAbilities = AbilityGroup.createFromNBTAndId(compound, 1);
+        miningAbilities = AbilityGroup.createFromNBTAndId(compound, 2);
+        woodcuttingAbilities = AbilityGroup.createFromNBTAndId(compound, 3);
     }
 
-    // Used to save the data (variables) that need to be saved and synced
+    // Used to save the data (variables) that need to be synced on spawn
     // SERVER
     @Override
     public void writeSpawnData(ByteBuf buf)
     {
+        AbilityHelper.writeSpawnData(buf, this);
 
+        buf.writeFloat(scale);
+        buf.writeInt(animationState.ordinal());
+        buf.writeInt(guiID);
+
+        setSize(EntityHelper.BASE_SCALE_FOR_HITBOX * scale, EntityHelper.BASE_SCALE_FOR_HITBOX * scale);
     }
 
     // Used to sync client with server on spawn
@@ -230,7 +181,13 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
     @Override
     public void readSpawnData(ByteBuf buf)
     {
-        syncAbilities();
+        AbilityHelper.readSpawnData(buf, this);
+
+        scale = buf.readFloat();
+        animationState = AnimationState.values()[buf.readInt()];
+        guiID = buf.readInt();
+
+        setSize(EntityHelper.BASE_SCALE_FOR_HITBOX * scale, EntityHelper.BASE_SCALE_FOR_HITBOX * scale);
     }
 
     // Called once every tick
@@ -295,12 +252,12 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
                 }
             }
             else
-            {
+            {openGui(player);
                 if (isTamed())
                 {
                     if (player == getOwner())
                     {
-                        openGui(player);
+                        //openGui(player);
                     }
                 }
             }
@@ -413,12 +370,66 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
 
     public void syncAbilities()
     {
+        if (generalAbilities == null || combatAbilities == null || miningAbilities == null || woodcuttingAbilities == null)
+        {
+            return;
+        }
+
         NetworkHelper.sync(world, new AbilitiesMessage(generalAbilities, combatAbilities, miningAbilities, woodcuttingAbilities, getEntityId()));
     }
 
     // GETTERS
     // AND
     // SETTERS
+
+    public float getBlocklingScale()
+    {
+        return scale;
+    }
+
+    public void setBlocklingScale(float value)
+    {
+        scale = value;
+        NetworkHelper.sync(world, new ScaleMessage(value, getEntityId()));
+    }
+
+    public void setScaleFromPacket(float value)
+    {
+        scale = value;
+    }
+
+
+    @SideOnly(Side.CLIENT)
+    public void setName(String value)
+    {
+        setCustomNameTag(value);
+        NetworkHelper.sync(world, new NameMessage(value, getEntityId()));
+    }
+
+    public void setNameFromPacket(String value)
+    {
+        setCustomNameTag(value);
+    }
+
+
+
+    public AnimationState getAnimationState()
+    {
+        return animationState;
+    }
+
+    public void setAnimationState(AnimationState value)
+    {
+        animationState = value;
+        NetworkHelper.sync(world, new AnimationStateMessage(value, getEntityId()));
+    }
+
+    public void setAnimationStateFromPacket(AnimationState value)
+    {
+        animationState = value;
+    }
+
+
 
     public int getGuiID()
     {

@@ -6,6 +6,8 @@ import com.blocklings.entities.EntityBlockling;
 import com.blocklings.models.ModelBlockling;
 import com.blocklings.util.ResourceLocationBlocklings;
 
+import com.blocklings.util.helpers.EntityHelper;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderLiving;
 import net.minecraft.client.renderer.entity.RenderManager;
@@ -23,6 +25,19 @@ public class RenderBlockling extends RenderLiving<EntityBlockling>
     public RenderBlockling(RenderManager rendermanagerIn)
     {
         super(rendermanagerIn, new ModelBlockling(), 0.5F);
+    }
+
+    @Override
+    protected void preRenderCallback(EntityBlockling blockling, float partialTicks)
+    {
+        float val = EntityHelper.BASE_SCALE * blockling.getBlocklingScale();
+        GlStateManager.scale(val, val, val);
+    }
+
+    @Override
+    protected void renderLivingLabel(EntityBlockling blockling, String label, double x, double y, double z, int maxDistance)
+    {
+        if (!blockling.isInGui) super.renderLivingLabel(blockling, label, x, y, z, maxDistance);
     }
 
     @Override
