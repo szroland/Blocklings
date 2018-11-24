@@ -15,14 +15,18 @@ public class GuiHandler implements IGuiHandler
     public Object getServerGuiElement(int id, EntityPlayer player, World world, int entityID, int unused1, int unused2)
     {
         Entity entity = world.getEntityByID(entityID);
-
+        Log.info(id);
         if (entity != null && entity instanceof EntityBlockling)
         {
             EntityBlockling blockling = (EntityBlockling) entity;
-
+            Log.info(!blockling.world.isRemote + " get server");
             if (id == Tab.INVENTORY.id)
             {
                 return new ContainerInventoryBlockling(player.inventory, blockling.inv);
+            }
+            else if (id == Tab.EQUIPMENT.id)
+            {
+                return new ContainerEquipmentBlockling(player.inventory, blockling.inv);
             }
         }
 
@@ -33,11 +37,11 @@ public class GuiHandler implements IGuiHandler
     public Object getClientGuiElement(int id, EntityPlayer player, World world, int entityID, int unused1, int unused2)
     {
         Entity entity = world.getEntityByID(entityID);
-
+        Log.info(id + " as");
         if (entity != null && entity instanceof EntityBlockling)
         {
             EntityBlockling blockling = (EntityBlockling) entity;
-
+            Log.info(blockling.world.isRemote + " get client");
             if (id == Tab.STATS.id)
             {
                 return new GuiBlocklingStats(blockling, player);
@@ -61,6 +65,10 @@ public class GuiHandler implements IGuiHandler
             else if (id == Tab.WOODCUTTING.id)
             {
                 return new GuiBlocklingWoodcutting(blockling, player);
+            }
+            else if (id == Tab.EQUIPMENT.id)
+            {
+                return new GuiBlocklingEquipment(player.inventory, blockling.inv, blockling, player);
             }
         }
 

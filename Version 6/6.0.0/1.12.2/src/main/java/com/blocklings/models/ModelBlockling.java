@@ -16,13 +16,13 @@ public class ModelBlockling extends ModelBase
     ModelRenderer leftArm;
     ModelRenderer rightEye;
     ModelRenderer leftEye;
-    float bodyBaseX = 0.0872665f;
-    float rightLegBaseX = -0.0872665f;
-    float leftLegBaseX = -0.0872665f;
-    float rightArmBaseX = 0.785398f - this.bodyBaseX;
-    float leftArmBaseX =  0.785398f - this.bodyBaseX;
-    float rightEyeBaseX = 0.0f;
-    float leftEyeBaseX = 0.0f;
+    public static final float bodyBaseX = 0.0872665f;
+    private float rightLegBaseX = -0.0872665f;
+    private float leftLegBaseX = -0.0872665f;
+    public static final float rightArmBaseX = 0.785398f - bodyBaseX;
+    public static final float leftArmBaseX =  0.785398f - bodyBaseX;
+    private float rightEyeBaseX = 0.0f;
+    private float leftEyeBaseX = 0.0f;
 
     private int[] attackAnimation = { 0, 18, 39, 62, 85, 70, 58, 47, 37, 28, 20, 14, 8, 3, 0 };
 

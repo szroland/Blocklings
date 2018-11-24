@@ -10,11 +10,12 @@ public class GuiHelper
     public enum Tab
     {
         STATS("Stats", 1, -111, -81, 22, 22),
-        INVENTORY("Inventory", 2, -111, -52, 22, 22),
+        EQUIPMENT("Equipment", 7, -111, -52, 22, 22),
         GENERAL("General", 3, 87, -81, 22, 22),
         COMBAT("Combat", 4, 87, -52, 22, 22),
         MINING("Mining", 5, 87, -23, 22, 22),
-        WOODCUTTING("Woodcutting", 6, 87, 6, 22, 22);
+        WOODCUTTING("Woodcutting", 6, 87, 6, 22, 22),
+        INVENTORY("Inventory", 2, -111, -23, 22, 22);
 
         public String name;
         public int id, x, y, width, height;

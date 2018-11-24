@@ -3,6 +3,7 @@ package com.blocklings.guis;
 import com.blocklings.entities.EntityBlockling;
 import com.blocklings.util.ResourceLocationBlocklings;
 import com.blocklings.util.helpers.GuiHelper.Tab;
+import javafx.scene.paint.Color;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiTextField;
@@ -38,9 +39,17 @@ public class GuiBlocklingStats extends GuiBlocklingBase
         buttonList.add(taskButton = new GuiButton(0, width / 2 - 81, height / 2 + 46, 52, 20, "asdsad"));
         buttonList.add(guardButton = new GuiButton(1, width / 2 - 25, height / 2 + 46, 51, 20, "asdsad"));
         buttonList.add(stateButton = new GuiButton(2, width / 2 + 29, height / 2 + 46, 52, 20, "asdsad"));
-        nameTextField = new GuiTextField2(3, fontRenderer, width / 2 - 80, height / 2 - 85, 160, 20);
-        nameTextField.setFocused(true);
+        nameTextField = new GuiTextField2(3, fontRenderer, width / 2 - 80, height / 2 - 85, 160, 20)
+        {
+            public void setFocused(boolean isFocusedIn)
+            {
+                blockling.setName(nameTextField.getText());
+                nameTextField.setText(blockling.getCustomNameTag());
+                super.setFocused(isFocusedIn);
+            }
+        };
         nameTextField.setText(blockling.getCustomNameTag());
+        nameTextField.setFocused(true);
     }
 
     @Override
@@ -64,8 +73,9 @@ public class GuiBlocklingStats extends GuiBlocklingBase
         drawInfo();
 
         setDefaultRenderSettings();
-        drawEntityOnScreen(width / 2, height / 2 + 10, 55, width / 2 - mouseX,  height / 2 - mouseY, blockling);
+        drawEntityOnScreen(width / 2, height / 2 + 20, 45, width / 2 - mouseX,  height / 2 - mouseY, blockling);
 
+        setDefaultRenderSettings();
         nameTextField.drawTextBox();
 
         super.drawScreen(mouseX, mouseY, partialTicks);
@@ -73,15 +83,62 @@ public class GuiBlocklingStats extends GuiBlocklingBase
 
     private void drawInfo()
     {
-        int i = -10, j = 18;
+        int size = 11;
+        int i = -50, j = -22, k = -72;
+        int xx = width / 2 + k;
+        int yy = height / 2 + i;
+        drawTexturedModalRect(xx, yy - (j * 0), 0, TEXTURE_HEIGHT, size, size);
+        drawTexturedModalRect(xx, yy - (j * 1), 11, TEXTURE_HEIGHT, size, size);
+        drawTexturedModalRect(xx, yy - (j * 2), 22, TEXTURE_HEIGHT, size, size);
+        drawTexturedModalRect(xx, yy - (j * 3), 33, TEXTURE_HEIGHT, size, size);
+
+        xx += 15;
+        yy += 2;
+        int colour = 0xd1d1d1;
         String totalLevelString = Integer.toString(blockling.getGeneralLevel());
-        fontRenderer.drawString(totalLevelString, width / 2 - 72, height / 2 - (i + j * 0), 0xffd700, false);
+        fontRenderer.drawString(totalLevelString, xx, yy - (j * 0), colour, true);
+        colour = 0xb30000;
+        colour = 0xff4d4d;
         String combatLevelString = Integer.toString(blockling.getCombatLevel());
-        fontRenderer.drawString(combatLevelString, width / 2 - 72, height / 2 - (i + j * 1), 0xffd700, false);
+        fontRenderer.drawString(combatLevelString, xx, yy - (j * 1), colour, true);
+        colour = 0x2952a3;
+        colour = 0x7094db;
         String miningLevelString = Integer.toString(blockling.getMiningLevel());
-        fontRenderer.drawString(miningLevelString, width / 2 - 72, height / 2 - (i + j * 2), 0xffd700, false);
-        String woodcuttingLevelString = Integer.toString(blockling.getCombatLevel());
-        fontRenderer.drawString(woodcuttingLevelString, width / 2 - 72, height / 2 - (i + j * 3), 0xffd700, false);
+        fontRenderer.drawString(miningLevelString, xx, yy - (j * 2), colour, true);
+        colour = 0x0a9306;
+        colour = 0x57a65b;
+        String woodcuttingLevelString = Integer.toString(blockling.getWoodcuttingLevel());
+        fontRenderer.drawString(woodcuttingLevelString, xx, yy - (j * 3), colour, true);
+        colour = 0x894d10;
+        colour = 0x9d6d4a;
+
+        setDefaultRenderSettings();
+        mc.getTextureManager().bindTexture(WINDOW);
+
+        xx = width / 2 - k - size;
+        yy -= 2;
+        drawTexturedModalRect(xx, yy - (j * 0), 0, TEXTURE_HEIGHT + size, size, size);
+        drawTexturedModalRect(xx, yy - (j * 1), 11, TEXTURE_HEIGHT + size, size, size);
+        drawTexturedModalRect(xx, yy - (j * 2), 22, TEXTURE_HEIGHT + size, size, size);
+        drawTexturedModalRect(xx, yy - (j * 3), 33, TEXTURE_HEIGHT + size, size, size);
+
+        xx -= 15 - size;
+        yy += 2;
+        double health = blockling.getHealth();
+        double maxHealth = blockling.getMaxHealth();
+        double r = 163 - 92 * (health / maxHealth), g = 0 + 171 * (health / maxHealth), b = 0 + 3 * (health / maxHealth);
+        colour = (int) r;
+        colour = (colour << 8) + (int) g;
+        colour = (colour << 8) + (int) b;
+        String healthString = Integer.toString((int) health);
+        fontRenderer.drawString(healthString, xx - fontRenderer.getStringWidth(healthString), yy - (j * 0), colour, true);
+        colour = 0xfbba20;
+        String damageString = "5";
+        fontRenderer.drawString(damageString, xx - fontRenderer.getStringWidth(damageString), yy - (j * 1), colour, true);
+        String attackSpeedString = "30";
+        fontRenderer.drawString(attackSpeedString, xx - fontRenderer.getStringWidth(attackSpeedString), yy - (j * 2), colour, true);
+        String speedString = "13";
+        fontRenderer.drawString(speedString, xx - fontRenderer.getStringWidth(speedString), yy - (j * 3), colour, true);
     }
 
     private static void drawEntityOnScreen(int posX, int posY, int scale, float mouseX, float mouseY, EntityBlockling ent)
@@ -146,7 +203,6 @@ public class GuiBlocklingStats extends GuiBlocklingBase
         switch (keyCode)
         {
             case 28:
-                blockling.setName(nameTextField.getText());
                 nameTextField.setFocused(false);
             default:
                 nameTextField.textboxKeyTyped(typedChar, keyCode);
@@ -156,6 +212,7 @@ public class GuiBlocklingStats extends GuiBlocklingBase
     @Override
     public void onGuiClosed()
     {
+        if (nameTextField != null) nameTextField.setFocused(false);
         super.onGuiClosed();
     }
 }

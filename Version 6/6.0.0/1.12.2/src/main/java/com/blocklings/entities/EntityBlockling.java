@@ -10,6 +10,7 @@ import com.blocklings.util.helpers.ItemHelper;
 import com.blocklings.util.helpers.NetworkHelper;
 import com.blocklings.util.helpers.GuiHelper.Tab;
 
+import com.google.common.graph.Network;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.EntityAgeable;
 import net.minecraft.entity.EntityLiving;
@@ -57,7 +58,7 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
 
     private int guiID = 1;
 
-    private int generalLevel = 1, combatLevel = 1, miningLevel = 1, woodcuttingLevel = 1;
+    private int generalLevel = 4, combatLevel = 13, miningLevel = 7, woodcuttingLevel = 6;
     private int generalXp = 0, combatXp = 0, miningXp = 0, woodcuttingXp = 0;
 
     private EntityAIFollowOwner aiFollow;
@@ -65,6 +66,8 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
 
     private EntityAIOwnerHurtByTarget aiOwnerHurtBy;
     private EntityAIOwnerHurtTarget aiOwnerHurt;
+
+    private ItemStack leftHandStack = ItemStack.EMPTY, rightHandStack = ItemStack.EMPTY;
 
     // CLIENT SERVER
     public EntityBlockling(World worldIn)
@@ -300,40 +303,25 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
     {
         if (world.isRemote)
         {
-            if (guiID == Tab.STATS.id)
-                player.openGui(Blocklings.instance, guiID, world, getEntityId(), 0, 0);
-            else if (guiID == Tab.INVENTORY.id)
-                NetworkHelper.sync(world, new OpenGuiMessage(getEntityId()));
-            else if (guiID == Tab.GENERAL.id)
-                player.openGui(Blocklings.instance, guiID, world, getEntityId(), 0, 0);
-            else if (guiID == Tab.COMBAT.id)
-                player.openGui(Blocklings.instance, guiID, world, getEntityId(), 0, 0);
-            else if (guiID == Tab.MINING.id)
-                player.openGui(Blocklings.instance, guiID, world, getEntityId(), 0, 0);
-            else if (guiID == Tab.WOODCUTTING.id)
+            if (guiID != Tab.INVENTORY.id && guiID != Tab.EQUIPMENT.id)
                 player.openGui(Blocklings.instance, guiID, world, getEntityId(), 0, 0);
         }
         else
         {
-            if (guiID == Tab.STATS.id)
-                NetworkHelper.sync(world, new OpenGuiMessage(getEntityId()));
-            else if (guiID == Tab.INVENTORY.id)
+            if (guiID == Tab.INVENTORY.id)
                 player.openGui(Blocklings.instance, guiID, world, getEntityId(), 0, 0);
-            else if (guiID == Tab.GENERAL.id)
-                NetworkHelper.sync(world, new OpenGuiMessage(getEntityId()));
-            else if (guiID == Tab.COMBAT.id)
-                NetworkHelper.sync(world, new OpenGuiMessage(getEntityId()));
-            else if (guiID == Tab.MINING.id)
-                NetworkHelper.sync(world, new OpenGuiMessage(getEntityId()));
-            else if (guiID == Tab.WOODCUTTING.id)
-                NetworkHelper.sync(world, new OpenGuiMessage(getEntityId()));
+            else if (guiID == Tab.EQUIPMENT.id)
+                player.openGui(Blocklings.instance, guiID, world, getEntityId(), 0, 0);
         }
     }
 
+    /**
+     * Updates the guiID in both sides, then opens whatever it needs to on both sides.
+     */
     public void openGui(int guiID, EntityPlayer player)
     {
         setGuiID(guiID);
-        openGui(player);
+        NetworkHelper.sync(world, new OpenGuiMessage(getEntityId()));
     }
 
     private void setTamed(EntityPlayer player)
@@ -344,12 +332,13 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
         //aiSit.setSitting(true);
         playTameEffect(true);
         world.setEntityState(this, (byte) 7);
+        setName(!getCustomNameTag().equals("") ? getCustomNameTag() : "Blockling");
     }
 
     private void setupInventory()
     {
         InventoryBlockling invTemp = inv;
-        inv = new InventoryBlockling(this, "Inventory", 17);
+        inv = new InventoryBlockling(this, "Inventory", 38);
         inv.setCustomName("Blockling Inventory");
 
         if (invTemp != null)
@@ -399,11 +388,19 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
     }
 
 
+
     @SideOnly(Side.CLIENT)
     public void setName(String value)
     {
-        setCustomNameTag(value);
-        NetworkHelper.sync(world, new NameMessage(value, getEntityId()));
+        if (value == null || value.equals(""))
+        {
+            setCustomNameTag("Blockling");
+        }
+        else
+        {
+            setCustomNameTag(value);
+        }
+        NetworkHelper.sync(world, new NameMessage(getCustomNameTag(), getEntityId()));
     }
 
     public void setNameFromPacket(String value)

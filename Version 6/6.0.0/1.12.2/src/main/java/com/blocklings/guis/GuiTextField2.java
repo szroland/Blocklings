@@ -501,8 +501,8 @@ public class GuiTextField2 extends Gui
         {
             if (this.getEnableBackgroundDrawing())
             {
-                //drawRect(this.x - 1, this.y - 1, this.x + this.width + 1, this.y + this.height + 1, -6250336);
-                //drawRect(this.x, this.y, this.x + this.width, this.y + this.height, -16777216);
+                drawRect(this.x - 1, this.y - 1, this.x + this.width + 1, this.y + this.height + 1, -6250336);
+                drawRect(this.x, this.y, this.x + this.width, this.y + this.height, -0x00dddddd);
             }
 
             int i = this.isEnabled ? this.enabledColor : this.disabledColor;

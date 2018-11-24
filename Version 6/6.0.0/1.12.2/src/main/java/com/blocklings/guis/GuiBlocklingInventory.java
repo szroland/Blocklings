@@ -2,16 +2,14 @@ package com.blocklings.guis;
 
 import com.blocklings.entities.EntityBlockling;
 import com.blocklings.inventories.InventoryBlockling;
-import com.blocklings.util.helpers.GuiHelper;
 import com.blocklings.util.ResourceLocationBlocklings;
+import com.blocklings.util.helpers.GuiHelper;
 import com.blocklings.util.helpers.GuiHelper.Tab;
-
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.util.ResourceLocation;
-import org.jline.utils.Log;
 
 class GuiBlocklingInventory extends GuiContainer
 {

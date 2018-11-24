@@ -25,6 +25,7 @@ public class RenderBlockling extends RenderLiving<EntityBlockling>
     public RenderBlockling(RenderManager rendermanagerIn)
     {
         super(rendermanagerIn, new ModelBlockling(), 0.5F);
+        addLayer(new LayerHeldItem(this));
     }
 
     @Override
