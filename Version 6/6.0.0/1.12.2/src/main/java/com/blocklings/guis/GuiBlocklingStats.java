@@ -73,7 +73,7 @@ public class GuiBlocklingStats extends GuiBlocklingBase
         drawInfo();
 
         setDefaultRenderSettings();
-        drawEntityOnScreen(width / 2, height / 2 + 20, 45, width / 2 - mouseX,  height / 2 - mouseY, blockling);
+        drawEntityOnScreen(width / 2, height / 2 + 16, 45, width / 2 - mouseX,  height / 2 - mouseY - 16, blockling);
 
         setDefaultRenderSettings();
         nameTextField.drawTextBox();

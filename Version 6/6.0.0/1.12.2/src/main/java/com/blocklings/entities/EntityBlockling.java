@@ -10,7 +10,6 @@ import com.blocklings.util.helpers.ItemHelper;
 import com.blocklings.util.helpers.NetworkHelper;
 import com.blocklings.util.helpers.GuiHelper.Tab;
 
-import com.google.common.graph.Network;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.EntityAgeable;
 import net.minecraft.entity.EntityLiving;
@@ -23,6 +22,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.EnumHand;
 import net.minecraft.world.World;
 
@@ -43,6 +43,7 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
     public static final double BASE_ATTACK_DAMAGE = 1;
 
     public InventoryBlockling inv;
+    private int unlockedSlots = 12;
 
     public AbilityGroup generalAbilities;
     public AbilityGroup combatAbilities;
@@ -61,6 +62,8 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
     private int generalLevel = 4, combatLevel = 13, miningLevel = 7, woodcuttingLevel = 6;
     private int generalXp = 0, combatXp = 0, miningXp = 0, woodcuttingXp = 0;
 
+    private byte autoswitchID = 0;
+
     private EntityAIFollowOwner aiFollow;
     private EntityAIWander aiWander;
 
@@ -69,10 +72,13 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
 
     private ItemStack leftHandStack = ItemStack.EMPTY, rightHandStack = ItemStack.EMPTY;
 
+    private BlocklingAIMining aiMining;
+
     // CLIENT SERVER
     public EntityBlockling(World worldIn)
     {
         super(worldIn);
+        setSize(1.0f, 1.0f);
     }
 
     // CLIENT SERVER
@@ -81,8 +87,11 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
     {
         super.entityInit();
 
-        setCanPickUpLoot(true);
+        aiMining = new BlocklingAIMining(this);
+
         setupInventory();
+
+        unlockedSlots = 12;
 
         if ((generalAbilities == null || generalAbilities.abilities.size() == 0))
         {
@@ -123,12 +132,13 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
         aiOwnerHurt = new EntityAIOwnerHurtTarget(this);
 
         tasks.addTask(1, new EntityAISwimming(this));
+        tasks.addTask(1, new EntityAIHurtByTarget(this, true, new Class[0]));
+        tasks.addTask(1, new EntityAIFollowOwner(this, 1, 2, 8));
         tasks.addTask(2, aiSit);
         tasks.addTask(3, new EntityAIAttackMelee(this, 1.0D, true));
         tasks.addTask(6, new EntityAIWatchClosest(this, EntityLiving.class, 8.0F));
         tasks.addTask(6, new EntityAILookIdle(this));
-        tasks.addTask(1, new EntityAIHurtByTarget(this, true, new Class[0]));
-        tasks.addTask(1, new EntityAIFollowOwner(this, 1, 2, 8));
+        tasks.addTask(1, aiMining);
         tasks.addTask(2, aiOwnerHurtBy);
         tasks.addTask(3, aiOwnerHurt);
     }
@@ -136,33 +146,63 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
     // Used to save entity data (variables) when the entity is unloaded
     // SERVER
     @Override
-    public void writeEntityToNBT(NBTTagCompound compound)
+    public void writeEntityToNBT(NBTTagCompound c)
     {
-        super.writeEntityToNBT(compound);
+        super.writeEntityToNBT(c);
 
-        compound.setFloat("Scale", scale);
-        compound.setInteger("GuiID", guiID);
+        c.setInteger("UnlockedSlots", unlockedSlots);
+        c.setFloat("Scale", scale);
+        c.setInteger("GuiID", guiID);
 
-        generalAbilities.writeToNBT(compound);
-        combatAbilities.writeToNBT(compound);
-        miningAbilities.writeToNBT(compound);
-        woodcuttingAbilities.writeToNBT(compound);
+        c.setByte("AutoswitchID", autoswitchID);
+
+        generalAbilities.writeToNBT(c);
+        combatAbilities.writeToNBT(c);
+        miningAbilities.writeToNBT(c);
+        woodcuttingAbilities.writeToNBT(c);
+
+        NBTTagList nbttaglist = new NBTTagList();
+        for (int i = 0; i < this.inv.getSizeInventory(); i++)
+        {
+            ItemStack itemstack = this.inv.getStackInSlot(i);
+            if (itemstack != null && !itemstack.isEmpty())
+            {
+                NBTTagCompound nbttagcompound1 = new NBTTagCompound();
+                nbttagcompound1.setByte("slot", (byte) i);
+                itemstack.writeToNBT(nbttagcompound1);
+                nbttaglist.appendTag(nbttagcompound1);
+            }
+        }
+        c.setTag("items", nbttaglist);
     }
 
     // Used to load entity data (variables) when the entity is loaded
     // SERVER
     @Override
-    public void readEntityFromNBT(NBTTagCompound compound)
+    public void readEntityFromNBT(NBTTagCompound c)
     {
-        super.readEntityFromNBT(compound);
+        super.readEntityFromNBT(c);
 
-        scale = compound.getFloat("Scale");
-        guiID = compound.getInteger("GuiID");
+        unlockedSlots = c.getInteger("UnlockedSlots");
+        scale = c.getFloat("Scale");
+        guiID = c.getInteger("GuiID");
 
-        generalAbilities = AbilityGroup.createFromNBTAndId(compound, 0);
-        combatAbilities = AbilityGroup.createFromNBTAndId(compound, 1);
-        miningAbilities = AbilityGroup.createFromNBTAndId(compound, 2);
-        woodcuttingAbilities = AbilityGroup.createFromNBTAndId(compound, 3);
+        autoswitchID = c.getByte("AutoswitchID");
+
+        generalAbilities = AbilityGroup.createFromNBTAndId(c, 0);
+        combatAbilities = AbilityGroup.createFromNBTAndId(c, 1);
+        miningAbilities = AbilityGroup.createFromNBTAndId(c, 2);
+        woodcuttingAbilities = AbilityGroup.createFromNBTAndId(c, 3);
+
+        NBTTagList tag = c.getTagList("items", 10);
+        for (int i = 0; i < tag.tagCount(); i++)
+        {
+            NBTTagCompound nbttagcompound1 = tag.getCompoundTagAt(i);
+            int j = nbttagcompound1.getByte("slot") & 0xFF;
+            if ((j >= 0) && (j < this.inv.getSizeInventory())) {
+                this.inv.setInventorySlotContents(j, new ItemStack(nbttagcompound1));
+            }
+        }
     }
 
     // Used to save the data (variables) that need to be synced on spawn
@@ -172,9 +212,12 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
     {
         AbilityHelper.writeSpawnData(buf, this);
 
+        buf.writeInt(unlockedSlots);
         buf.writeFloat(scale);
         buf.writeInt(animationState.ordinal());
         buf.writeInt(guiID);
+
+        buf.writeByte(autoswitchID);
 
         setSize(EntityHelper.BASE_SCALE_FOR_HITBOX * scale, EntityHelper.BASE_SCALE_FOR_HITBOX * scale);
     }
@@ -186,9 +229,12 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
     {
         AbilityHelper.readSpawnData(buf, this);
 
+        unlockedSlots = buf.readInt();
         scale = buf.readFloat();
         animationState = AnimationState.values()[buf.readInt()];
         guiID = buf.readInt();
+
+        autoswitchID = buf.readByte();
 
         setSize(EntityHelper.BASE_SCALE_FOR_HITBOX * scale, EntityHelper.BASE_SCALE_FOR_HITBOX * scale);
     }
@@ -321,6 +367,7 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
     public void openGui(int guiID, EntityPlayer player)
     {
         setGuiID(guiID);
+        openGui(player);
         NetworkHelper.sync(world, new OpenGuiMessage(getEntityId()));
     }
 
@@ -370,6 +417,22 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
     // GETTERS
     // AND
     // SETTERS
+
+    public int getUnlockedSlots()
+    {
+        return unlockedSlots;
+    }
+
+    public void setUnlockedSlots(int value)
+    {
+        unlockedSlots = value;
+        NetworkHelper.sync(world, new UnlockedSlotsMessage(value, getEntityId()));
+    }
+
+    public void setUnlockedSlotsFromPacket(int value)
+    {
+        unlockedSlots = value;
+    }
 
     public float getBlocklingScale()
     {
@@ -586,6 +649,59 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
     public void setWoodcuttingXpFromPacket(int value)
     {
         woodcuttingXp = value;
+    }
+
+
+
+    public boolean getAutoswitchLeft()
+    {
+        return (autoswitchID & 2) > 0;
+    }
+
+    public boolean getAutoswitchRight()
+    {
+        return (autoswitchID & 1) > 0;
+    }
+
+    public void setAutoswitchLeft(boolean on)
+    {
+        byte result = autoswitchID;
+        if (on)
+        {
+            result = (byte) (autoswitchID | 2); // 10
+        }
+        else
+        {
+            result = (byte) (autoswitchID & 1); // 01
+        }
+
+        setAutoswitchID(result);
+    }
+
+    public void setAutoswitchRight(boolean on)
+    {
+        byte result = autoswitchID;
+        if (on)
+        {
+            result = (byte) (autoswitchID | 1); // 01
+        }
+        else
+        {
+            result = (byte) (autoswitchID & 2); // 10
+        }
+
+        setAutoswitchID(result);
+    }
+
+    private void setAutoswitchID(byte value)
+    {
+        autoswitchID = value;
+        NetworkHelper.sync(world, new WoodcuttingXpMessage(value, getEntityId()));
+    }
+
+    public void setAutoswitchIDFromPacket(byte value)
+    {
+        autoswitchID = value;
     }
 }
 

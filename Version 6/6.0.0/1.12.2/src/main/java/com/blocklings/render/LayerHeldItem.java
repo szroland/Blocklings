@@ -27,9 +27,9 @@ public class LayerHeldItem implements LayerRenderer<EntityLivingBase>
 
     public void doRenderLayer(EntityLivingBase entitylivingbaseIn, float limbSwing, float speed, float time, float age, float netHeadYaw, float headPitch, float scale)
     {
-        boolean flag = entitylivingbaseIn.getPrimaryHand() == EnumHandSide.RIGHT;
-        ItemStack itemstack = new ItemStack(Items.DIAMOND_SWORD);
-        ItemStack itemstack1 = new ItemStack(Items.GOLDEN_SWORD);
+        EntityBlockling blockling = (EntityBlockling) entitylivingbaseIn;
+        ItemStack itemstack = blockling.inv.getStackInSlot(0);
+        ItemStack itemstack1 = blockling.inv.getStackInSlot(1);
 
         if (itemstack != null) renderHeldItem(entitylivingbaseIn, itemstack, ItemCameraTransforms.TransformType.THIRD_PERSON_LEFT_HAND, EnumHandSide.LEFT, age, limbSwing, speed);
         if (itemstack1 != null) renderHeldItem(entitylivingbaseIn, itemstack1, ItemCameraTransforms.TransformType.THIRD_PERSON_RIGHT_HAND, EnumHandSide.RIGHT, age, limbSwing, speed);

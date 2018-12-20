@@ -1,13 +1,14 @@
 package com.blocklings.guis;
 
 import com.blocklings.entities.EntityBlockling;
+import com.blocklings.inventories.ContainerEquipmentBlockling;
+import com.blocklings.inventories.ContainerInventoryBlockling;
 import com.blocklings.util.helpers.GuiHelper.Tab;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.network.IGuiHandler;
-import org.jline.utils.Log;
 
 public class GuiHandler implements IGuiHandler
 {
@@ -15,14 +16,14 @@ public class GuiHandler implements IGuiHandler
     public Object getServerGuiElement(int id, EntityPlayer player, World world, int entityID, int unused1, int unused2)
     {
         Entity entity = world.getEntityByID(entityID);
-        Log.info(id);
+
         if (entity != null && entity instanceof EntityBlockling)
         {
             EntityBlockling blockling = (EntityBlockling) entity;
-            Log.info(!blockling.world.isRemote + " get server");
+
             if (id == Tab.INVENTORY.id)
             {
-                return new ContainerInventoryBlockling(player.inventory, blockling.inv);
+                return new ContainerInventoryBlockling(blockling, player.inventory, blockling.inv);
             }
             else if (id == Tab.EQUIPMENT.id)
             {
@@ -37,11 +38,11 @@ public class GuiHandler implements IGuiHandler
     public Object getClientGuiElement(int id, EntityPlayer player, World world, int entityID, int unused1, int unused2)
     {
         Entity entity = world.getEntityByID(entityID);
-        Log.info(id + " as");
+
         if (entity != null && entity instanceof EntityBlockling)
         {
             EntityBlockling blockling = (EntityBlockling) entity;
-            Log.info(blockling.world.isRemote + " get client");
+
             if (id == Tab.STATS.id)
             {
                 return new GuiBlocklingStats(blockling, player);

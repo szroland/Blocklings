@@ -1,6 +1,7 @@
 package com.blocklings.guis;
 
 import com.blocklings.entities.EntityBlockling;
+import com.blocklings.inventories.ContainerEquipmentBlockling;
 import com.blocklings.inventories.InventoryBlockling;
 import com.blocklings.util.helpers.GuiHelper;
 import com.blocklings.util.ResourceLocationBlocklings;
@@ -16,7 +17,8 @@ import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.util.ResourceLocation;
-import org.jline.utils.Log;
+
+import java.util.Arrays;
 
 class GuiBlocklingEquipment extends GuiContainer
 {
@@ -30,7 +32,7 @@ class GuiBlocklingEquipment extends GuiContainer
 
     private int left, top;
 
-    private GuiButton lockButtonLeft, lockButtonRight;
+    private int autoLeftX, autoRightX, autoY;
 
     GuiBlocklingEquipment(InventoryPlayer playerInv, InventoryBlockling blocklingInv, EntityBlockling blockling, EntityPlayer player)
     {
@@ -54,6 +56,10 @@ class GuiBlocklingEquipment extends GuiContainer
         left = guiLeft;
         top = guiTop + GuiHelper.YOFFSET;
 
+        autoLeftX = width / 2 - 57;
+        autoRightX = width / 2 + 57 - fontRenderer.getStringWidth("A");
+        autoY = height / 2 - 43;
+
         blockling.isInGui = true;
     }
 
@@ -72,6 +78,16 @@ class GuiBlocklingEquipment extends GuiContainer
         super.drawScreen(mouseX, mouseY, partialTicks);
 
         drawEntityOnScreen(width / 2, height / 2 - 28, 38, width / 2 - mouseX,  height / 2 - mouseY - 28, blockling);
+
+        int colourLeft = blockling.getAutoswitchLeft() ? 0xff00aa00 : 0xffee0000;
+        int colourLeft2 = blockling.getAutoswitchLeft() ? 0xff005600 : 0xff560000;
+        int colourRight = blockling.getAutoswitchRight() ? 0xff00aa00 : 0xffee0000;
+        int colourRight2 = blockling.getAutoswitchRight() ? 0xff005600 : 0xff560000;
+
+        fontRenderer.drawString("A", autoLeftX + 1, autoY + 1, colourLeft2, false);
+        fontRenderer.drawString("A", autoLeftX, autoY, colourLeft, false);
+        fontRenderer.drawString("A", autoRightX + 1, autoY + 1, colourRight2, false);
+        fontRenderer.drawString("A", autoRightX, autoY, colourRight, false);
 
         Tab tab = GuiHelper.getTabAt(mouseX, mouseY, width, height);
 
@@ -145,6 +161,28 @@ class GuiBlocklingEquipment extends GuiContainer
         {
             blockling.openGui(tab.id, player);
         }
+
+        if (isOverLeftAuto(mouseX, mouseY))
+        {
+            blockling.setAutoswitchLeft(!blockling.getAutoswitchLeft());
+        }
+
+        if (isOverRightAuto(mouseX, mouseY))
+        {
+            blockling.setAutoswitchRight(!blockling.getAutoswitchRight());
+        }
+
+        super.mouseReleased(mouseX, mouseY, state);
+    }
+
+    private boolean isOverLeftAuto(int mouseX, int mouseY)
+    {
+        return mouseX >= autoLeftX - 2 && mouseX < autoLeftX + 8 && mouseY >= autoY - 2 && mouseY < autoY + 10;
+    }
+
+    private boolean isOverRightAuto(int mouseX, int mouseY)
+    {
+        return mouseX >= autoRightX - 2 && mouseX < autoRightX + 8 && mouseY >= autoY - 2 && mouseY < autoY + 10;
     }
 
     @Override

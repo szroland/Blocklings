@@ -1,32 +1,28 @@
-package com.blocklings.guis;
+package com.blocklings.inventories;
 
 import com.blocklings.inventories.InventoryBlockling;
 import com.blocklings.util.helpers.GuiHelper;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.Slot;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import org.jline.utils.Log;
 
-public class ContainerInventoryBlockling extends Container
+public class ContainerEquipmentBlockling extends Container
 {
     private InventoryBlockling blocklingInv;
     private InventoryPlayer playerInv;
 
-    private int blocklingInventoryX = 36;
-    private int blocklingInventoryY = 8 + GuiHelper.YOFFSET;
     private int playerInventoryX = 36;
     private int playerInventoryY = 84 + GuiHelper.YOFFSET;
 
-    public ContainerInventoryBlockling(InventoryPlayer playerInv, InventoryBlockling blocklingInv)
+    public ContainerEquipmentBlockling(InventoryPlayer playerInv, InventoryBlockling blocklingInv)
     {
         this.blocklingInv = blocklingInv;
         this.playerInv = playerInv;
 
-        //bindBlocklingInventory();
+        bindBlocklingInventory();
         bindPlayerInventory();
     }
 
@@ -38,13 +34,8 @@ public class ContainerInventoryBlockling extends Container
 
     private void bindBlocklingInventory()
     {
-        for (int i = 0; i < 4; i++)
-        {
-            for (int j = 0; j < 9; j++)
-            {
-                addSlotToContainer(new Slot(blocklingInv, j + (i * 9), blocklingInventoryX + (j * 18), blocklingInventoryY + (i * 18)));
-            }
-        }
+        addSlotToContainer(new SlotEquipment(blocklingInv, 0, 54, 30 + GuiHelper.YOFFSET));
+        addSlotToContainer(new SlotEquipment(blocklingInv, 1, 162, 30 + GuiHelper.YOFFSET));
     }
 
     private void bindPlayerInventory()
@@ -63,18 +54,33 @@ public class ContainerInventoryBlockling extends Container
         }
     }
 
-//    @Override
-//    public ItemStack transferStackInSlot(EntityPlayer player, int slotIndex)
-//    {
-//        ItemStack stack = null;
-//        Slot slot = inventorySlots.get(slotIndex);
-//        Log.info(slotIndex);
-//        if (slot != null && slot.getHasStack())
-//        {
-//            ItemStack slotItemStack = slot.getStack();
-//            stack = slotItemStack.copy();
-//        }
-//
-//        return stack;
-//    }
+    @Override
+    public ItemStack transferStackInSlot(EntityPlayer player, int slotIndex)
+    {
+        ItemStack stack = ItemStack.EMPTY;
+        Slot slot = inventorySlots.get(slotIndex);
+
+        if (slot != null && slot.getHasStack())
+        {
+            ItemStack itemStack = slot.getStack();
+            stack = itemStack.copy();
+
+            if (slotIndex == 0 || slotIndex == 1)
+            {
+                if (!this.mergeItemStack(itemStack, 2, 38, false))
+                {
+                    return ItemStack.EMPTY;
+                }
+            }
+            else
+            {
+                if (!this.mergeItemStack(itemStack, 0, 2, false))
+                {
+                    return ItemStack.EMPTY;
+                }
+            }
+        }
+
+        return stack;
+    }
 }

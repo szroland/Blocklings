@@ -17,6 +17,8 @@ public class NetworkHelper
     {
         network.registerMessage(AbilitiesMessage.Handler.class, AbilitiesMessage.class, id++, Side.CLIENT);
         network.registerMessage(AbilitiesMessage.Handler.class, AbilitiesMessage.class, id++, Side.SERVER);
+        network.registerMessage(UnlockedSlotsMessage.Handler.class, UnlockedSlotsMessage.class, id++, Side.CLIENT);
+        network.registerMessage(UnlockedSlotsMessage.Handler.class, UnlockedSlotsMessage.class, id++, Side.SERVER);
         network.registerMessage(ScaleMessage.Handler.class, ScaleMessage.class, id++, Side.CLIENT);
         network.registerMessage(ScaleMessage.Handler.class, ScaleMessage.class, id++, Side.SERVER);
         network.registerMessage(NameMessage.Handler.class, NameMessage.class, id++, Side.CLIENT);
@@ -43,6 +45,8 @@ public class NetworkHelper
         network.registerMessage(MiningXpMessage.Handler.class, MiningXpMessage.class, id++, Side.SERVER);
         network.registerMessage(WoodcuttingXpMessage.Handler.class, WoodcuttingXpMessage.class, id++, Side.SERVER);
         network.registerMessage(WoodcuttingXpMessage.Handler.class, WoodcuttingXpMessage.class, id++, Side.SERVER);
+        network.registerMessage(AutoswitchIDMessage.Handler.class, AutoswitchIDMessage.class, id++, Side.SERVER);
+        network.registerMessage(AutoswitchIDMessage.Handler.class, AutoswitchIDMessage.class, id++, Side.SERVER);
     }
 
     public static void sendToAll(IMessage message)

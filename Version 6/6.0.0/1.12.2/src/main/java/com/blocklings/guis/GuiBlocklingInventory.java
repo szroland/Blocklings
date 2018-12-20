@@ -1,6 +1,7 @@
 package com.blocklings.guis;
 
 import com.blocklings.entities.EntityBlockling;
+import com.blocklings.inventories.ContainerInventoryBlockling;
 import com.blocklings.inventories.InventoryBlockling;
 import com.blocklings.util.ResourceLocationBlocklings;
 import com.blocklings.util.helpers.GuiHelper;
@@ -25,7 +26,7 @@ class GuiBlocklingInventory extends GuiContainer
 
     GuiBlocklingInventory(InventoryPlayer playerInv, InventoryBlockling blocklingInv, EntityBlockling blockling, EntityPlayer player)
     {
-        super(new ContainerInventoryBlockling(playerInv, blocklingInv));
+        super(new ContainerInventoryBlockling(blockling, playerInv, blocklingInv));
 
         this.blockling = blockling;
         this.player = player;
@@ -71,6 +72,7 @@ class GuiBlocklingInventory extends GuiContainer
     @Override
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY)
     {
+
     }
 
     @Override
@@ -79,6 +81,16 @@ class GuiBlocklingInventory extends GuiContainer
         GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
         this.mc.getTextureManager().bindTexture(WINDOW);
         this.drawTexturedModalRect(left, top, 0, 0, textureWidth, textureHeight);
+
+        if (blockling.getUnlockedSlots() < 36)
+        {
+            int u = blockling.getUnlockedSlots() / 12;
+            int xx = left + 89 + 54 * (u - 1);
+            int yy = top + 7;
+            int xxx = xx + 54 * (3 - u);
+            int yyy = yy + 72;
+            drawRect(xx, yy, xxx, yyy, 0x55550000);
+        }
     }
 
     @Override
@@ -90,6 +102,8 @@ class GuiBlocklingInventory extends GuiContainer
         {
             blockling.openGui(tab.id, player);
         }
+
+        super.mouseReleased(mouseX, mouseY, state);
     }
 
     @Override
