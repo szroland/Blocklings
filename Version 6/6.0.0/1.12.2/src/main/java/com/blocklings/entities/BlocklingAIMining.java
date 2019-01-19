@@ -2,22 +2,27 @@ package com.blocklings.entities;
 
 import com.blocklings.util.helpers.BlockHelper;
 import net.minecraft.block.Block;
-import net.minecraft.entity.ai.EntityAIBase;
+import net.minecraft.init.Blocks;
+import net.minecraft.pathfinding.Path;
+import net.minecraft.pathfinding.PathPoint;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
-import org.jline.utils.Log;
 
-public class BlocklingAIMining extends EntityAIBase
+import java.util.HashSet;
+import java.util.Set;
+
+public class BlocklingAIMining extends BlocklingAIBase
 {
     private static final int X_RADIUS = 10, Y_RADIUS = 10;
-    private static Block[][][] ores = new Block[X_RADIUS * 2][Y_RADIUS * 2][X_RADIUS * 2];
 
-    private EntityBlockling blockling;
+    private Block[][][] ores = new Block[X_RADIUS * 2][Y_RADIUS * 2][X_RADIUS * 2];
+    private double[][][] values = new double[X_RADIUS * 2][Y_RADIUS * 2][X_RADIUS * 2];
+
+    private Set<BlockPos> targetsChecked = new HashSet<>();
 
     public BlocklingAIMining(EntityBlockling blockling)
     {
-        this.blockling = blockling;
+        super(blockling);
     }
 
     @Override
@@ -25,6 +30,8 @@ public class BlocklingAIMining extends EntityAIBase
     {
         boolean foundOre = false;
         ores = new Block[X_RADIUS * 2][Y_RADIUS * 2][X_RADIUS * 2];
+        values = new double[X_RADIUS * 2][Y_RADIUS * 2][X_RADIUS * 2];
+        resetTarget();
 
         int i = 0;
         for (int x = (int) blockling.posX - X_RADIUS; x < blockling.posX + X_RADIUS; x++)
@@ -41,8 +48,44 @@ public class BlocklingAIMining extends EntityAIBase
                     {
                         if (canSeeBlock(x, y, z))
                         {
-                            foundOre = true;
-                            ores[i][j][k] = block;
+                            double xx = x + 0.5f;
+                            double yy = y + 0.5f;
+                            double zz = z + 0.5f;
+                            BlockPos blockPos = new BlockPos(x, y, z);
+                            Vec3d blockVec = new Vec3d(xx, yy, zz);
+
+                            //ores[i][j][k] = block;
+
+                            if (blockling.getPositionVector().distanceTo(blockVec) < range)
+                            {
+                                targetPathSquareDistance = 1;
+                                targetPos = blockPos;
+                                targetVec = blockVec;
+                                return true;
+                            }
+
+                            Path pathToBlock = getSafishPathTo(blockPos);
+                            if (pathToBlock != null)
+                            {
+                                PathPoint finalPoint = pathToBlock.getFinalPathPoint();
+                                Vec3d finalVec = new Vec3d(finalPoint.x + 0.5, finalPoint.y + 0.5, finalPoint.z + 0.5);
+
+                                // If we can't get in range of the block skip to next one
+                                if (blockVec.distanceTo(finalVec) >= range)
+                                {
+                                    continue;
+                                }
+
+                                // Find the closest block (using path distance)
+                                double pathSquareDistance = getPathSquareDistance(pathToBlock);
+                                if (pathSquareDistance < targetPathSquareDistance)
+                                {
+                                    targetPathSquareDistance = pathSquareDistance;
+                                    targetPos = blockPos;
+                                    targetVec = blockVec;
+                                    foundOre = true;
+                                }
+                            }
                         }
                     }
 
@@ -58,72 +101,104 @@ public class BlocklingAIMining extends EntityAIBase
         return foundOre;
     }
 
+    @Override
     public boolean shouldContinueExecuting()
     {
-        return this.shouldExecute();
+        return hasTarget() && world.getBlockState(targetPos).getBlock() != Blocks.AIR;
     }
 
+    @Override
     public void updateTask()
     {
+        // We changed the target so keep on trying until we are done.
+        if (tryChangeTargetBlock())
+        {
+            return;
+        }
 
+        if (hasTarget())
+        {
+            world.setBlockState(targetPos, Blocks.BONE_BLOCK.getDefaultState());
+            if (blockling.getPositionVector().distanceTo(targetVec) < range)
+            {
+                world.destroyBlock(targetPos, false);
+                //world.setBlockState(targetPos, Blocks.BONE_BLOCK.getDefaultState());
+                targetsChecked.clear();
+                resetTarget();
+            }
+            else
+            {
+                moveToBlock(targetPos);
+            }
+        }
     }
 
-    private boolean canSeeBlock(int x, int y, int z)
+    private boolean tryChangeTargetBlock()
     {
-        Vec3d blockVec = new Vec3d(x, y, z);
-
-        if (blockVec != null)
+        if (!hasTarget())
         {
-            double height = 0.6F * this.blockling.getBlocklingScale();
-            for (int it = 0; it < 2; it++)
-            {
-                double xStart = this.blockling.posX;
-                double yStart;
-                if (it == 0) {
-                    yStart = this.blockling.posY + height * 0.2D;
-                } else {
-                    yStart = this.blockling.posY + height * 0.8D;
-                }
-                double zStart = this.blockling.posZ;
-                Vec3d blocklingVec = new Vec3d(xStart, yStart, zStart);
-                for (double i = 0.03D; i <= 0.97D; i += 0.94D) {
-                    for (double j = 0.03D; j <= 0.97D; j += 0.94D) {
-                        for (double k = 0.03D; k <= 0.97D; k += 0.94D)
-                        {
-                            Vec3d testVec = new Vec3d(Math.floor(blockVec.x) + i, Math.floor(blockVec.y) + j, Math.floor(blockVec.z) + k);
+            return false;
+        }
 
-                            RayTraceResult result = blockling.world.rayTraceBlocks(blocklingVec, testVec, true, true, true);
-                            if (result != null)
-                            {
-                                BlockPos pos = result.getBlockPos();
-                                if (pos.equals(new BlockPos(blockVec))) {
-                                    return true;
-                                }
-                            }
+        boolean targetChanged = false;
+
+        targetsChecked.add(targetPos);
+
+        // Check all the blocks around the target
+        for (int i = -1; i < 2; i++)
+        {
+            for (int j = -1; j < 2; j++)
+            {
+                for (int k = -1; k < 2; k++)
+                {
+                    BlockPos testPos = new BlockPos(targetPos.getX() + i, targetPos.getY() + j, targetPos.getZ() + k);
+
+                    if (targetsChecked.contains(testPos))
+                    {
+                        continue;
+                    }
+
+                    if (!BlockHelper.isOre(world.getBlockState(testPos).getBlock()))
+                    {
+                        continue;
+                    }
+
+                    Path pathToBlock = getSafishPathTo(testPos);
+                    if (pathToBlock != null)
+                    {
+                        Vec3d finalVec = getVecFromPathPoint(pathToBlock.getFinalPathPoint());
+                        Vec3d testVec = new Vec3d(testPos.getX() + 0.5, testPos.getY() + 0.5, testPos.getZ() + 0.5);
+
+                        // If we can't get in range of the block skip to next one
+                        if (testVec.distanceTo(finalVec) >= range)
+                        {
+                            continue;
+                        }
+
+                        // Find the hardest to reach block (using path distance)
+                        double pathSquareDistance = getPathSquareDistance(pathToBlock);
+                        if (pathSquareDistance > targetPathSquareDistance)
+                        {
+                            targetPathSquareDistance = pathSquareDistance;
+                            targetPos = testPos;
+                            targetVec = new Vec3d(testPos.getX() + 0.5,testPos.getY() + 0.5, testPos.getZ() + 0.5);
+                            targetChanged = true;
                         }
                     }
                 }
             }
         }
+
+        return targetChanged;
+    }
+
+    private boolean isBlockInTheWay(BlockPos blockPos)
+    {
         return false;
     }
 
-    private Block getBlockAt(int x, int y, int z)
+    private boolean isBlockSupporting(BlockPos blockPos)
     {
-        return blockling.world.getBlockState(new BlockPos(x, y, z)).getBlock();
+        return false;
     }
-
-    private double getValue(double xDist, double yDist, boolean[] surrounding)
-    {
-        double value = 0;
-
-
-
-        return value;
-    }
-
-    // Inputs:
-    // All ores it can see: X distance, Y distance, Surrounding
-    // Output:
-    // Value between 0-1
 }
