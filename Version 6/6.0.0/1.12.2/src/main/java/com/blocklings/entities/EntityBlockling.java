@@ -23,6 +23,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.pathfinding.PathNavigate;
 import net.minecraft.util.EnumHand;
 import net.minecraft.world.World;
 
@@ -64,7 +65,7 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
 
     private byte autoswitchID = 0;
 
-    private EntityAIFollowOwner aiFollow;
+    private BlocklingAIFollowOwner aiFollow;
     private EntityAIWander aiWander;
 
     private EntityAIOwnerHurtByTarget aiOwnerHurtBy;
@@ -111,6 +112,15 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
         }
     }
 
+    /**
+     * Returns new PathNavigateGround instance
+     */
+    @Override
+    protected PathNavigate createNavigator(World worldIn)
+    {
+        return new PathNavigateGroundBlockling(this, worldIn);
+    }
+
     @Override
     protected void applyEntityAttributes()
     {
@@ -126,14 +136,14 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
     protected void initEntityAI()
     {
         aiSit = new EntityAISit(this);
-        aiFollow = new EntityAIFollowOwner(this, 1, 2, 8);
+        aiFollow = new BlocklingAIFollowOwner(this, 1, 2, 8);
         aiWander = new EntityAIWander(this, 1);
         aiOwnerHurtBy = new EntityAIOwnerHurtByTarget(this);
         aiOwnerHurt = new EntityAIOwnerHurtTarget(this);
 
         tasks.addTask(1, new EntityAISwimming(this));
         tasks.addTask(1, new EntityAIHurtByTarget(this, true, new Class[0]));
-        tasks.addTask(1, new EntityAIFollowOwner(this, 1, 2, 8));
+        tasks.addTask(1, new BlocklingAIFollowOwner(this, 1, 2, 8));
         tasks.addTask(2, aiSit);
         tasks.addTask(3, new EntityAIAttackMelee(this, 1.0D, true));
         tasks.addTask(6, new EntityAIWatchClosest(this, EntityLiving.class, 8.0F));
