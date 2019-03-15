@@ -8,8 +8,9 @@ import java.util.List;
 
 public class BlockHelper
 {
-    private static List<Block> ores = new ArrayList();
+    // ORES
 
+    private static List<Block> ores = new ArrayList<>();
     static
     {
         ores.add(Blocks.QUARTZ_ORE);
@@ -23,9 +24,45 @@ public class BlockHelper
         ores.add(Blocks.DIAMOND_ORE);
     }
 
-    public static double getOreValue(Block block) { return ores.indexOf(block); }
     public static boolean isOre(Block block)
     {
         return ores.contains(block);
     }
+    public static double getOreValue(Block block) { return ores.indexOf(block); }
+
+    // ORES END
+
+
+    // LOGS
+
+    private static List<Block> logs = new ArrayList<>();
+    static
+    {
+        logs.add(Blocks.LOG);
+        logs.add(Blocks.LOG2);
+    }
+
+    public static boolean isLog(Block block)
+    {
+        return logs.contains(block);
+    }
+
+    // LOGS END
+
+
+    // LEAVES
+
+    private static List<Block> leaves = new ArrayList<>();
+    static
+    {
+        leaves.add(Blocks.LEAVES);
+        leaves.add(Blocks.LEAVES2);
+    }
+
+    public static boolean isLeaf(Block block)
+    {
+        return leaves.contains(block);
+    }
+
+    // LEAVES END
 }

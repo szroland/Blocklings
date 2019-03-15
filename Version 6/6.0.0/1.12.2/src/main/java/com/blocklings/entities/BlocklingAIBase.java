@@ -17,9 +17,10 @@ public class BlocklingAIBase extends EntityAIBase
 
     BlockPos targetPos;
     Vec3d targetVec;
+    Path targetPath;
     double targetPathSquareDistance;
 
-    int range = 2;
+    float range = 2.5f;
 
     BlocklingAIBase(EntityBlockling blockling)
     {
@@ -64,45 +65,74 @@ public class BlocklingAIBase extends EntityAIBase
         return blockling.world.getBlockState(new BlockPos(x, y, z)).getBlock();
     }
 
-    boolean moveToBlock(BlockPos blockPos)
+    boolean moveToTarget()
     {
-        blockling.getNavigator().tryMoveToXYZ(blockPos.getX(), blockPos.getY(), blockPos.getZ(), blockling.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).getAttributeValue());
+        PathPoint finalPoint = targetPath.getFinalPathPoint();
+        blockling.getNavigator().tryMoveToXYZ(finalPoint.x + 0.5, finalPoint.y, finalPoint.z + 0.5, blockling.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).getAttributeValue());
 
         return blockling.getNavigator().getPath() != null;
     }
 
+    boolean isPosInRange(BlockPos blockPos, BlockPos blockPosTarget)
+    {
+        Vec3d blockVec = getVecFromBlockPos(blockPos);
+        Vec3d blockVecTarget = getVecFromBlockPos(blockPosTarget);
+
+        return blockVec.distanceTo(blockVecTarget) < range;
+    }
+
+    boolean isPathDestInRange(Path path, BlockPos blockPos)
+    {
+        if (path != null)
+        {
+            PathPoint finalPoint = path.getFinalPathPoint();
+            Vec3d finalVec = getVecFromPathPoint(finalPoint);
+            Vec3d blockVec = getVecFromBlockPos(blockPos);
+
+            return blockVec.distanceTo(finalVec) < range;
+        }
+
+        return false;
+    }
+
+    boolean isBlocklingInRange(BlockPos blockPos)
+    {
+        Vec3d blocklingVec = getVecFromBlockPos(blockling.getPosition());
+        Vec3d blockVec = getVecFromBlockPos(blockPos);
+
+        return blocklingVec.distanceTo(blockVec) < range;
+    }
+
     Path getSafishPathTo(BlockPos blockPos)
     {
-//        for (int i = -1; i < 2; i++)
-//        {
-//            for (int j = -1; j < 2; j++)
-//            {
-//                for (int k = -1; k < 2; k++)
-//                {
-//                    BlockPos surroundingPos = new BlockPos(blockPos.getX() + i, blockPos.getY() + j, blockPos.getZ() + k);
-//
-//                    Path testPath = blockling.getNavigator().getPathToPos(surroundingPos);
-//                    if (testPath != null)
-//                    {
-//                        PathPoint finalPoint = testPath.getFinalPathPoint();
-//                        BlockPos finalPos = getPosFromPathPoint(finalPoint);
-//                        Vec3d finalVec = getVecFromPathPoint(finalPoint);
-//                        Vec3d blockVec = getVecFromBlockPos(blockPos);
-//
-//                        // If we can't get in range of the block skip to next one
-//                        if (blockVec.distanceTo(finalVec) >= range)
-//                        {
-//                            continue;
-//                        }
-//
-//                        if (!finalPos.equals(blockPos))
-//                        {
-//                            return testPath;
-//                        }
-//                    }
-//                }
-//            }
-//        }
+        for (int i = -1; i < 2; i++)
+        {
+            for (int j = -1; j < 2; j++)
+            {
+                for (int k = -1; k < 2; k++)
+                {
+                    BlockPos surroundingPos = new BlockPos(blockPos.getX() + i, blockPos.getY() + j, blockPos.getZ() + k);
+
+                    Path testPath = blockling.getNavigator().getPathToPos(surroundingPos);
+                    if (testPath != null)
+                    {
+                        PathPoint finalPoint = testPath.getFinalPathPoint();
+                        BlockPos finalPos = getPosFromPathPoint(finalPoint);
+
+                        // If we can't get in range of the block skip to next one
+                        if (!isPathDestInRange(testPath, blockPos))
+                        {
+                            continue;
+                        }
+
+                        if (!finalPos.equals(blockPos))
+                        {
+                            return testPath;
+                        }
+                    }
+                }
+            }
+        }
 
         return blockling.getNavigator().getPathToPos(blockPos);
     }
@@ -213,14 +243,23 @@ public class BlocklingAIBase extends EntityAIBase
 
     void resetTarget()
     {
-        targetPos = null;
-        targetVec = null;
+        this.targetPos = null;
+        this.targetVec = null;
+        this.targetPath = null;
     }
 
     void setTarget(BlockPos targetPos)
     {
         this.targetPos = targetPos;
-        targetVec = getVecFromBlockPos(targetPos);;
+        this.targetVec = getVecFromBlockPos(targetPos);
+        this.targetPath = getSafishPathTo(targetPos);
+    }
+
+    void setTarget(BlockPos targetPos, Path targetPath)
+    {
+        this.targetPos = targetPos;
+        this.targetVec = getVecFromBlockPos(targetPos);
+        this.targetPath = targetPath;
     }
 
     boolean hasTarget()

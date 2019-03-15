@@ -74,6 +74,7 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
     private ItemStack leftHandStack = ItemStack.EMPTY, rightHandStack = ItemStack.EMPTY;
 
     private BlocklingAIMining aiMining;
+    private BlocklingAIWoodcutting aiWoodcutting;
 
     // CLIENT SERVER
     public EntityBlockling(World worldIn)
@@ -89,6 +90,7 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
         super.entityInit();
 
         aiMining = new BlocklingAIMining(this);
+        aiWoodcutting= new BlocklingAIWoodcutting(this);
 
         setupInventory();
 
@@ -148,7 +150,7 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
         tasks.addTask(3, new EntityAIAttackMelee(this, 1.0D, true));
         tasks.addTask(6, new EntityAIWatchClosest(this, EntityLiving.class, 8.0F));
         tasks.addTask(6, new EntityAILookIdle(this));
-        tasks.addTask(1, aiMining);
+        tasks.addTask(1, aiWoodcutting);
         tasks.addTask(2, aiOwnerHurtBy);
         tasks.addTask(3, aiOwnerHurt);
     }
