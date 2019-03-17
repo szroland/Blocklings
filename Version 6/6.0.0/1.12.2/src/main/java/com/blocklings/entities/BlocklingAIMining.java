@@ -1,17 +1,23 @@
 package com.blocklings.entities;
 
 import com.blocklings.util.helpers.BlockHelper;
+import com.blocklings.util.helpers.DropHelper;
+import com.blocklings.util.helpers.EntityHelper;
 import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
+import net.minecraft.item.ItemStack;
 import net.minecraft.pathfinding.Path;
-import net.minecraft.pathfinding.PathFinder;
-import net.minecraft.pathfinding.PathNavigate;
-import net.minecraft.pathfinding.PathPoint;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 
-import java.util.HashSet;
-import java.util.Set;
+import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.blocklings.util.helpers.DropHelper.getDops;
 
 public class BlocklingAIMining extends BlocklingAIBase
 {
@@ -27,6 +33,16 @@ public class BlocklingAIMining extends BlocklingAIBase
     @Override
     public boolean shouldExecute()
     {
+        if (blockling.getTask() != EntityHelper.Task.MINE)
+        {
+            return false;
+        }
+
+        if (blockling.getAttackTarget() != null || !blockling.hasPickaxe())
+        {
+            return false;
+        }
+
         boolean foundOre = false;
 
         resetTarget();
@@ -87,9 +103,7 @@ public class BlocklingAIMining extends BlocklingAIBase
     @Override
     public boolean shouldContinueExecuting()
     {
-        boolean flag = (hasTarget() && world.getBlockState(targetPos).getBlock() != Blocks.AIR);
-
-        return flag;
+        return (hasTarget() && blockling.getAttackTarget() == null && world.getBlockState(targetPos).getBlock() != Blocks.AIR && blockling.hasPickaxe());
     }
 
     @Override
@@ -97,30 +111,69 @@ public class BlocklingAIMining extends BlocklingAIBase
     {
         if (hasTarget())
         {
-            setTargetToRandom();
-            //world.setBlockState(targetPos, Blocks.BONE_BLOCK.getDefaultState());
             if (isBlocklingInRange(targetPos))
             {
-                world.setBlockToAir(targetPos);
-                //world.setBlockState(targetPos, Blocks.BONE_BLOCK.getDefaultState());
-                resetTarget();
+                if (tryMineTarget())
+                {
+                    resetTarget();
+                }
             }
             else
             {
-                moveToTarget();
+                if (!moveToTarget())
+                {
+                    resetTarget();
+                }
             }
         }
     }
 
-    private void setTargetToRandom()
+    private boolean tryMineTarget()
     {
-        if (getBlockFromPos(targetPos) != Blocks.DIAMOND_ORE)
+        if (!blockling.isMining())
         {
-            world.setBlockState(targetPos, Blocks.DIAMOND_ORE.getDefaultState());
+            blockling.startMining();
+        }
+
+        if (blockling.getMiningTimer() >= blockling.getMiningInterval())
+        {
+            mineTarget();
+            blockling.stopMining();
+            world.sendBlockBreakProgress(blockling.getEntityId(), targetPos, -1);
+            return true;
         }
         else
         {
-            world.setBlockState(targetPos, Blocks.GOLD_ORE.getDefaultState());
+            int progress = (int)(((float)(blockling.getMiningTimer()) / (float)blockling.getMiningInterval()) * 9.0f);
+            world.sendBlockBreakProgress(blockling.getEntityId(), targetPos, progress);
+            return false;
         }
     }
+
+    private void mineTarget()
+    {
+        NonNullList<ItemStack> dropStacks = DropHelper.getDops(blockling, world, targetPos);
+        for (ItemStack dropStack : dropStacks)
+        {
+            ItemStack leftoverStack = blockling.inv.addItem(dropStack);
+            if (!leftoverStack.isEmpty())
+            {
+                blockling.entityDropItem(leftoverStack, 0);
+            }
+        }
+        blockling.damageItem(EnumHand.MAIN_HAND);
+        world.setBlockToAir(targetPos);
+    }
+
+//    private void setTargetToRandom()
+//    {
+//        if (getBlockFromPos(targetPos) != Blocks.DIAMOND_ORE)
+//        {
+//            world.setBlockState(targetPos, Blocks.DIAMOND_ORE.getDefaultState());
+//        }
+//        else
+//        {
+//            world.setBlockState(targetPos, Blocks.GOLD_ORE.getDefaultState());
+//        }
+//    }
 }

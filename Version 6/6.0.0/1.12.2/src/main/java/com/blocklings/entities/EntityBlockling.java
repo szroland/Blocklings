@@ -4,17 +4,11 @@ import com.blocklings.abilities.AbilityGroup;
 import com.blocklings.inventories.InventoryBlockling;
 import com.blocklings.main.Blocklings;
 import com.blocklings.network.*;
-import com.blocklings.util.helpers.AbilityHelper;
-import com.blocklings.util.helpers.EntityHelper;
-import com.blocklings.util.helpers.ItemHelper;
-import com.blocklings.util.helpers.NetworkHelper;
+import com.blocklings.util.helpers.*;
 import com.blocklings.util.helpers.GuiHelper.Tab;
 
 import io.netty.buffer.ByteBuf;
-import net.minecraft.entity.EntityAgeable;
-import net.minecraft.entity.EntityLiving;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.SharedMonsterAttributes;
+import net.minecraft.entity.*;
 import net.minecraft.entity.ai.*;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.passive.EntityTameable;
@@ -24,24 +18,27 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.pathfinding.PathNavigate;
+import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumHand;
 import net.minecraft.world.World;
 
+import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import javax.tools.Tool;
 import java.util.Random;
 
 public class EntityBlockling extends EntityTameable implements IEntityAdditionalSpawnData
 {
     public static final Random RANDOM = new Random();
 
-    public enum AnimationState { IDLE }
+    public enum AnimationState { IDLE, MINING }
 
-    public static final double BASE_MAX_HEALTH = 10;
+    public static final double BASE_MAX_HEALTH = 8;
     public static final double BASE_MOVEMENT_SPEED = 0.6;
-    public static final double BASE_ATTACK_DAMAGE = 1;
+    public static final double BASE_ATTACK_DAMAGE = 4;
 
     public InventoryBlockling inv;
     private int unlockedSlots = 12;
@@ -60,21 +57,29 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
 
     private int guiID = 1;
 
+    private EntityHelper.Task task = EntityHelper.Task.IDLE;
+    private EntityHelper.Guard guard = EntityHelper.Guard.NOGUARD;
+    private EntityHelper.State state = EntityHelper.State.WANDER;
+
     private int generalLevel = 4, combatLevel = 13, miningLevel = 7, woodcuttingLevel = 6;
     private int generalXp = 0, combatXp = 0, miningXp = 0, woodcuttingXp = 0;
+    private int attackInterval = 20, miningInterval = 20, choppingInterval = 20;
+    private int miningTimer = -1, choppingTimer = -1;
 
     private byte autoswitchID = 0;
 
     private BlocklingAIFollowOwner aiFollow;
-    private EntityAIWander aiWander;
+    private BlocklingAIWanderAvoidWater aiWander;
 
-    private EntityAIOwnerHurtByTarget aiOwnerHurtBy;
-    private EntityAIOwnerHurtTarget aiOwnerHurt;
+    private BlocklingAIAttackMelee aiAttackMelee;
+    private BlocklingAIOwnerHurtByTarget aiOwnerHurtBy;
+    private BlocklingAIOwnerHurtTarget aiOwnerHurt;
 
     private ItemStack leftHandStack = ItemStack.EMPTY, rightHandStack = ItemStack.EMPTY;
 
     private BlocklingAIMining aiMining;
     private BlocklingAIWoodcutting aiWoodcutting;
+    private BlocklingAIHunt aiHunt;
 
     // CLIENT SERVER
     public EntityBlockling(World worldIn)
@@ -88,9 +93,6 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
     protected void entityInit()
     {
         super.entityInit();
-
-        aiMining = new BlocklingAIMining(this);
-        aiWoodcutting= new BlocklingAIWoodcutting(this);
 
         setupInventory();
 
@@ -138,21 +140,47 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
     protected void initEntityAI()
     {
         aiSit = new EntityAISit(this);
-        aiFollow = new BlocklingAIFollowOwner(this, 1, 2, 8);
-        aiWander = new EntityAIWander(this, 1);
-        aiOwnerHurtBy = new EntityAIOwnerHurtByTarget(this);
-        aiOwnerHurt = new EntityAIOwnerHurtTarget(this);
+        aiOwnerHurtBy = new BlocklingAIOwnerHurtByTarget(this);
+        aiOwnerHurt = new BlocklingAIOwnerHurtTarget(this);
+        aiAttackMelee = new BlocklingAIAttackMelee(this, true);
+        aiFollow = new BlocklingAIFollowOwner(this, 2, 8);
+        aiWander = new BlocklingAIWanderAvoidWater(this, 0.5F);
+        aiMining = new BlocklingAIMining(this);
+        aiWoodcutting= new BlocklingAIWoodcutting(this);
+        aiHunt = new BlocklingAIHunt(this);
 
-        tasks.addTask(1, new EntityAISwimming(this));
-        tasks.addTask(1, new EntityAIHurtByTarget(this, true, new Class[0]));
-        tasks.addTask(1, new BlocklingAIFollowOwner(this, 1, 2, 8));
-        tasks.addTask(2, aiSit);
-        tasks.addTask(3, new EntityAIAttackMelee(this, 1.0D, true));
-        tasks.addTask(6, new EntityAIWatchClosest(this, EntityLiving.class, 8.0F));
-        tasks.addTask(6, new EntityAILookIdle(this));
-        tasks.addTask(1, aiWoodcutting);
-        tasks.addTask(2, aiOwnerHurtBy);
-        tasks.addTask(3, aiOwnerHurt);
+        this.tasks.addTask(1, new EntityAISwimming(this));
+        this.tasks.addTask(2, aiSit);
+        this.tasks.addTask(3, aiAttackMelee);
+        this.tasks.addTask(4, aiMining);
+        this.tasks.addTask(4, aiWoodcutting);
+        this.tasks.addTask(6, aiFollow);
+        this.tasks.addTask(8, aiWander);
+        this.tasks.addTask(10, new EntityAIWatchClosest(this, EntityPlayer.class, 8.0F));
+        this.tasks.addTask(10, new EntityAILookIdle(this));
+        this.targetTasks.addTask(1, aiOwnerHurtBy);
+        this.targetTasks.addTask(2, aiOwnerHurt);
+        this.targetTasks.addTask(3, new EntityAIHurtByTarget(this, true, new Class[0]));
+        this.targetTasks.addTask(4, aiHunt);
+    }
+
+    private void UpdateAI()
+    {
+
+    }
+
+    @Override
+    public void setAttackTarget(EntityLivingBase ent)
+    {
+        super.setAttackTarget(ent);
+    }
+
+    @Override
+    public boolean attackEntityAsMob(Entity entityIn)
+    {
+        entityIn.attackEntityFrom(DamageSource.causeMobDamage(this), (float) getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).getAttributeValue());
+
+        return super.attackEntityAsMob(entityIn);
     }
 
     // Used to save entity data (variables) when the entity is unloaded
@@ -167,6 +195,10 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
         c.setInteger("GuiID", guiID);
 
         c.setByte("AutoswitchID", autoswitchID);
+
+        c.setInteger("TaskID", task.id);
+        c.setInteger("GuardID", guard.id);
+        c.setInteger("StateID", state.id);
 
         generalAbilities.writeToNBT(c);
         combatAbilities.writeToNBT(c);
@@ -201,6 +233,10 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
 
         autoswitchID = c.getByte("AutoswitchID");
 
+        task = EntityHelper.Task.getFromID(c.getInteger("TaskID"));
+        guard = EntityHelper.Guard.getFromID(c.getInteger("GuardID"));
+        state = EntityHelper.State.getFromID(c.getInteger("StateID"));
+
         generalAbilities = AbilityGroup.createFromNBTAndId(c, 0);
         combatAbilities = AbilityGroup.createFromNBTAndId(c, 1);
         miningAbilities = AbilityGroup.createFromNBTAndId(c, 2);
@@ -215,6 +251,9 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
                 this.inv.setInventorySlotContents(j, new ItemStack(nbttagcompound1));
             }
         }
+
+        setHeldItem(getHeldItemMainhand(), EnumHand.MAIN_HAND);
+        setHeldItem(getHeldItemOffhand(), EnumHand.OFF_HAND);
     }
 
     // Used to save the data (variables) that need to be synced on spawn
@@ -230,6 +269,15 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
         buf.writeInt(guiID);
 
         buf.writeByte(autoswitchID);
+
+        buf.writeInt(task.id);
+        buf.writeInt(guard.id);
+        buf.writeInt(state.id);
+
+        for (int i = 0; i < inv.getSizeInventory(); i++)
+        {
+            ByteBufUtils.writeItemStack(buf, inv.getStackInSlot(i));
+        }
 
         setSize(EntityHelper.BASE_SCALE_FOR_HITBOX * scale, EntityHelper.BASE_SCALE_FOR_HITBOX * scale);
     }
@@ -248,6 +296,15 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
 
         autoswitchID = buf.readByte();
 
+        task = EntityHelper.Task.getFromID(buf.readInt());
+        guard = EntityHelper.Guard.getFromID(buf.readInt());
+        state = EntityHelper.State.getFromID(buf.readInt());
+
+        for (int i = 0; i < inv.getSizeInventory(); i++)
+        {
+            inv.setInventorySlotContents(i, ByteBufUtils.readItemStack(buf));
+        }
+
         setSize(EntityHelper.BASE_SCALE_FOR_HITBOX * scale, EntityHelper.BASE_SCALE_FOR_HITBOX * scale);
     }
 
@@ -258,6 +315,11 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
     public void onLivingUpdate()
     {
         super.onLivingUpdate();
+
+        if (!world.isRemote)
+        {
+            checkTimers();
+        }
     }
 
     // Also called once every tick
@@ -311,13 +373,28 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
                         }
                     }
                 }
+                else // Is tamed
+                {
+                    if (player == getOwner())
+                    {
+                        if (ToolHelper.isEquipment(item))
+                        {
+                            setHeldItemFromInteract(stack, EnumHand.MAIN_HAND, player);
+                        }
+                    }
+                }
             }
-            else
+            else // Is sneaking
             {openGui(player);
                 if (isTamed())
                 {
                     if (player == getOwner())
                     {
+                        if (ToolHelper.isEquipment(item))
+                        {
+                            setHeldItemFromInteract(stack, EnumHand.OFF_HAND, player);
+                        }
+
                         //openGui(player);
                     }
                 }
@@ -329,6 +406,67 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
         }
 
         return super.processInteract(player, hand);
+    }
+
+    private void setHeldItemFromInteract(ItemStack stack, EnumHand hand, EntityPlayer player)
+    {
+        int index = hand == EnumHand.MAIN_HAND ? 0 : 1;
+        ItemStack currentStack = inv.getStackInSlot(index);
+
+        if (player.capabilities.isCreativeMode)
+        {
+            player.setHeldItem(EnumHand.MAIN_HAND, currentStack);
+            setHeldItem(stack, hand);
+        }
+        else
+        {
+            if (player.addItemStackToInventory(currentStack))
+            {
+                setHeldItem(stack, hand);
+            }
+        }
+    }
+
+    @Override
+    public ItemStack getHeldItem(EnumHand hand)
+    {
+        if (hand == EnumHand.MAIN_HAND)
+        {
+            return getHeldItemMainhand();
+        }
+        else if (hand == EnumHand.OFF_HAND)
+        {
+            return getHeldItemOffhand();
+        }
+
+        return ItemStack.EMPTY;
+    }
+
+    @Override
+    public ItemStack getHeldItemOffhand()
+    {
+        return inv.getStackInSlot(1);
+    }
+
+    @Override
+    public ItemStack getHeldItemMainhand()
+    {
+        return inv.getStackInSlot(0);
+    }
+
+    private void setHeldItem(ItemStack stack, EnumHand hand)
+    {
+        if (stack != null && !stack.isEmpty())
+        {
+            int index = hand == EnumHand.MAIN_HAND ? 0 : 1;
+            inv.setInventorySlotContents(index, stack);
+        }
+    }
+
+    public void damageItem(EnumHand hand)
+    {
+        getHeldItemMainhand().damageItem(1, this);
+        getHeldItemOffhand().damageItem(1, this);
     }
 
     @Override
@@ -387,7 +525,7 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
     {
         setTamedBy(player);
         navigator.clearPath();
-        setAttackTarget((EntityLivingBase) null);
+        setAttackTarget(null);
         //aiSit.setSitting(true);
         playTameEffect(true);
         world.setEntityState(this, (byte) 7);
@@ -425,6 +563,160 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
 
         NetworkHelper.sync(world, new AbilitiesMessage(generalAbilities, combatAbilities, miningAbilities, woodcuttingAbilities, getEntityId()));
     }
+
+    private void checkTimers()
+    {
+        if (isMining())
+        {
+            setAnimationState(AnimationState.MINING);
+        }
+        else
+        {
+            setAnimationState(AnimationState.IDLE);
+        }
+
+        if (miningTimer >= 0)
+        {
+            incrementMiningTimer();
+            if (miningTimer > miningInterval)
+            {
+                stopMining();
+            }
+        }
+    }
+
+    public void startMining()
+    {
+        setMiningTimer(0);
+    }
+
+    public void stopMining()
+    {
+        setMiningTimer(-1);
+    }
+
+    public boolean isMining()
+    {
+        return miningTimer != -1;
+    }
+
+    public boolean hasPickaxe()
+    {
+        return hasPickaxe(EnumHand.MAIN_HAND) || hasPickaxe(EnumHand.OFF_HAND);
+    }
+
+    public boolean hasPickaxe(EnumHand hand)
+    {
+        return ToolHelper.isPickaxe(getHeldItem(hand).getItem());
+    }
+
+    public boolean hasAxe()
+    {
+        return hasAxe(EnumHand.MAIN_HAND) || hasAxe(EnumHand.OFF_HAND);
+    }
+
+    public boolean hasAxe(EnumHand hand)
+    {
+        return ToolHelper.isAxe(getHeldItem(hand).getItem());
+    }
+
+
+
+    // SPECIAL
+    // GETTERS
+    // AND
+    // SETTERS
+
+    public EntityHelper.Task getTask()
+    {
+        return task;
+    }
+
+    public void setTask(EntityHelper.Task value)
+    {
+        task = value;
+        NetworkHelper.sync(world, new TaskIDMessage(value.id, getEntityId()));
+        UpdateAI();
+    }
+
+    public void setTaskFromPacket(int value)
+    {
+        task = EntityHelper.Task.getFromID(value);
+    }
+
+    @SideOnly(Side.CLIENT)
+    public void cycleTask()
+    {
+        int id = task.id + 1;
+        if (id > EntityHelper.Task.values().length)
+        {
+            id = 1;
+        }
+
+        task = EntityHelper.Task.getFromID(id);
+    }
+
+
+    public EntityHelper.Guard getGuard()
+    {
+        return guard;
+    }
+
+    public void setGuard(EntityHelper.Guard value)
+    {
+        guard = value;
+        NetworkHelper.sync(world, new GuardIDMessage(value.id, getEntityId()));
+        UpdateAI();
+    }
+
+    public void setGuardFromPacket(int value)
+    {
+        guard = EntityHelper.Guard.getFromID(value);
+    }
+
+    @SideOnly(Side.CLIENT)
+    public void cycleGuard()
+    {
+        int id = guard.id + 1;
+        if (id > EntityHelper.Guard.values().length)
+        {
+            id = 1;
+        }
+
+        guard = EntityHelper.Guard.getFromID(id);
+    }
+
+
+    public EntityHelper.State getState()
+    {
+        return state;
+    }
+
+    public void setState(EntityHelper.State value)
+    {
+        state = value;
+        NetworkHelper.sync(world, new StateIDMessage(value.id, getEntityId()));
+        UpdateAI();
+    }
+
+    public void setStateFromPacket(int value)
+    {
+        state = EntityHelper.State.getFromID(value);
+    }
+
+    @SideOnly(Side.CLIENT)
+    public void cycleState()
+    {
+        int id = state.id + 1;
+        if (id > EntityHelper.State.values().length)
+        {
+            id = 1;
+        }
+
+        state = EntityHelper.State.getFromID(id);
+    }
+
+
 
     // GETTERS
     // AND
@@ -518,9 +810,57 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
     {
         guiID = value;
     }
-    
-    
-    
+
+
+
+    public int getMiningInterval()
+    {
+        return miningInterval;
+    }
+
+    public void setMiningInterval(int value)
+    {
+        miningInterval = value;
+        NetworkHelper.sync(world, new MiningIntervalMessage(value, getEntityId()));
+    }
+
+    public void setMiningIntervalFromPacket(int value)
+    {
+        miningInterval = value;
+    }
+
+
+
+    public int getMiningTimer()
+    {
+        return miningTimer;
+    }
+
+    public void incrementMiningTimer()
+    {
+        setMiningTimer(miningTimer + 1);
+    }
+
+    public void setMiningTimer(int value)
+    {
+        miningTimer = value;
+        NetworkHelper.sync(world, new MiningTimerMessage(value, getEntityId()));
+    }
+
+    public void setMiningTimerFromPacket(int value)
+    {
+        miningTimer = value;
+    }
+
+
+
+    public boolean hasTarget()
+    {
+        return aiMining.hasTarget() || aiWoodcutting.hasTarget();
+    }
+
+
+
     public int getGeneralLevel()
     {
         return generalLevel;

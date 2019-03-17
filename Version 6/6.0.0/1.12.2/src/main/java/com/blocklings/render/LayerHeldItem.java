@@ -59,6 +59,15 @@ public class LayerHeldItem implements LayerRenderer<EntityLivingBase>
                 double angle = handSide == EnumHandSide.LEFT ? rot :  -rot;
                 GlStateManager.rotate((float) Math.toDegrees(angle), 1.0F, 0.0F, 0.0F);
             }
+            else if (blockling.getAnimationState() == EntityBlockling.AnimationState.MINING)
+            {
+                float logSpeed = (float) Math.log(speed + 1);
+                float swingHeight = 0.25f;
+                float swingSpeed = 40.0f;
+                float rot = (flipFlopper(age, swingSpeed) * (swingHeight));
+                double angle = handSide == EnumHandSide.LEFT ? rot :  -rot;
+                GlStateManager.rotate((float) Math.toDegrees(angle), 1.0F, 0.0F, 0.0F);
+            }
 
             GlStateManager.translate(0.0F, 0.0f, -0.29F);
 

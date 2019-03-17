@@ -2,9 +2,12 @@ package com.blocklings.models;
 
 import com.blocklings.entities.EntityBlockling;
 
+import com.blocklings.util.helpers.EntityHelper;
+import com.blocklings.util.helpers.ToolHelper;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.entity.Entity;
+import net.minecraft.util.EnumHand;
 import org.jline.utils.Log;
 
 public class ModelBlockling extends ModelBase
@@ -100,16 +103,51 @@ public class ModelBlockling extends ModelBase
             float logSpeed = (float) Math.log(speed + 1);
             float swingHeight = (0.05f + logSpeed / 7.0f) / 12.0f;
             float swingSpeed = 0.6f;
-            body.rotateAngleX = bodyBaseX + (flipFlopper(age + time * 30.0f, swingSpeed) * (swingHeight));
+            float flipFlopper = flipFlopper(age + time * 30.0f, swingSpeed) * (swingHeight);
+            body.rotateAngleX = bodyBaseX + (flipFlopper);
 
             swingHeight = 0.05f + logSpeed / 4.0f;
             swingSpeed = 1.2f;
-            leftArm.rotateAngleX = leftArmBaseX + (flipFlopper(age + time * 30.0f, swingSpeed) * (swingHeight));
-            rightArm.rotateAngleX = rightArmBaseX - (flipFlopper(age + time * 30.0f, swingSpeed) * (swingHeight));
+            flipFlopper = flipFlopper(age + time * 30.0f, swingSpeed) * (swingHeight);
+            leftArm.rotateAngleX = leftArmBaseX + (flipFlopper);
+            rightArm.rotateAngleX = rightArmBaseX - (flipFlopper);
 
             swingHeight = logSpeed / 4.0f;
-            leftLeg.rotateAngleX = leftLegBaseX - (flipFlopper(age + time * 30.0f, swingSpeed) * (swingHeight));
-            rightLeg.rotateAngleX = rightLegBaseX + (flipFlopper(age + time * 30.0f, swingSpeed) * (swingHeight));
+            flipFlopper = flipFlopper(age + time * 30.0f, swingSpeed) * (swingHeight);
+            leftLeg.rotateAngleX = leftLegBaseX - (flipFlopper);
+            rightLeg.rotateAngleX = rightLegBaseX + (flipFlopper);
+        }
+        else if (blockling.getAnimationState() == EntityBlockling.AnimationState.MINING)
+        {
+            boolean rotateRightArm = (blockling.getTask() == EntityHelper.Task.MINE && blockling.hasPickaxe(EnumHand.MAIN_HAND)) ||
+                                     (blockling.getTask() == EntityHelper.Task.CHOP && blockling.hasAxe(EnumHand.MAIN_HAND));
+            boolean rotateLeftArm =  (blockling.getTask() == EntityHelper.Task.MINE && blockling.hasPickaxe(EnumHand.OFF_HAND)) ||
+                                     (blockling.getTask() == EntityHelper.Task.CHOP && blockling.hasAxe(EnumHand.OFF_HAND));
+
+            float logSpeed = (float) Math.log(speed + 1);
+            float swingHeight = (0.05f + logSpeed / 7.0f) / 12.0f;
+            float swingSpeed = 0.6f;
+            float flipFlopper = flipFlopper(age + time * 30.0f, swingSpeed) * (swingHeight);
+            body.rotateAngleX = bodyBaseX + (flipFlopper);
+
+            // Mining animation
+            swingHeight = 0.25f;
+            swingSpeed = 40f;
+            flipFlopper = flipFlopper(age, swingSpeed) * (swingHeight);
+            if (rotateLeftArm)  leftArm.rotateAngleX = leftArmBaseX + (flipFlopper);
+            if (rotateRightArm) rightArm.rotateAngleX = rightArmBaseX - (flipFlopper);
+
+            // Idle animation
+            swingHeight = 0.05f + logSpeed / 4.0f;
+            swingSpeed = 1.2f;
+            flipFlopper = flipFlopper(age + time * 30.0f, swingSpeed) * (swingHeight);
+            if (!rotateLeftArm)  leftArm.rotateAngleX = leftArmBaseX + (flipFlopper);
+            if (!rotateRightArm) rightArm.rotateAngleX = rightArmBaseX - (flipFlopper);
+
+            swingHeight = logSpeed / 4.0f;
+            flipFlopper = flipFlopper(age + time * 30.0f, swingSpeed) * (swingHeight);
+            leftLeg.rotateAngleX = leftLegBaseX - (flipFlopper);
+            rightLeg.rotateAngleX = rightLegBaseX + (flipFlopper);
         }
     }
     // Goes from -PI to PI and back again

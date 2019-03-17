@@ -8,6 +8,8 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.relauncher.Side;
 
+import java.security.Guard;
+
 public class NetworkHelper
 {
     private static SimpleNetworkWrapper network = net.minecraftforge.fml.common.network.NetworkRegistry.INSTANCE.newSimpleChannel(Blocklings.MODID);
@@ -29,12 +31,22 @@ public class NetworkHelper
         network.registerMessage(GuiIDMessage.Handler.class, GuiIDMessage.class, id++, Side.SERVER);
         network.registerMessage(OpenGuiMessage.Handler.class, OpenGuiMessage.class, id++, Side.CLIENT);
         network.registerMessage(OpenGuiMessage.Handler.class, OpenGuiMessage.class, id++, Side.SERVER);
+        network.registerMessage(TaskIDMessage.Handler.class, TaskIDMessage.class, id++, Side.CLIENT);
+        network.registerMessage(TaskIDMessage.Handler.class, TaskIDMessage.class, id++, Side.SERVER);
+        network.registerMessage(GuardIDMessage.Handler.class, GuardIDMessage.class, id++, Side.CLIENT);
+        network.registerMessage(GuardIDMessage.Handler.class, GuardIDMessage.class, id++, Side.SERVER);
+        network.registerMessage(StateIDMessage.Handler.class, StateIDMessage.class, id++, Side.CLIENT);
+        network.registerMessage(StateIDMessage.Handler.class, StateIDMessage.class, id++, Side.SERVER);
         network.registerMessage(GeneralLevelMessage.Handler.class, GeneralLevelMessage.class, id++, Side.CLIENT);
         network.registerMessage(GeneralLevelMessage.Handler.class, GeneralLevelMessage.class, id++, Side.SERVER);
         network.registerMessage(CombatLevelMessage.Handler.class, CombatLevelMessage.class, id++, Side.CLIENT);
         network.registerMessage(CombatLevelMessage.Handler.class, CombatLevelMessage.class, id++, Side.SERVER);
         network.registerMessage(MiningLevelMessage.Handler.class, MiningLevelMessage.class, id++, Side.CLIENT);
         network.registerMessage(MiningLevelMessage.Handler.class, MiningLevelMessage.class, id++, Side.SERVER);
+        network.registerMessage(MiningIntervalMessage.Handler.class, MiningIntervalMessage.class, id++, Side.CLIENT);
+        network.registerMessage(MiningIntervalMessage.Handler.class, MiningIntervalMessage.class, id++, Side.SERVER);
+        network.registerMessage(MiningTimerMessage.Handler.class, MiningTimerMessage.class, id++, Side.CLIENT);
+        network.registerMessage(MiningTimerMessage.Handler.class, MiningTimerMessage.class, id++, Side.SERVER);
         network.registerMessage(WoodcuttingLevelMessage.Handler.class, WoodcuttingLevelMessage.class, id++, Side.CLIENT);
         network.registerMessage(WoodcuttingLevelMessage.Handler.class, WoodcuttingLevelMessage.class, id++, Side.SERVER);
         network.registerMessage(GeneralXpMessage.Handler.class, GeneralXpMessage.class, id++, Side.SERVER);

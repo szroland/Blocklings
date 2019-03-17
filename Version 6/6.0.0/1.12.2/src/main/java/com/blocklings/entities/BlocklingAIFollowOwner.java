@@ -1,8 +1,10 @@
 package com.blocklings.entities;
 
+import com.blocklings.util.helpers.EntityHelper;
 import net.minecraft.block.state.BlockFaceShape;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.EntityAIBase;
 import net.minecraft.entity.passive.EntityTameable;
 import net.minecraft.entity.player.EntityPlayer;
@@ -20,18 +22,19 @@ public class BlocklingAIFollowOwner extends EntityAIBase
     private final EntityTameable tameable;
     private EntityLivingBase owner;
     World world;
-    private final double followSpeed;
     private final PathNavigate petPathfinder;
     private int timeToRecalcPath;
     float maxDist;
     float minDist;
     private float oldWaterCost;
 
-    public BlocklingAIFollowOwner(EntityTameable tameableIn, double followSpeedIn, float minDistIn, float maxDistIn)
+    private EntityBlockling blockling;
+
+    public BlocklingAIFollowOwner(EntityTameable tameableIn, float minDistIn, float maxDistIn)
     {
         this.tameable = tameableIn;
+        this.blockling = (EntityBlockling)tameableIn;
         this.world = tameableIn.world;
-        this.followSpeed = followSpeedIn;
         this.petPathfinder = tameableIn.getNavigator();
         this.minDist = minDistIn;
         this.maxDist = maxDistIn;
@@ -43,6 +46,16 @@ public class BlocklingAIFollowOwner extends EntityAIBase
      */
     public boolean shouldExecute()
     {
+        if (blockling.getState() != EntityHelper.State.FOLLOW)
+        {
+            return false;
+        }
+
+        if (blockling.hasTarget())
+        {
+            return false;
+        }
+
         EntityLivingBase entitylivingbase = this.tameable.getOwner();
 
         if (entitylivingbase == null)
@@ -109,7 +122,7 @@ public class BlocklingAIFollowOwner extends EntityAIBase
             {
                 this.timeToRecalcPath = 10;
 
-                if (!this.petPathfinder.tryMoveToEntityLiving(this.owner, this.followSpeed))
+                if (!this.petPathfinder.tryMoveToEntityLiving(this.owner, this.blockling.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).getAttributeValue() * 1.3))
                 {
                     if (!this.tameable.getLeashed() && !this.tameable.isRiding())
                     {

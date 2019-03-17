@@ -3,15 +3,12 @@ package com.blocklings.guis;
 import com.blocklings.entities.EntityBlockling;
 import com.blocklings.util.ResourceLocationBlocklings;
 import com.blocklings.util.helpers.GuiHelper.Tab;
-import javafx.scene.paint.Color;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.entity.RenderManager;
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
 
@@ -36,9 +33,9 @@ public class GuiBlocklingStats extends GuiBlocklingBase
     {
         super.initGui();
 
-        buttonList.add(taskButton = new GuiButton(0, width / 2 - 81, height / 2 + 46, 52, 20, "asdsad"));
-        buttonList.add(guardButton = new GuiButton(1, width / 2 - 25, height / 2 + 46, 51, 20, "asdsad"));
-        buttonList.add(stateButton = new GuiButton(2, width / 2 + 29, height / 2 + 46, 52, 20, "asdsad"));
+        buttonList.add(taskButton = new GuiButton(0, width / 2 - 81, height / 2 + 46, 52, 20, blockling.getTask().name));
+        buttonList.add(guardButton = new GuiButton(1, width / 2 - 25, height / 2 + 46, 51, 20, blockling.getGuard().name));
+        buttonList.add(stateButton = new GuiButton(2, width / 2 + 29, height / 2 + 46, 52, 20, blockling.getState().name));
         nameTextField = new GuiTextField2(3, fontRenderer, width / 2 - 80, height / 2 - 85, 160, 20)
         {
             public void setFocused(boolean isFocusedIn)
@@ -183,6 +180,26 @@ public class GuiBlocklingStats extends GuiBlocklingBase
     }
 
     @Override
+    protected void actionPerformed(GuiButton button) throws IOException
+    {
+        if (button == taskButton)
+        {
+            blockling.cycleTask();
+            taskButton.displayString = blockling.getTask().name;
+        }
+        else if (button == guardButton)
+        {
+            blockling.cycleGuard();
+            guardButton.displayString = blockling.getGuard().name;
+        }
+        else if (button == stateButton)
+        {
+            blockling.cycleState();
+            stateButton.displayString = blockling.getState().name;
+        }
+    }
+
+    @Override
     public boolean doesGuiPauseGame()
     {
         return false;
@@ -213,6 +230,10 @@ public class GuiBlocklingStats extends GuiBlocklingBase
     public void onGuiClosed()
     {
         if (nameTextField != null) nameTextField.setFocused(false);
+        blockling.setTask(blockling.getTask());
+        blockling.setGuard(blockling.getGuard());
+        blockling.setState(blockling.getState());
+
         super.onGuiClosed();
     }
 }

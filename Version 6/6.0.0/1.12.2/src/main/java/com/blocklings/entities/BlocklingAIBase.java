@@ -67,10 +67,17 @@ public class BlocklingAIBase extends EntityAIBase
 
     boolean moveToTarget()
     {
-        PathPoint finalPoint = targetPath.getFinalPathPoint();
-        blockling.getNavigator().tryMoveToXYZ(finalPoint.x + 0.5, finalPoint.y, finalPoint.z + 0.5, blockling.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).getAttributeValue());
+        if (targetPath != null)
+        {
+            PathPoint finalPoint = targetPath.getFinalPathPoint();
+            blockling.getNavigator().tryMoveToXYZ(finalPoint.x + 0.5, finalPoint.y, finalPoint.z + 0.5, blockling.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).getAttributeValue());
 
-        return blockling.getNavigator().getPath() != null;
+            return blockling.getNavigator().getPath() != null;
+        }
+        else
+        {
+            return false;
+        }
     }
 
     boolean isPosInRange(BlockPos blockPos, BlockPos blockPosTarget)
@@ -262,7 +269,7 @@ public class BlocklingAIBase extends EntityAIBase
         this.targetPath = targetPath;
     }
 
-    boolean hasTarget()
+    public boolean hasTarget()
     {
         return targetVec != null;
     }

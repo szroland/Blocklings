@@ -1,9 +1,13 @@
 package com.blocklings.entities;
 
 import com.blocklings.util.helpers.BlockHelper;
+import com.blocklings.util.helpers.DropHelper;
+import com.blocklings.util.helpers.EntityHelper;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
+import net.minecraft.item.ItemStack;
 import net.minecraft.pathfinding.Path;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 
@@ -30,6 +34,16 @@ public class BlocklingAIWoodcutting extends BlocklingAIBase
     @Override
     public boolean shouldExecute()
     {
+        if (blockling.getTask() != EntityHelper.Task.CHOP)
+        {
+            return false;
+        }
+
+        if (blockling.getAttackTarget() != null || !blockling.hasAxe())
+        {
+            return false;
+        }
+
         badLogResetCount++;
 
         if (badLogResetCount > 600)
@@ -102,9 +116,7 @@ public class BlocklingAIWoodcutting extends BlocklingAIBase
     @Override
     public boolean shouldContinueExecuting()
     {
-        boolean flag = (hasTarget() && world.getBlockState(targetPos).getBlock() != Blocks.AIR);
-
-        return flag;
+        return (hasTarget() && blockling.getAttackTarget() == null && world.getBlockState(targetPos).getBlock() != Blocks.AIR && blockling.hasAxe());
     }
 
     @Override
@@ -114,22 +126,24 @@ public class BlocklingAIWoodcutting extends BlocklingAIBase
         {
             if (findTree())
             {
-                setTargetToRandom();
-
                 if (isTree())
                 {
                     if (isBlocklingInRange(targetPos))
                     {
-                        for (BlockPos logPos : tree)
+                        if (tryChopTarget())
                         {
-                            world.setBlockToAir(logPos);
+                            if (tree.isEmpty())
+                            {
+                                resetTarget();
+                            }
                         }
-
-                        resetTarget();
                     }
                     else
                     {
-                        moveToTarget();
+                        if (!moveToTarget())
+                        {
+                            resetTarget();
+                        }
                     }
                 }
                 else
@@ -139,6 +153,45 @@ public class BlocklingAIWoodcutting extends BlocklingAIBase
                 }
             }
         }
+    }
+
+    private boolean tryChopTarget()
+    {
+        if (!blockling.isMining())
+        {
+            blockling.startMining();
+        }
+
+        BlockPos logPos = tree.get(tree.size() - 1);
+        if (blockling.getMiningTimer() >= blockling.getMiningInterval())
+        {
+            chopTarget();
+            blockling.stopMining();
+            world.sendBlockBreakProgress(blockling.getEntityId(), logPos, -1);
+            return true;
+        }
+        else
+        {
+            int progress = (int)(((float)(blockling.getMiningTimer()) / (float)blockling.getMiningInterval()) * 9.0f);
+            world.sendBlockBreakProgress(blockling.getEntityId(), logPos, progress);
+            return false;
+        }
+    }
+
+    private void chopTarget()
+    {
+        BlockPos logPos = tree.get(tree.size() - 1);
+        NonNullList<ItemStack> dropStacks = DropHelper.getDops(blockling, world, logPos);
+        for (ItemStack dropStack : dropStacks)
+        {
+            ItemStack leftoverStack = blockling.inv.addItem(dropStack);
+            if (!leftoverStack.isEmpty())
+            {
+                blockling.entityDropItem(leftoverStack, 0);
+            }
+        }
+        world.setBlockToAir(logPos);
+        tree.remove(tree.size() - 1);
     }
 
     private boolean isTree()
