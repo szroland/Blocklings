@@ -2,6 +2,7 @@ package com.blocklings.render;
 
 import com.blocklings.entities.EntityBlockling;
 import com.blocklings.models.ModelBlockling;
+import com.blocklings.util.helpers.ToolHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
@@ -10,6 +11,7 @@ import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumHandSide;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -50,22 +52,70 @@ public class LayerHeldItem implements LayerRenderer<EntityLivingBase>
 
             // Animation
 
+            float logSpeed = (float) Math.log(speed + 1);
+            float swingHeight = 0.05f + logSpeed / 4.0f;
+            float swingSpeed = 1.2f;
+            float rot = (flipFlopper(age + time * 30.0f, swingSpeed) * (swingHeight));
+            double angle = handSide == EnumHandSide.LEFT ? rot :  -rot;
+
             if (blockling.getAnimationState() == EntityBlockling.AnimationState.IDLE)
             {
-                float logSpeed = (float) Math.log(speed + 1);
-                float swingHeight = 0.05f + logSpeed / 4.0f;
-                float swingSpeed = 1.2f;
-                float rot = (flipFlopper(age + time * 30.0f, swingSpeed) * (swingHeight));
-                double angle = handSide == EnumHandSide.LEFT ? rot :  -rot;
-                GlStateManager.rotate((float) Math.toDegrees(angle), 1.0F, 0.0F, 0.0F);
+                if (blockling.hasWeapon())
+                {
+                    if ((handSide == EnumHandSide.LEFT && blockling.isUsingWeaponRight()) || (handSide == EnumHandSide.RIGHT && blockling.isUsingWeaponLeft()))
+                    {
+                        GlStateManager.rotate((float) Math.toDegrees(angle) + 30, 1.0F, 0.0F, 0.0F);
+                    }
+                    else
+                    {
+                        GlStateManager.rotate((float) Math.toDegrees(angle), 1.0F, 0.0F, 0.0F);
+                    }
+                }
+                else
+                {
+                    if ((handSide == EnumHandSide.LEFT && blockling.hasTool(EnumHand.MAIN_HAND)) || (handSide == EnumHandSide.RIGHT && blockling.hasTool(EnumHand.OFF_HAND)))
+                    {
+                        GlStateManager.rotate((float) Math.toDegrees(angle) + 30, 1.0F, 0.0F, 0.0F);
+                    }
+                    else
+                    {
+                        GlStateManager.rotate((float) Math.toDegrees(angle), 1.0F, 0.0F, 0.0F);
+                    }
+                }
+            }
+            else if (blockling.getAnimationState() == EntityBlockling.AnimationState.ATTACKING)
+            {
+                if (blockling.hasTool())
+                {
+                    EnumHand hand = blockling.calculateAttackingHand();
+                    int ticksLeft = blockling.getAttackInterval() - blockling.getAttackTimer();
+                    if ((hand == EnumHand.MAIN_HAND && handSide == EnumHandSide.LEFT) || (hand == EnumHand.OFF_HAND && handSide == EnumHandSide.RIGHT))
+                    {
+                        if (ticksLeft < 2)
+                        {
+                            GlStateManager.rotate((float) Math.toDegrees(angle) + (35 * ticksLeft) - 40, 1.0F, 0.0F, 0.0F);
+                        }
+                        else
+                        {
+                            GlStateManager.rotate((float) Math.toDegrees(angle) + 30, 1.0F, 0.0F, 0.0F);
+                        }
+                    }
+                    else
+                    {
+                        GlStateManager.rotate((float) Math.toDegrees(angle), 1.0F, 0.0F, 0.0F);
+                    }
+                }
+                else
+                {
+                    GlStateManager.rotate((float) Math.toDegrees(angle), 1.0F, 0.0F, 0.0F);
+                }
             }
             else if (blockling.getAnimationState() == EntityBlockling.AnimationState.MINING)
             {
-                float logSpeed = (float) Math.log(speed + 1);
-                float swingHeight = 0.25f;
-                float swingSpeed = 40.0f;
-                float rot = (flipFlopper(age, swingSpeed) * (swingHeight));
-                double angle = handSide == EnumHandSide.LEFT ? rot :  -rot;
+                swingHeight = 0.25f;
+                swingSpeed = 40.0f;
+                rot = (flipFlopper(age, swingSpeed) * (swingHeight));
+                angle = handSide == EnumHandSide.LEFT ? rot :  -rot;
                 GlStateManager.rotate((float) Math.toDegrees(angle), 1.0F, 0.0F, 0.0F);
             }
 

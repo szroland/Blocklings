@@ -20,6 +20,8 @@ public class EntityHelper
     public static final float BASE_SCALE = 0.75f;
     public static final float BASE_SCALE_FOR_HITBOX = BASE_SCALE * 1.1f;
 
+    public static final float SWING_SPEED_COEF = 0.75f;
+
     public static void registerEntities()
     {
         int id = 1;

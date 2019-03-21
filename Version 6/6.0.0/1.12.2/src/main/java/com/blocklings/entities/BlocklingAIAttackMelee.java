@@ -193,10 +193,14 @@ public class BlocklingAIAttackMelee extends EntityAIBase
     {
         double d0 = this.getAttackReachSqr(p_190102_1_);
 
-        if (p_190102_2_ <= d0 && this.attackTick <= 0)
+        if (!blockling.isAttacking())
         {
-            this.attackTick = 20;
-            this.attacker.swingArm(EnumHand.MAIN_HAND);
+            blockling.startAttacking();
+        }
+
+        if (p_190102_2_ <= d0 && blockling.getAttackTimer() >= blockling.getAttackInterval())
+        {
+            blockling.stopAttacking();
             this.attacker.attackEntityAsMob(p_190102_1_);
         }
     }

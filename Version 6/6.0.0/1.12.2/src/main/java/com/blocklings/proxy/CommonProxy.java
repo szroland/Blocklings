@@ -1,5 +1,6 @@
 package com.blocklings.proxy;
 
+import com.blocklings.events.AttackEventHandler;
 import com.blocklings.guis.GuiHandler;
 import com.blocklings.main.Blocklings;
 import com.blocklings.util.helpers.EntityHelper;
@@ -7,6 +8,7 @@ import com.blocklings.util.helpers.NetworkHelper;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -24,6 +26,7 @@ public class CommonProxy
         EntityHelper.registerEntities();
         NetworkHelper.registerMessages();
         NetworkRegistry.INSTANCE.registerGuiHandler(Blocklings.instance, new GuiHandler());
+        MinecraftForge.EVENT_BUS.register(new AttackEventHandler());
     }
 
     public void init(FMLInitializationEvent e)

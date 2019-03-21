@@ -3,10 +3,12 @@ package com.blocklings.entities;
 import com.blocklings.util.helpers.BlockHelper;
 import com.blocklings.util.helpers.DropHelper;
 import com.blocklings.util.helpers.EntityHelper;
+import com.blocklings.util.helpers.ToolHelper;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.pathfinding.Path;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.NonNullList;
@@ -16,6 +18,7 @@ import net.minecraft.util.math.Vec3d;
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import static com.blocklings.util.helpers.DropHelper.getDops;
 
@@ -161,7 +164,16 @@ public class BlocklingAIMining extends BlocklingAIBase
                 blockling.entityDropItem(leftoverStack, 0);
             }
         }
-        blockling.damageItem(EnumHand.MAIN_HAND);
+
+        if (blockling.isUsingPickaxeRight())
+        {
+            blockling.damageItem(EnumHand.MAIN_HAND);
+        }
+        if (blockling.isUsingPickaxeLeft())
+        {
+            blockling.damageItem(EnumHand.OFF_HAND);
+        }
+
         world.setBlockToAir(targetPos);
     }
 

@@ -3,16 +3,20 @@ package com.blocklings.entities;
 import com.blocklings.util.helpers.BlockHelper;
 import com.blocklings.util.helpers.DropHelper;
 import com.blocklings.util.helpers.EntityHelper;
+import com.blocklings.util.helpers.ToolHelper;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.pathfinding.Path;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class BlocklingAIWoodcutting extends BlocklingAIBase
 {
@@ -190,6 +194,16 @@ public class BlocklingAIWoodcutting extends BlocklingAIBase
                 blockling.entityDropItem(leftoverStack, 0);
             }
         }
+
+        if (blockling.isUsingAxeRight())
+        {
+            blockling.damageItem(EnumHand.MAIN_HAND);
+        }
+        if (blockling.isUsingAxeLeft())
+        {
+            blockling.damageItem(EnumHand.OFF_HAND);
+        }
+
         world.setBlockToAir(logPos);
         tree.remove(tree.size() - 1);
     }

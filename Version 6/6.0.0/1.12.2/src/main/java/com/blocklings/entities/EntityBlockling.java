@@ -10,7 +10,9 @@ import com.blocklings.util.helpers.GuiHelper.Tab;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.*;
+import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.monster.*;
 import net.minecraft.entity.passive.EntityTameable;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -27,14 +29,14 @@ import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import javax.tools.Tool;
+import java.util.List;
 import java.util.Random;
 
 public class EntityBlockling extends EntityTameable implements IEntityAdditionalSpawnData
 {
     public static final Random RANDOM = new Random();
 
-    public enum AnimationState { IDLE, MINING }
+    public enum AnimationState { IDLE, ATTACKING, MINING }
 
     public static final double BASE_MAX_HEALTH = 8;
     public static final double BASE_MOVEMENT_SPEED = 0.6;
@@ -63,8 +65,9 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
 
     private int generalLevel = 4, combatLevel = 13, miningLevel = 7, woodcuttingLevel = 6;
     private int generalXp = 0, combatXp = 0, miningXp = 0, woodcuttingXp = 0;
-    private int attackInterval = 20, miningInterval = 20, choppingInterval = 20;
-    private int miningTimer = -1, choppingTimer = -1;
+    private int attackInterval = 10, miningInterval = 20, choppingInterval = 20;
+    private int attackTimer = -1, miningTimer = -1;
+    private EnumHand attackingHand = EnumHand.MAIN_HAND;
 
     private byte autoswitchID = 0;
 
@@ -178,9 +181,94 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
     @Override
     public boolean attackEntityAsMob(Entity entityIn)
     {
-        entityIn.attackEntityFrom(DamageSource.causeMobDamage(this), (float) getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).getAttributeValue());
+        double damage = (getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).getAttributeValue()) / (isDualAttacking() ? 2.0 : 1.0);
+        int fireAspect = 0;
+        int knockBack = 0;
 
+        if (hasTool())
+        {
+            damage += (ToolHelper.getToolAttackDamage(getHeldItem(calculateAttackingHand()))) / (isDualAttacking() ? 2.0 : 1.0);
+
+            List<NBTTagCompound> enchantments = ToolHelper.getEnchantmentTagsFromTool(getHeldItem(calculateAttackingHand()));
+            for (NBTTagCompound enchantmentTag : enchantments)
+            {
+                ToolHelper.Enchantment enchantment = ToolHelper.Enchantment.getEnchantmentFromTag(enchantmentTag);
+                if (enchantment == ToolHelper.Enchantment.SHARPNESS)
+                {
+                    damage += 1 + ((enchantmentTag.getInteger("lvl") - 1) * 0.5);
+                }
+                if (enchantment == ToolHelper.Enchantment.BANEOFARTHROPODS)
+                {
+                    if (entityIn instanceof EntitySpider)
+                    {
+                        damage += enchantmentTag.getInteger("lvl") * 2.5;
+                    }
+                }
+                if (enchantment == ToolHelper.Enchantment.SMITE)
+                {
+                    if (entityIn instanceof EntityZombie)
+                    {
+                        damage += enchantmentTag.getInteger("lvl") * 2.5;
+                    }
+                }
+                if (enchantment == ToolHelper.Enchantment.FIREASPECT)
+                {
+                    fireAspect += enchantmentTag.getInteger("lvl") * 4;
+                }
+                if (enchantment == ToolHelper.Enchantment.KNOCKBACK)
+                {
+                    knockBack += enchantmentTag.getInteger("lvl");
+                }
+            }
+
+            damageItem(calculateAttackingHand());
+        }
+
+        ((EntityLiving)entityIn).knockBack(this, knockBack,1,1);
+        entityIn.attackEntityFrom(DamageSource.causeMobDamage(this), (float) damage);
+        entityIn.setFire(fireAspect);
+
+        setAttackingHand(attackingHand == EnumHand.MAIN_HAND ? EnumHand.OFF_HAND : EnumHand.MAIN_HAND);
         return super.attackEntityAsMob(entityIn);
+    }
+
+    public boolean isDualAttacking()
+    {
+        if (hasWeapon(EnumHand.MAIN_HAND) && hasWeapon(EnumHand.OFF_HAND))
+        {
+            return true;
+        }
+        else if (!hasWeapon(EnumHand.MAIN_HAND) || !hasWeapon(EnumHand.OFF_HAND))
+        {
+            if (hasTool(EnumHand.MAIN_HAND) && hasTool(EnumHand.OFF_HAND))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public EnumHand calculateAttackingHand()
+    {
+        if (hasWeapon(EnumHand.MAIN_HAND) && hasWeapon(EnumHand.OFF_HAND))
+        {
+            return attackingHand;
+        }
+        else if (hasWeapon(EnumHand.MAIN_HAND))
+        {
+            return EnumHand.MAIN_HAND;
+        }
+        else if (hasWeapon(EnumHand.OFF_HAND))
+        {
+            return EnumHand.OFF_HAND;
+        }
+        else if (hasTool(EnumHand.MAIN_HAND) && hasTool(EnumHand.OFF_HAND))
+        {
+            return attackingHand;
+        }
+
+        return hasTool(EnumHand.MAIN_HAND) ? EnumHand.MAIN_HAND : EnumHand.OFF_HAND;
     }
 
     // Used to save entity data (variables) when the entity is unloaded
@@ -377,7 +465,7 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
                 {
                     if (player == getOwner())
                     {
-                        if (ToolHelper.isEquipment(item))
+                        if (ToolHelper.isTool(item))
                         {
                             setHeldItemFromInteract(stack, EnumHand.MAIN_HAND, player);
                         }
@@ -390,7 +478,7 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
                 {
                     if (player == getOwner())
                     {
-                        if (ToolHelper.isEquipment(item))
+                        if (ToolHelper.isTool(item))
                         {
                             setHeldItemFromInteract(stack, EnumHand.OFF_HAND, player);
                         }
@@ -465,8 +553,19 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
 
     public void damageItem(EnumHand hand)
     {
-        getHeldItemMainhand().damageItem(1, this);
-        getHeldItemOffhand().damageItem(1, this);
+        Random r = new Random();
+        float breakingChance = 0;
+        for (NBTTagCompound enchantmentTag : ToolHelper.getEnchantmentTagsFromTool(getHeldItem(hand)))
+        {
+            if (ToolHelper.Enchantment.getEnchantmentFromTag(enchantmentTag) == ToolHelper.Enchantment.UNBREAKING)
+            {
+                breakingChance = 1.0f / (float) (enchantmentTag.getInteger("lvl") + 1);
+            }
+        }
+        if (r.nextFloat() <= breakingChance)
+        {
+            getHeldItem(hand).damageItem(1, this);
+        }
     }
 
     @Override
@@ -566,13 +665,26 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
 
     private void checkTimers()
     {
-        if (isMining())
+        if (isAttacking())
+        {
+            setAnimationState(AnimationState.ATTACKING);
+        }
+        else if (isMining())
         {
             setAnimationState(AnimationState.MINING);
         }
         else
         {
             setAnimationState(AnimationState.IDLE);
+        }
+
+        if (attackTimer >= 0)
+        {
+            incrementAttackTimer();
+            if (attackTimer > attackInterval)
+            {
+                stopAttacking();
+            }
         }
 
         if (miningTimer >= 0)
@@ -585,6 +697,21 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
         }
     }
 
+    public void startAttacking()
+    {
+        setAttackTimer(0);
+    }
+
+    public void stopAttacking()
+    {
+        setAttackTimer(-1);
+    }
+
+    public boolean isAttacking()
+    {
+        return attackTimer != -1;
+    }
+    
     public void startMining()
     {
         setMiningTimer(0);
@@ -600,11 +727,25 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
         return miningTimer != -1;
     }
 
+    public boolean hasTool() { return hasTool(EnumHand.MAIN_HAND) || hasTool(EnumHand.OFF_HAND); }
+    public boolean hasTool(EnumHand hand)
+    {
+        return ToolHelper.isTool(getHeldItem(hand).getItem());
+    }
+
+    public boolean hasWeapon()
+    {
+        return hasWeapon(EnumHand.MAIN_HAND) || hasWeapon(EnumHand.OFF_HAND);
+    }
+    public boolean hasWeapon(EnumHand hand)
+    {
+        return ToolHelper.isWeapon(getHeldItem(hand).getItem());
+    }
+
     public boolean hasPickaxe()
     {
         return hasPickaxe(EnumHand.MAIN_HAND) || hasPickaxe(EnumHand.OFF_HAND);
     }
-
     public boolean hasPickaxe(EnumHand hand)
     {
         return ToolHelper.isPickaxe(getHeldItem(hand).getItem());
@@ -614,12 +755,27 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
     {
         return hasAxe(EnumHand.MAIN_HAND) || hasAxe(EnumHand.OFF_HAND);
     }
-
     public boolean hasAxe(EnumHand hand)
     {
         return ToolHelper.isAxe(getHeldItem(hand).getItem());
     }
 
+    public boolean isUsingWeaponRight() { return hasWeapon(EnumHand.MAIN_HAND) && (task == EntityHelper.Task.HUNT || guard == EntityHelper.Guard.GUARD || getAttackTarget() != null); }
+    public boolean isUsingWeaponLeft() { return hasWeapon(EnumHand.OFF_HAND) && (task == EntityHelper.Task.HUNT || guard == EntityHelper.Guard.GUARD || getAttackTarget() != null); }
+
+    public boolean isUsingPickaxeRight() { return hasPickaxe(EnumHand.MAIN_HAND) && (task == EntityHelper.Task.MINE); }
+    public boolean isUsingPickaxeLeft() { return hasPickaxe(EnumHand.OFF_HAND) && (task == EntityHelper.Task.MINE); }
+
+    public boolean isUsingAxeRight() { return hasAxe(EnumHand.MAIN_HAND) && (task == EntityHelper.Task.CHOP); }
+    public boolean isUsingAxeLeft() { return hasAxe(EnumHand.OFF_HAND) && (task == EntityHelper.Task.CHOP); }
+
+    private void tryRemoveAttackTarget()
+    {
+        if (task != EntityHelper.Task.HUNT && guard != EntityHelper.Guard.GUARD)
+        {
+            setAttackTarget(null);
+        }
+    }
 
 
     // SPECIAL
@@ -636,6 +792,7 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
     {
         task = value;
         NetworkHelper.sync(world, new TaskIDMessage(value.id, getEntityId()));
+        tryRemoveAttackTarget();
         UpdateAI();
     }
 
@@ -666,6 +823,7 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
     {
         guard = value;
         NetworkHelper.sync(world, new GuardIDMessage(value.id, getEntityId()));
+        tryRemoveAttackTarget();
         UpdateAI();
     }
 
@@ -811,6 +969,65 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
         guiID = value;
     }
 
+
+
+    public EnumHand getAttackingHand()
+    {
+        return attackingHand;
+    }
+
+    public void setAttackingHand(EnumHand value)
+    {
+        attackingHand = value;
+        NetworkHelper.sync(world, new AttackingHandMessage(value, getEntityId()));
+    }
+
+    public void setAttackingHandFromPacket(EnumHand value)
+    {
+        attackingHand = value;
+    }
+
+
+
+    public int getAttackInterval()
+    {
+        return attackInterval;
+    }
+
+    public void setAttackInterval(int value)
+    {
+        attackInterval = value;
+        NetworkHelper.sync(world, new AttackIntervalMessage(value, getEntityId()));
+    }
+
+    public void setAttackIntervalFromPacket(int value)
+    {
+        attackInterval = value;
+    }
+
+    
+    
+    public int getAttackTimer()
+    {
+        return attackTimer;
+    }
+
+    public void incrementAttackTimer()
+    {
+        setAttackTimer(attackTimer + 1);
+    }
+
+    public void setAttackTimer(int value)
+    {
+        attackTimer = value;
+        NetworkHelper.sync(world, new AttackTimerMessage(value, getEntityId()));
+    }
+
+    public void setAttackTimerFromPacket(int value)
+    {
+        attackTimer = value;
+    }
+    
 
 
     public int getMiningInterval()

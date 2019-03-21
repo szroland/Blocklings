@@ -41,6 +41,12 @@ public class NetworkHelper
         network.registerMessage(GeneralLevelMessage.Handler.class, GeneralLevelMessage.class, id++, Side.SERVER);
         network.registerMessage(CombatLevelMessage.Handler.class, CombatLevelMessage.class, id++, Side.CLIENT);
         network.registerMessage(CombatLevelMessage.Handler.class, CombatLevelMessage.class, id++, Side.SERVER);
+        network.registerMessage(AttackingHandMessage.Handler.class, AttackingHandMessage.class, id++, Side.CLIENT);
+        network.registerMessage(AttackingHandMessage.Handler.class, AttackingHandMessage.class, id++, Side.SERVER);
+        network.registerMessage(AttackIntervalMessage.Handler.class, AttackIntervalMessage.class, id++, Side.CLIENT);
+        network.registerMessage(AttackIntervalMessage.Handler.class, AttackIntervalMessage.class, id++, Side.SERVER);
+        network.registerMessage(AttackTimerMessage.Handler.class, AttackTimerMessage.class, id++, Side.CLIENT);
+        network.registerMessage(AttackTimerMessage.Handler.class, AttackTimerMessage.class, id++, Side.SERVER);
         network.registerMessage(MiningLevelMessage.Handler.class, MiningLevelMessage.class, id++, Side.CLIENT);
         network.registerMessage(MiningLevelMessage.Handler.class, MiningLevelMessage.class, id++, Side.SERVER);
         network.registerMessage(MiningIntervalMessage.Handler.class, MiningIntervalMessage.class, id++, Side.CLIENT);
