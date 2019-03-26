@@ -1,7 +1,10 @@
 package com.blocklings.util.helpers;
 
+import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.IAttribute;
+import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.Item;
@@ -9,6 +12,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 
+import javax.tools.Tool;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,31 +21,38 @@ public class ToolHelper
     public static List<Item> weapons = new ArrayList<>();
     public static List<Item> pickaxes = new ArrayList<>();
     public static List<Item> axes = new ArrayList<>();
+    public static List<Item> hoes = new ArrayList<>();
 
     static
     {
         weapons.add(Items.WOODEN_SWORD);
         weapons.add(Items.STONE_SWORD);
-        weapons.add(Items.IRON_SWORD);
         weapons.add(Items.GOLDEN_SWORD);
+        weapons.add(Items.IRON_SWORD);
         weapons.add(Items.DIAMOND_SWORD);
 
         pickaxes.add(Items.WOODEN_PICKAXE);
         pickaxes.add(Items.STONE_PICKAXE);
-        pickaxes.add(Items.IRON_PICKAXE);
         pickaxes.add(Items.GOLDEN_PICKAXE);
+        pickaxes.add(Items.IRON_PICKAXE);
         pickaxes.add(Items.DIAMOND_PICKAXE);
 
         axes.add(Items.WOODEN_AXE);
         axes.add(Items.STONE_AXE);
-        axes.add(Items.IRON_AXE);
         axes.add(Items.GOLDEN_AXE);
+        axes.add(Items.IRON_AXE);
         axes.add(Items.DIAMOND_AXE);
+
+        hoes.add(Items.WOODEN_HOE);
+        hoes.add(Items.STONE_HOE);
+        hoes.add(Items.GOLDEN_HOE);
+        hoes.add(Items.IRON_HOE);
+        hoes.add(Items.DIAMOND_HOE);
     }
 
     public static boolean isTool(Item item)
     {
-        return weapons.contains(item) || pickaxes.contains(item) || axes.contains(item);
+        return weapons.contains(item) || pickaxes.contains(item) || axes.contains(item) || hoes.contains(item);
     }
 
     public static boolean isWeapon(Item item)
@@ -59,6 +70,31 @@ public class ToolHelper
         return axes.contains(item);
     }
 
+    public static boolean isHoe(Item item)
+    {
+        return hoes.contains(item);
+    }
+
+    public static int getWeaponLevel(Item item)
+    {
+        return weapons.indexOf(item);
+    }
+
+    public static int getPickaxeLevel(Item item)
+    {
+        return pickaxes.indexOf(item);
+    }
+
+    public static int getAxeLevel(Item item)
+    {
+        return axes.indexOf(item);
+    }
+
+    public static int getHoeLevel(Item item)
+    {
+        return hoes.indexOf(item);
+    }
+
     public static int getToolAttackDamage(ItemStack stack)
     {
         int damage = 0;
@@ -70,6 +106,24 @@ public class ToolHelper
 
         return damage;
     }
+
+    public static int getToolAttackSpeed(ItemStack stack)
+    {
+        int speed = 0;
+
+        if (!stack.isEmpty())
+        {
+            speed = (int)((AttributeModifier)(stack.getAttributeModifiers(EntityEquipmentSlot.MAINHAND).get("generic.attackSpeed").toArray()[0])).getAmount() + 1;
+        }
+
+        return speed;
+    }
+
+    public static int getToolAttackPower(ItemStack stack)
+    {
+        return getToolAttackDamage(stack) * getToolAttackSpeed(stack);
+    }
+
 
 
     public enum Enchantment

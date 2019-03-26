@@ -111,19 +111,32 @@ public class ModelBlockling extends ModelBase
             swingHeight = 0.05f + logSpeed / 4.0f;
             swingSpeed = 1.2f;
             flipFlopper = flipFlopper(age + time * 30.0f, swingSpeed) * (swingHeight);
-            if (blockling.hasWeapon())
+            if (blockling.isSetToAttack())
             {
-                if (blockling.isUsingWeaponLeft()) leftArm.rotateAngleX = leftArmBaseX + (flipFlopper) - (float) Math.toRadians(30);
-                else leftArm.rotateAngleX = leftArmBaseX + (flipFlopper);
-                if (blockling.isUsingWeaponRight()) rightArm.rotateAngleX = rightArmBaseX - (flipFlopper) - (float) Math.toRadians(30);
-                else rightArm.rotateAngleX = rightArmBaseX - (flipFlopper);
+                if (blockling.hasWeapon())
+                {
+                    if (blockling.hasWeapon(EnumHand.OFF_HAND)) leftArm.rotateAngleX = leftArmBaseX + (flipFlopper) - (float) Math.toRadians(30);
+                    else leftArm.rotateAngleX = leftArmBaseX + (flipFlopper);
+                    if (blockling.hasWeapon(EnumHand.MAIN_HAND)) rightArm.rotateAngleX = rightArmBaseX - (flipFlopper) - (float) Math.toRadians(30);
+                    else rightArm.rotateAngleX = rightArmBaseX - (flipFlopper);
+                }
+                else if (blockling.hasTool())
+                {
+                    if (blockling.hasTool(EnumHand.OFF_HAND)) leftArm.rotateAngleX = leftArmBaseX + (flipFlopper) - (float) Math.toRadians(30);
+                    else leftArm.rotateAngleX = leftArmBaseX + (flipFlopper);
+                    if (blockling.hasTool(EnumHand.MAIN_HAND)) rightArm.rotateAngleX = rightArmBaseX - (flipFlopper) - (float) Math.toRadians(30);
+                    else rightArm.rotateAngleX = rightArmBaseX - (flipFlopper);
+                }
+                else
+                {
+                    leftArm.rotateAngleX = leftArmBaseX + (flipFlopper);
+                    rightArm.rotateAngleX = rightArmBaseX - (flipFlopper);
+                }
             }
             else
             {
-                if (blockling.hasTool(EnumHand.OFF_HAND)) leftArm.rotateAngleX = leftArmBaseX + (flipFlopper) - (float) Math.toRadians(30);
-                else leftArm.rotateAngleX = leftArmBaseX + (flipFlopper);
-                if (blockling.hasTool(EnumHand.MAIN_HAND)) rightArm.rotateAngleX = rightArmBaseX - (flipFlopper) - (float) Math.toRadians(30);
-                else rightArm.rotateAngleX = rightArmBaseX - (flipFlopper);
+                leftArm.rotateAngleX = leftArmBaseX + (flipFlopper);
+                rightArm.rotateAngleX = rightArmBaseX - (flipFlopper);
             }
 
             swingHeight = logSpeed / 4.0f;
@@ -160,19 +173,35 @@ public class ModelBlockling extends ModelBase
             }
             else
             {
-                if (blockling.hasWeapon())
+                swingHeight = 0.05f + logSpeed / 4.0f;
+                swingSpeed = 1.2f;
+                flipFlopper = flipFlopper(age + time * 30.0f, swingSpeed) * (swingHeight);
+                if (blockling.isSetToAttack())
                 {
-                    if (blockling.isUsingWeaponLeft()) leftArm.rotateAngleX = leftArmBaseX + (flipFlopper) - (float) Math.toRadians(30);
-                    else leftArm.rotateAngleX = leftArmBaseX + (flipFlopper);
-                    if (blockling.isUsingWeaponRight()) rightArm.rotateAngleX = rightArmBaseX - (flipFlopper) - (float) Math.toRadians(30);
-                    else rightArm.rotateAngleX = rightArmBaseX - (flipFlopper);
+                    if (blockling.hasWeapon())
+                    {
+                        if (blockling.hasWeapon(EnumHand.OFF_HAND)) leftArm.rotateAngleX = leftArmBaseX + (flipFlopper) - (float) Math.toRadians(30);
+                        else leftArm.rotateAngleX = leftArmBaseX + (flipFlopper);
+                        if (blockling.hasWeapon(EnumHand.MAIN_HAND)) rightArm.rotateAngleX = rightArmBaseX - (flipFlopper) - (float) Math.toRadians(30);
+                        else rightArm.rotateAngleX = rightArmBaseX - (flipFlopper);
+                    }
+                    else if (blockling.hasTool())
+                    {
+                        if (blockling.hasTool(EnumHand.OFF_HAND)) leftArm.rotateAngleX = leftArmBaseX + (flipFlopper) - (float) Math.toRadians(30);
+                        else leftArm.rotateAngleX = leftArmBaseX + (flipFlopper);
+                        if (blockling.hasTool(EnumHand.MAIN_HAND)) rightArm.rotateAngleX = rightArmBaseX - (flipFlopper) - (float) Math.toRadians(30);
+                        else rightArm.rotateAngleX = rightArmBaseX - (flipFlopper);
+                    }
+                    else
+                    {
+                        leftArm.rotateAngleX = leftArmBaseX + (flipFlopper);
+                        rightArm.rotateAngleX = rightArmBaseX - (flipFlopper);
+                    }
                 }
                 else
                 {
-                    if (blockling.hasTool(EnumHand.OFF_HAND)) leftArm.rotateAngleX = leftArmBaseX + (flipFlopper) - (float) Math.toRadians(30);
-                    else leftArm.rotateAngleX = leftArmBaseX + (flipFlopper);
-                    if (blockling.hasTool(EnumHand.MAIN_HAND)) rightArm.rotateAngleX = rightArmBaseX - (flipFlopper) - (float) Math.toRadians(30);
-                    else rightArm.rotateAngleX = rightArmBaseX - (flipFlopper);
+                    leftArm.rotateAngleX = leftArmBaseX + (flipFlopper);
+                    rightArm.rotateAngleX = rightArmBaseX - (flipFlopper);
                 }
             }
 
@@ -233,26 +262,70 @@ public class ModelBlockling extends ModelBase
         }
         else if (blockling.getAnimationState() == EntityBlockling.AnimationState.MINING)
         {
-            boolean rotateRightArm = (blockling.getTask() == EntityHelper.Task.MINE && blockling.hasPickaxe(EnumHand.MAIN_HAND)) ||
-                                     (blockling.getTask() == EntityHelper.Task.CHOP && blockling.hasAxe(EnumHand.MAIN_HAND));
-            boolean rotateLeftArm =  (blockling.getTask() == EntityHelper.Task.MINE && blockling.hasPickaxe(EnumHand.OFF_HAND)) ||
-                                     (blockling.getTask() == EntityHelper.Task.CHOP && blockling.hasAxe(EnumHand.OFF_HAND));
-
             body.rotateAngleX = bodyBaseX + (flipFlopper);
 
             // Mining animation
             swingHeight = 0.25f;
             swingSpeed = 40f;
             flipFlopper = flipFlopper(age, swingSpeed) * (swingHeight);
-            if (rotateLeftArm)  leftArm.rotateAngleX = leftArmBaseX + (flipFlopper);
-            if (rotateRightArm) rightArm.rotateAngleX = rightArmBaseX - (flipFlopper);
+            if (blockling.hasCorrectToolForJob(EnumHand.OFF_HAND))
+            {
+                leftArm.rotateAngleX = leftArmBaseX + (flipFlopper);
+            }
+            else
+            {
+                // Idle animation
+                swingHeight = 0.05f + logSpeed / 4.0f;
+                swingSpeed = 1.2f;
+                flipFlopper = flipFlopper(age + time * 30.0f, swingSpeed) * (swingHeight);
+                if (blockling.isSetToAttack())
+                {
+                    if (blockling.hasTool(EnumHand.OFF_HAND))
+                    {
+                        if (hand == EnumHand.OFF_HAND) leftArm.rotateAngleX = leftArmBaseX + (flipFlopper) - (float) Math.toRadians(30);
+                        else leftArm.rotateAngleX = leftArmBaseX + (flipFlopper);
+                    }
+                    else
+                    {
+                        leftArm.rotateAngleX = leftArmBaseX + (flipFlopper);
+                    }
+                }
+                else
+                {
+                    leftArm.rotateAngleX = leftArmBaseX + (flipFlopper);
+                }
+            }
 
-            // Idle animation
-            swingHeight = 0.05f + logSpeed / 4.0f;
-            swingSpeed = 1.2f;
-            flipFlopper = flipFlopper(age + time * 30.0f, swingSpeed) * (swingHeight);
-            if (!rotateLeftArm)  leftArm.rotateAngleX = leftArmBaseX + (flipFlopper);
-            if (!rotateRightArm) rightArm.rotateAngleX = rightArmBaseX - (flipFlopper);
+            swingHeight = 0.25f;
+            swingSpeed = 40f;
+            flipFlopper = flipFlopper(age, swingSpeed) * (swingHeight);
+            if (blockling.hasCorrectToolForJob(EnumHand.MAIN_HAND))
+            {
+                rightArm.rotateAngleX = rightArmBaseX - (flipFlopper);
+            }
+            else
+            {
+                // Idle animation
+                swingHeight = 0.05f + logSpeed / 4.0f;
+                swingSpeed = 1.2f;
+                flipFlopper = flipFlopper(age + time * 30.0f, swingSpeed) * (swingHeight);
+                if (blockling.isSetToAttack())
+                {
+                    if (blockling.hasTool(EnumHand.MAIN_HAND))
+                    {
+                        if (hand == EnumHand.MAIN_HAND) rightArm.rotateAngleX = rightArmBaseX - (flipFlopper) - (float) Math.toRadians(30);
+                        else rightArm.rotateAngleX = rightArmBaseX - (flipFlopper);
+                    }
+                    else
+                    {
+                        rightArm.rotateAngleX = rightArmBaseX - (flipFlopper);
+                    }
+                }
+                else
+                {
+                    rightArm.rotateAngleX = rightArmBaseX - (flipFlopper);
+                }
+            }
 
             swingHeight = logSpeed / 4.0f;
             flipFlopper = flipFlopper(age + time * 30.0f, swingSpeed) * (swingHeight);

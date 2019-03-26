@@ -34,12 +34,18 @@ public class EntityHelper
         RenderingRegistry.registerEntityRenderingHandler(EntityBlockling.class, RenderBlockling.FACTORY);
     }
 
+    public static int getXpUntilNextLevel(int level)
+    {
+        return (int) Math.exp(level / 2.0) + 5;
+    }
+
     public enum Task
     {
         IDLE("Idle", 1),
         HUNT("Hunt", 2),
         MINE("Mine", 3),
-        CHOP("Chop", 4);
+        CHOP("Chop", 4),
+        FARM("Farm", 5);
 
         public String name;
         public int id;

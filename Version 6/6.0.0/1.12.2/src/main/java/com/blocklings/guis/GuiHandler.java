@@ -67,6 +67,10 @@ public class GuiHandler implements IGuiHandler
             {
                 return new GuiBlocklingWoodcutting(blockling, player);
             }
+            else if (id == Tab.FARMING.id)
+            {
+                return new GuiBlocklingFarming(blockling, player);
+            }
             else if (id == Tab.EQUIPMENT.id)
             {
                 return new GuiBlocklingEquipment(player.inventory, blockling.inv, blockling, player);

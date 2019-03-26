@@ -25,7 +25,7 @@ public class SlotInventory extends Slot
         int u = unlockedSlots / 12;
         if (unlockedSlots < 36)
         {
-            if (index < 2 || (index >= 5 + (3 * (u - 1)) && index < 11) || (index >= 14 + (3 * (u - 1)) && index < 20) || (index >= 23 + (3 * (u - 1)) && index < 29) || (index >= 32 + (3 * (u - 1)) && index < 38))
+            if (index < 3 || (index >= 6 + (3 * (u - 1)) && index < 12) || (index >= 15 + (3 * (u - 1)) && index < 21) || (index >= 24 + (3 * (u - 1)) && index < 30) || (index >= 33 + (3 * (u - 1)) && index < 39))
             {
                 return false;
             }

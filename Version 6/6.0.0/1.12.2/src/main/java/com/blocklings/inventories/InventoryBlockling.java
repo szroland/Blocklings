@@ -2,9 +2,11 @@ package com.blocklings.inventories;
 
 import com.blocklings.entities.EntityBlockling;
 
+import com.blocklings.util.helpers.GuiHelper;
 import com.blocklings.util.helpers.ItemHelper;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.InventoryBasic;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
 public class InventoryBlockling extends InventoryBasic
@@ -19,6 +21,17 @@ public class InventoryBlockling extends InventoryBasic
     }
 
     @Override
+    public void setInventorySlotContents(int index, ItemStack stack)
+    {
+        super.setInventorySlotContents(index, stack);
+
+        if (index == GuiHelper.UPGRADE_SLOT)
+        {
+            blockling.eatUpgradeMaterial(stack);
+        }
+    }
+
+    @Override
     public ItemStack addItem(ItemStack stack)
     {
         ItemStack itemstack = stack.copy();
@@ -29,8 +42,8 @@ public class InventoryBlockling extends InventoryBasic
         for (int p = 0; p < 4; p++)
         {
             // Cols unlocked in each row
-            int startIndex = 2 + (9 * p);
-            int endIndex = 2 + (3 * u) + (9 * p);
+            int startIndex = 3 + (9 * p);
+            int endIndex = 3 + (3 * u) + (9 * p);
             for (int i = startIndex; i < endIndex; ++i)
             {
                 ItemStack itemstack1 = this.getStackInSlot(i);
@@ -68,5 +81,23 @@ public class InventoryBlockling extends InventoryBasic
         }
 
         return itemstack;
+    }
+
+    public boolean contains(Item item)
+    {
+        return find(item) != -1;
+    }
+
+    public int find(Item item)
+    {
+        for (int i = 3; i < this.getSizeInventory(); i++)
+        {
+            if (getStackInSlot(i).getItem() == item)
+            {
+                return i;
+            }
+        }
+
+        return -1;
     }
 }

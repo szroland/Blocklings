@@ -5,6 +5,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import com.blocklings.abilities.Ability;
 
 import java.awt.*;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,8 +46,14 @@ public class AbilityGroup
             c.setInteger(groupName + ability.id + "X", ability.x);
             c.setInteger(groupName + ability.id + "Y", ability.y);
             c.setString(groupName + ability.id + "Name", ability.name);
-            c.setString(groupName + ability.id + "Description", ability.description);
+            c.setInteger(groupName + ability.id + "DescriptionSize", ability.description.size());
+            for (int i = 0; i < ability.description.size(); i++)
+            {
+                c.setString(groupName + ability.id + "DescriptionLine" + i, ability.description.get(i));
+            }
         }
+
+        int i = c.getId();
     }
 
     public static AbilityGroup createFromNBTAndId(NBTTagCompound c, int id)
@@ -69,7 +76,12 @@ public class AbilityGroup
             ability.x = c.getInteger(groupName + i + "X");
             ability.y = c.getInteger(groupName + i + "Y");
             ability.name = c.getString(groupName + i + "Name");
-            ability.description = c.getString(groupName + i + "Description");
+            int descriptionSize = c.getInteger(groupName + i + "DescriptionSize");
+            ability.description = new ArrayList<String>();
+            for (int j = 0; j < descriptionSize; j++)
+            {
+                ability.description.add(c.getString(groupName + i + "DescriptionLine" + j));
+            }
             abilities.add(ability);
         }
 

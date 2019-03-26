@@ -2,6 +2,7 @@ package com.blocklings.guis;
 
 import com.blocklings.entities.EntityBlockling;
 import com.blocklings.util.ResourceLocationBlocklings;
+import com.blocklings.util.helpers.EntityHelper;
 import com.blocklings.util.helpers.GuiHelper.Tab;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
@@ -11,8 +12,11 @@ import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.TextFormatting;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class GuiBlocklingStats extends GuiBlocklingBase
 {
@@ -72,6 +76,87 @@ public class GuiBlocklingStats extends GuiBlocklingBase
         setDefaultRenderSettings();
         drawEntityOnScreen(width / 2, height / 2 + 16, 45, width / 2 - mouseX,  height / 2 - mouseY - 16, blockling);
 
+        int size = 11;
+        int i = -50, j = -22, k = -72;
+        int xx = width / 2 + k;
+        int yy = height / 2 + i;
+        if (isMouseOver(mouseX, mouseY, xx, yy - (j * 0), size, size))
+        {
+            int xp = blockling.getCombatXp();
+            int nextXp = EntityHelper.getXpUntilNextLevel(blockling.getCombatLevel());
+            int speed = (int)((1.0  / (double) blockling.getAttackInterval()) * 20.0);
+            List<String> info = new ArrayList<>();
+            info.add(TextFormatting.GOLD + "Combat");
+            info.add(TextFormatting.DARK_AQUA + "XP: " + xp + "/" + nextXp);
+            info.add(TextFormatting.BLUE + "Speed: " + speed);
+            drawHoveringText(info, mouseX, mouseY);
+        }
+        else if (isMouseOver(mouseX, mouseY, xx, yy - (j * 1), size, size))
+        {
+            int xp = blockling.getMiningXp();
+            int nextXp = EntityHelper.getXpUntilNextLevel(blockling.getMiningLevel());
+            int speed = (int)((1.0  / (double) blockling.getMiningInterval()) * 20.0);
+            List<String> info = new ArrayList<>();
+            info.add(TextFormatting.GOLD + "Mining");
+            info.add(TextFormatting.DARK_AQUA + "XP: " + xp + "/" + nextXp);
+            info.add(TextFormatting.BLUE + "Speed: " + speed);
+            drawHoveringText(info, mouseX, mouseY);
+        }
+        else if (isMouseOver(mouseX, mouseY, xx, yy - (j * 2), size, size))
+        {
+            int xp = blockling.getWoodcuttingXp();
+            int nextXp = EntityHelper.getXpUntilNextLevel(blockling.getWoodcuttingLevel());
+            int speed = (int)((1.0  / (double) blockling.getChoppingInterval()) * 20.0);
+            List<String> info = new ArrayList<>();
+            info.add(TextFormatting.GOLD + "Woodcutting");
+            info.add(TextFormatting.DARK_AQUA + "XP: " + xp + "/" + nextXp);
+            info.add(TextFormatting.BLUE + "Speed: " + speed);
+            drawHoveringText(info, mouseX, mouseY);
+        }
+        else if (isMouseOver(mouseX, mouseY, xx, yy - (j * 3), size, size))
+        {
+            int xp = blockling.getFarmingXp();
+            int nextXp = EntityHelper.getXpUntilNextLevel(blockling.getFarmingLevel());
+            int speed = (int)((1.0  / (double) blockling.getFarmingInterval()) * 20.0);
+            List<String> info = new ArrayList<>();
+            info.add(TextFormatting.GOLD + "Farming");
+            info.add(TextFormatting.DARK_AQUA + "XP: " + xp + "/" + nextXp);
+            info.add(TextFormatting.BLUE + "Speed: " + speed);
+            drawHoveringText(info, mouseX, mouseY);
+        }
+
+        xx = width / 2 - k - size;
+        yy -= 2;
+        if (isMouseOver(mouseX, mouseY, xx, yy - (j * 0), size, size))
+        {
+            float health = blockling.getHealth();
+            float maxHealth = blockling.getMaxHealth();
+            double healthPercentage = health / maxHealth;
+            TextFormatting tf = healthPercentage < 0.33 ? TextFormatting.DARK_RED : healthPercentage < 0.66 ? TextFormatting.YELLOW : TextFormatting.GREEN;
+            List<String> info = new ArrayList<>();
+            info.add(TextFormatting.GOLD + "Health");
+            info.add(tf + "" + ((int)health) + "/" + ((int)maxHealth));
+            drawHoveringText(info, mouseX, mouseY);
+        }
+        else if (isMouseOver(mouseX, mouseY, xx, yy - (j * 1), size, size))
+        {
+            List<String> info = new ArrayList<>();
+            info.add(TextFormatting.GOLD + "Damage");
+            drawHoveringText(info, mouseX, mouseY);
+        }
+        else if (isMouseOver(mouseX, mouseY, xx, yy - (j * 2), size, size))
+        {
+            List<String> info = new ArrayList<>();
+            info.add(TextFormatting.GOLD + "Attack Speed");
+            drawHoveringText(info, mouseX, mouseY);
+        }
+        else if (isMouseOver(mouseX, mouseY, xx, yy - (j * 3), size, size))
+        {
+            List<String> info = new ArrayList<>();
+            info.add(TextFormatting.GOLD + "Move Speed");
+            drawHoveringText(info, mouseX, mouseY);
+        }
+
         setDefaultRenderSettings();
         nameTextField.drawTextBox();
 
@@ -84,30 +169,31 @@ public class GuiBlocklingStats extends GuiBlocklingBase
         int i = -50, j = -22, k = -72;
         int xx = width / 2 + k;
         int yy = height / 2 + i;
-        drawTexturedModalRect(xx, yy - (j * 0), 0, TEXTURE_HEIGHT, size, size);
-        drawTexturedModalRect(xx, yy - (j * 1), 11, TEXTURE_HEIGHT, size, size);
-        drawTexturedModalRect(xx, yy - (j * 2), 22, TEXTURE_HEIGHT, size, size);
-        drawTexturedModalRect(xx, yy - (j * 3), 33, TEXTURE_HEIGHT, size, size);
+        drawTexturedModalRect(xx, yy - (j * 3), 0, TEXTURE_HEIGHT, size, size);
+        drawTexturedModalRect(xx, yy - (j * 0), 11, TEXTURE_HEIGHT, size, size);
+        drawTexturedModalRect(xx, yy - (j * 1), 22, TEXTURE_HEIGHT, size, size);
+        drawTexturedModalRect(xx, yy - (j * 2), 33, TEXTURE_HEIGHT, size, size);
 
         xx += 15;
         yy += 2;
         int colour = 0xd1d1d1;
-        String totalLevelString = Integer.toString(blockling.getGeneralLevel());
-        fontRenderer.drawString(totalLevelString, xx, yy - (j * 0), colour, true);
+
         colour = 0xb30000;
         colour = 0xff4d4d;
         String combatLevelString = Integer.toString(blockling.getCombatLevel());
-        fontRenderer.drawString(combatLevelString, xx, yy - (j * 1), colour, true);
+        fontRenderer.drawString(combatLevelString, xx, yy - (j * 0), colour, true);
         colour = 0x2952a3;
         colour = 0x7094db;
         String miningLevelString = Integer.toString(blockling.getMiningLevel());
-        fontRenderer.drawString(miningLevelString, xx, yy - (j * 2), colour, true);
+        fontRenderer.drawString(miningLevelString, xx, yy - (j * 1), colour, true);
         colour = 0x0a9306;
         colour = 0x57a65b;
         String woodcuttingLevelString = Integer.toString(blockling.getWoodcuttingLevel());
-        fontRenderer.drawString(woodcuttingLevelString, xx, yy - (j * 3), colour, true);
+        fontRenderer.drawString(woodcuttingLevelString, xx, yy - (j * 2), colour, true);
         colour = 0x894d10;
         colour = 0x9d6d4a;
+        String farmingLevelString = Integer.toString(blockling.getFarmingLevel());
+        fontRenderer.drawString(farmingLevelString, xx, yy - (j * 3), colour, true);
 
         setDefaultRenderSettings();
         mc.getTextureManager().bindTexture(WINDOW);
@@ -136,6 +222,11 @@ public class GuiBlocklingStats extends GuiBlocklingBase
         fontRenderer.drawString(attackSpeedString, xx - fontRenderer.getStringWidth(attackSpeedString), yy - (j * 2), colour, true);
         String speedString = "13";
         fontRenderer.drawString(speedString, xx - fontRenderer.getStringWidth(speedString), yy - (j * 3), colour, true);
+
+        size = 11;
+        i = -50; j = -22; k = -72;
+        xx = width / 2 + k;
+        yy = height / 2 + i;
     }
 
     private static void drawEntityOnScreen(int posX, int posY, int scale, float mouseX, float mouseY, EntityBlockling ent)

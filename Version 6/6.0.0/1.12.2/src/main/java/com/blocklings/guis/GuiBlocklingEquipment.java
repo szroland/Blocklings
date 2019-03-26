@@ -56,9 +56,9 @@ class GuiBlocklingEquipment extends GuiContainer
         left = guiLeft;
         top = guiTop + GuiHelper.YOFFSET;
 
-        autoLeftX = width / 2 - 57;
-        autoRightX = width / 2 + 57 - fontRenderer.getStringWidth("A");
-        autoY = height / 2 - 43;
+        autoLeftX = width / 2 - 64;
+        autoRightX = width / 2 - 22 - fontRenderer.getStringWidth("A");
+        autoY = height / 2 - 29;
 
         blockling.isInGui = true;
     }
@@ -77,7 +77,8 @@ class GuiBlocklingEquipment extends GuiContainer
 
         super.drawScreen(mouseX, mouseY, partialTicks);
 
-        drawEntityOnScreen(width / 2, height / 2 - 28, 38, width / 2 - mouseX,  height / 2 - mouseY - 28, blockling);
+        int entityXAdjustment = 40;
+        drawEntityOnScreen(width / 2 + entityXAdjustment , height / 2 - 28, 38, width / 2 - mouseX + entityXAdjustment,  height / 2 - mouseY - 28, blockling);
 
         int colourLeft = blockling.getAutoswitchLeft() ? 0xff00aa00 : 0xffee0000;
         int colourLeft2 = blockling.getAutoswitchLeft() ? 0xff005600 : 0xff560000;
@@ -88,6 +89,8 @@ class GuiBlocklingEquipment extends GuiContainer
         fontRenderer.drawString("A", autoLeftX, autoY, colourLeft, false);
         fontRenderer.drawString("A", autoRightX + 1, autoY + 1, colourRight2, false);
         fontRenderer.drawString("A", autoRightX, autoY, colourRight, false);
+
+        this.renderHoveredToolTip(mouseX, mouseY);
 
         Tab tab = GuiHelper.getTabAt(mouseX, mouseY, width, height);
 
@@ -150,6 +153,15 @@ class GuiBlocklingEquipment extends GuiContainer
         GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
         this.mc.getTextureManager().bindTexture(WINDOW);
         this.drawTexturedModalRect(left, top, 0, 0, textureWidth, textureHeight);
+
+        if (!blockling.getHeldItemMainhand().isEmpty())
+        {
+            this.drawTexturedModalRect(left + 47, top + 44, 36, 84, 16, 16);
+        }
+        if (!blockling.getHeldItemOffhand().isEmpty())
+        {
+            this.drawTexturedModalRect(left + 83, top + 44, 36, 84, 16, 16);
+        }
     }
 
     @Override

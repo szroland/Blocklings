@@ -34,8 +34,9 @@ public class ContainerEquipmentBlockling extends Container
 
     private void bindBlocklingInventory()
     {
-        addSlotToContainer(new SlotEquipment(blocklingInv, 0, 54, 30 + GuiHelper.YOFFSET));
-        addSlotToContainer(new SlotEquipment(blocklingInv, 1, 162, 30 + GuiHelper.YOFFSET));
+        addSlotToContainer(new SlotUpgrade(blocklingInv, GuiHelper.UPGRADE_SLOT, 65, 16 + GuiHelper.YOFFSET));
+        addSlotToContainer(new SlotEquipment(blocklingInv, GuiHelper.TOOL_SLOT_LEFT, 47, 44 + GuiHelper.YOFFSET));
+        addSlotToContainer(new SlotEquipment(blocklingInv, GuiHelper.TOOL_SLOT_RIGHT, 83, 44 + GuiHelper.YOFFSET));
     }
 
     private void bindPlayerInventory()
@@ -65,16 +66,16 @@ public class ContainerEquipmentBlockling extends Container
             ItemStack itemStack = slot.getStack();
             stack = itemStack.copy();
 
-            if (slotIndex == 0 || slotIndex == 1)
+            if (slotIndex == GuiHelper.UPGRADE_SLOT || slotIndex == GuiHelper.TOOL_SLOT_LEFT || slotIndex == GuiHelper.TOOL_SLOT_RIGHT)
             {
-                if (!this.mergeItemStack(itemStack, 2, 38, false))
+                if (!this.mergeItemStack(itemStack, 3, 39, true))
                 {
                     return ItemStack.EMPTY;
                 }
             }
             else
             {
-                if (!this.mergeItemStack(itemStack, 0, 2, false))
+                if (!this.mergeItemStack(itemStack, 0, 3, false))
                 {
                     return ItemStack.EMPTY;
                 }

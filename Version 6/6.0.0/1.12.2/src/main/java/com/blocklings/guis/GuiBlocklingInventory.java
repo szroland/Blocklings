@@ -60,6 +60,7 @@ class GuiBlocklingInventory extends GuiContainer
         drawDefaultBackground();
 
         super.drawScreen(mouseX, mouseY, partialTicks);
+        this.renderHoveredToolTip(mouseX, mouseY);
 
         Tab tab = GuiHelper.getTabAt(mouseX, mouseY, width, height);
 

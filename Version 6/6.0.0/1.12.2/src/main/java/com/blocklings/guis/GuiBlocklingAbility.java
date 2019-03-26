@@ -188,18 +188,38 @@ abstract class GuiBlocklingAbility extends GuiBlocklingBase
         if (hoveredAbility != null)
         {
             String text1 = hoveredAbility.name;
-            String text2 = hoveredAbility.description;
+            List<String> desc = hoveredAbility.description;
             int width1 = fontRenderer.getStringWidth(text1);
-            int width2 = fontRenderer.getStringWidth(text2);
+            int width2 = 100;
+            for (String string : desc)
+            {
+                width2 = width2 < fontRenderer.getStringWidth(string) ? fontRenderer.getStringWidth(string) : width2;
+            }
 
             int startX = actualAbilityX(hoveredAbility) - 5, startY = actualAbilityY(hoveredAbility) + 3;
             int width = 90;
 
             if (width1 > width2) width = width1 + 34;
-            else width = width2;
+            else width = width2 + 2;
 
-            drawTexturedModalRect(startX, startY + 14, 0, TEXTURE_HEIGHT + 20, width, 20);
-            drawTexturedModalRect(startX + width, startY + 14, 192, TEXTURE_HEIGHT + 20, 8, 20);
+            for (int i = 0; i < desc.size(); i++)
+            {
+                if (i == 0)
+                {
+                    drawTexturedModalRect(startX, startY + 17 + (16 * i), 0, TEXTURE_HEIGHT + 20, width, 20);
+                    drawTexturedModalRect(startX + width, startY + 17 + (16 * i), 192, TEXTURE_HEIGHT + 20, 8, 20);
+                }
+                else if (i == desc.size() - 1)
+                {
+                    drawTexturedModalRect(startX, startY + 17 + (12 * i) + 2, 0, TEXTURE_HEIGHT + 22, width, 18);
+                    drawTexturedModalRect(startX + width, startY + 17 + (12 * i) + 2, 192, TEXTURE_HEIGHT + 22, 8, 18);
+                }
+                else
+                {
+                    drawTexturedModalRect(startX, startY + 17 + (12 * i) - 2, 0, TEXTURE_HEIGHT + 22, width, 18);
+                    drawTexturedModalRect(startX + width, startY + 17 + (12 * i) - 2, 192, TEXTURE_HEIGHT + 22, 8, 18);
+                }
+            }
             GlStateManager.color(hoveredAbility.colour.getRed() / 255f, hoveredAbility.colour.getGreen() / 255f, hoveredAbility.colour.getBlue() / 255f);
             drawTexturedModalRect(startX, startY, 0, TEXTURE_HEIGHT, width, 20);
             drawTexturedModalRect(startX + width, startY, 192, TEXTURE_HEIGHT, 8, 20);
@@ -207,7 +227,11 @@ abstract class GuiBlocklingAbility extends GuiBlocklingBase
 
             GlStateManager.translate(0, 0, 25);
             fontRenderer.drawString(text1, startX + 34, startY + 6, 0xffffff, true);
-            fontRenderer.drawString(text2, startX + 4, startY + 22, 0xeeeeee, true);
+            for (int i = 0; i < desc.size(); i++)
+            {
+                String string = desc.get(i);
+                fontRenderer.drawString(string, startX + 5, startY + 24 + (12 * i), 0xeeeeee, true);
+            }
             GlStateManager.translate(0, 0, -25);
         }
 
@@ -239,12 +263,12 @@ abstract class GuiBlocklingAbility extends GuiBlocklingBase
                 int colour1 = 0xff6a6a6a;
                 int colour2 = 0xff121212;
 
-                if (child.state == Ability.State.LOCKED)
+                if (ability.state == Ability.State.LOCKED)
                 {
                     colour1 = 0xff454545;
                     colour2 = 0xff121212;
                 }
-                else if (child.state == Ability.State.ACQUIRED)
+                else if (ability.state == Ability.State.ACQUIRED)
                 {
                     colour1 = 0xffdddddd;
                     colour2 = 0xff121212;

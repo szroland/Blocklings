@@ -63,7 +63,7 @@ public class BlocklingAIWoodcutting extends BlocklingAIBase
 
         for (int x = (int) blockling.posX - X_RADIUS; x < blockling.posX + X_RADIUS; x++)
         {
-            for (int y = (int) blockling.posY + Y_RADIUS; y > blockling.posY - Y_RADIUS; y--)
+            for (int y = (int) blockling.posY - Y_RADIUS; y < blockling.posY + Y_RADIUS; y++)
             {
                 for (int z = (int) blockling.posZ - X_RADIUS; z < blockling.posZ + X_RADIUS; z++)
                 {

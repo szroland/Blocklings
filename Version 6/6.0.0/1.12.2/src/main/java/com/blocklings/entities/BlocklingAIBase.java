@@ -15,6 +15,7 @@ public class BlocklingAIBase extends EntityAIBase
     EntityBlockling blockling;
     World world;
 
+    Block targetBlock;
     BlockPos targetPos;
     Vec3d targetVec;
     Path targetPath;
@@ -250,6 +251,7 @@ public class BlocklingAIBase extends EntityAIBase
 
     void resetTarget()
     {
+        this.targetBlock = null;
         this.targetPos = null;
         this.targetVec = null;
         this.targetPath = null;
@@ -257,6 +259,7 @@ public class BlocklingAIBase extends EntityAIBase
 
     void setTarget(BlockPos targetPos)
     {
+        this.targetBlock = getBlockFromPos(targetPos);
         this.targetPos = targetPos;
         this.targetVec = getVecFromBlockPos(targetPos);
         this.targetPath = getSafishPathTo(targetPos);
@@ -264,6 +267,7 @@ public class BlocklingAIBase extends EntityAIBase
 
     void setTarget(BlockPos targetPos, Path targetPath)
     {
+        this.targetBlock = getBlockFromPos(targetPos);
         this.targetPos = targetPos;
         this.targetVec = getVecFromBlockPos(targetPos);
         this.targetPath = targetPath;

@@ -18,8 +18,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @SideOnly(net.minecraftforge.fml.relauncher.Side.CLIENT)
 public class RenderBlockling extends RenderLiving<EntityBlockling>
 {
-    private ResourceLocation texture = new ResourceLocationBlocklings("textures/entities/blockling/blockling_0.png");
-
     public static final Factory FACTORY = new Factory();
 
     public RenderBlockling(RenderManager rendermanagerIn)
@@ -44,7 +42,7 @@ public class RenderBlockling extends RenderLiving<EntityBlockling>
     @Override
     protected ResourceLocation getEntityTexture(@Nonnull EntityBlockling entity)
     {
-        return texture;
+        return entity.blocklingType.texture;
     }
 
     public static class Factory implements IRenderFactory<EntityBlockling>

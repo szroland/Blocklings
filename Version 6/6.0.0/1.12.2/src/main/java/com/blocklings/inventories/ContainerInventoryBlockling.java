@@ -45,7 +45,7 @@ public class ContainerInventoryBlockling extends Container
         {
             for (int j = 0; j < 9; j++)
             {
-                addSlotToContainer(new SlotInventory(blockling, blocklingInv, j + (i * 9) + 2, blocklingInventoryX + (j * 18), blocklingInventoryY + (i * 18)));
+                addSlotToContainer(new SlotInventory(blockling, blocklingInv, j + (i * 9) + 3, blocklingInventoryX + (j * 18), blocklingInventoryY + (i * 18)));
             }
         }
     }

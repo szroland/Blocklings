@@ -7,16 +7,16 @@ import net.minecraft.entity.Entity;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
-public class GeneralXpMessage implements IMessage
+public class FarmingXpMessage implements IMessage
 {
     int value;
     int id;
 
-    public GeneralXpMessage()
+    public FarmingXpMessage()
     {
     }
 
-    public GeneralXpMessage(int value, int entityID)
+    public FarmingXpMessage(int value, int entityID)
     {
         this.value = value;
         this.id = entityID;
@@ -34,9 +34,9 @@ public class GeneralXpMessage implements IMessage
         buf.writeInt(this.id);
     }
 
-    public static class Handler implements net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler<GeneralXpMessage, IMessage>
+    public static class Handler implements net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler<FarmingXpMessage, IMessage>
     {
-        public IMessage onMessage(GeneralXpMessage message, MessageContext ctx)
+        public IMessage onMessage(FarmingXpMessage message, MessageContext ctx)
         {
             Entity entity = null;
 
@@ -48,7 +48,7 @@ public class GeneralXpMessage implements IMessage
                 {
                     EntityBlockling blockling = (EntityBlockling) entity;
 
-                    blockling.setGeneralXpFromPacket(message.value);
+                    blockling.setFarmingXpFromPacket(message.value);
                 }
             }
             else if (ctx.side.isServer() && Blocklings.proxy.getPlayer(ctx) != null)
@@ -59,7 +59,7 @@ public class GeneralXpMessage implements IMessage
                 {
                     EntityBlockling blockling = (EntityBlockling) entity;
 
-                    blockling.setGeneralXpFromPacket(message.value);
+                    blockling.setFarmingXpFromPacket(message.value);
                 }
             }
 
