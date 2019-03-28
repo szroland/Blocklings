@@ -2,6 +2,7 @@ package com.blocklings.proxy;
 
 import com.blocklings.events.AttackEventHandler;
 import com.blocklings.guis.GuiHandler;
+import com.blocklings.items.BlocklingsItems;
 import com.blocklings.main.Blocklings;
 import com.blocklings.util.helpers.EntityHelper;
 import com.blocklings.util.helpers.NetworkHelper;
@@ -23,6 +24,7 @@ public class CommonProxy
 {
     public void preInit(FMLPreInitializationEvent e)
     {
+        BlocklingsItems.init();
         EntityHelper.registerEntities();
         NetworkHelper.registerMessages();
         NetworkRegistry.INSTANCE.registerGuiHandler(Blocklings.instance, new GuiHandler());

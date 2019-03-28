@@ -95,33 +95,41 @@ public class ToolHelper
         return hoes.indexOf(item);
     }
 
-    public static int getToolAttackDamage(ItemStack stack)
+    public static float getToolAttackDamage(ItemStack stack)
     {
-        int damage = 0;
+        float damage = 0;
 
         if (!stack.isEmpty())
         {
-            damage = (int)((AttributeModifier)(stack.getAttributeModifiers(EntityEquipmentSlot.MAINHAND).get("generic.attackDamage").toArray()[0])).getAmount() + 1;
+            Object[] array = stack.getAttributeModifiers(EntityEquipmentSlot.MAINHAND).get("generic.attackDamage").toArray();
+            if (array.length > 0)
+            {
+                damage = (float)((AttributeModifier)(array[0])).getAmount() + 1.0f;
+            }
         }
 
         return damage;
     }
 
-    public static int getToolAttackSpeed(ItemStack stack)
+    public static float getToolAttackSpeed(ItemStack stack)
     {
-        int speed = 0;
+        float speed = 1000.0f;
 
         if (!stack.isEmpty())
         {
-            speed = (int)((AttributeModifier)(stack.getAttributeModifiers(EntityEquipmentSlot.MAINHAND).get("generic.attackSpeed").toArray()[0])).getAmount() + 1;
+            Object[] array = stack.getAttributeModifiers(EntityEquipmentSlot.MAINHAND).get("generic.attackSpeed").toArray();
+            if (array.length > 0)
+            {
+                speed = (float)Math.abs(((AttributeModifier)(array[0])).getAmount()) + 1f;
+            }
         }
 
-        return speed;
+        return 1.0f / speed;
     }
 
-    public static int getToolAttackPower(ItemStack stack)
+    public static float getToolAttackPower(ItemStack stack)
     {
-        return getToolAttackDamage(stack) * getToolAttackSpeed(stack);
+        return (float)Math.log(getToolAttackDamage(stack)) * getToolAttackSpeed(stack);
     }
 
 

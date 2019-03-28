@@ -10,6 +10,7 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.entity.RenderManager;
+import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
@@ -216,11 +217,11 @@ public class GuiBlocklingStats extends GuiBlocklingBase
         String healthString = Integer.toString((int) health);
         fontRenderer.drawString(healthString, xx - fontRenderer.getStringWidth(healthString), yy - (j * 0), colour, true);
         colour = 0xfbba20;
-        String damageString = "5";
+        String damageString = "" + (int)blockling.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).getAttributeValue();
         fontRenderer.drawString(damageString, xx - fontRenderer.getStringWidth(damageString), yy - (j * 1), colour, true);
-        String attackSpeedString = "30";
+        String attackSpeedString = "" + blockling.getAttackInterval();
         fontRenderer.drawString(attackSpeedString, xx - fontRenderer.getStringWidth(attackSpeedString), yy - (j * 2), colour, true);
-        String speedString = "13";
+        String speedString = "" + (int)(blockling.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).getAttributeValue() * 10.0);
         fontRenderer.drawString(speedString, xx - fontRenderer.getStringWidth(speedString), yy - (j * 3), colour, true);
 
         size = 11;

@@ -32,6 +32,7 @@ public class ItemHelper
         upgradeMaterials.add(Items.EMERALD);
         upgradeMaterials.add(Items.DIAMOND);
         upgradeMaterials.add(Item.getItemFromBlock(Blocks.OBSIDIAN));
+        upgradeMaterials.add(Item.getItemFromBlock(Blocks.PUMPKIN));
     }
 
     public static boolean isUpgradeMaterial(Item item)

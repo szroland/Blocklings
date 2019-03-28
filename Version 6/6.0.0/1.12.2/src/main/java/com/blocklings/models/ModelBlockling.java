@@ -2,6 +2,7 @@ package com.blocklings.models;
 
 import com.blocklings.entities.EntityBlockling;
 
+import com.blocklings.util.BlocklingType;
 import com.blocklings.util.helpers.EntityHelper;
 import com.blocklings.util.helpers.ToolHelper;
 import net.minecraft.client.model.ModelBase;

@@ -3,6 +3,7 @@ package com.blocklings.entities;
 import com.blocklings.abilities.Ability;
 import com.blocklings.abilities.AbilityGroup;
 import com.blocklings.inventories.InventoryBlockling;
+import com.blocklings.items.ItemBlockling;
 import com.blocklings.main.Blocklings;
 import com.blocklings.network.*;
 import com.blocklings.util.BlocklingType;
@@ -13,6 +14,7 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.block.Block;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.*;
+import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.monster.*;
 import net.minecraft.entity.passive.EntityTameable;
@@ -33,10 +35,12 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.jline.utils.Log;
 
+import javax.tools.Tool;
 import java.security.KeyStore;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.UUID;
 
 public class EntityBlockling extends EntityTameable implements IEntityAdditionalSpawnData
 {
@@ -44,9 +48,9 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
 
     public enum AnimationState { IDLE, ATTACKING, MINING }
 
-    public static final double BASE_MAX_HEALTH = 8;
-    public static final double BASE_MOVEMENT_SPEED = 0.6;
-    public static final double BASE_ATTACK_DAMAGE = 4;
+    public static final double BASE_MAX_HEALTH = 10;
+    public static final double BASE_MOVEMENT_SPEED = 0.4;
+    public static final double BASE_ATTACK_DAMAGE = 1.0;
 
     public BlocklingType blocklingType = BlocklingType.blocklingTypes.get(0);
 
@@ -99,6 +103,24 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
     {
         super(worldIn);
         setSize(1.0f, 1.0f);
+    }
+
+    // CLIENT SERVER
+    public EntityBlockling(World worldIn,
+        AbilityGroup generalAbilities,
+        AbilityGroup combatAbilities,
+        AbilityGroup miningAbilities,
+        AbilityGroup woodcuttingAbilities,
+        AbilityGroup farmingAbilities)
+    {
+        super(worldIn);
+        setSize(1.0f, 1.0f);
+
+        this.generalAbilities = generalAbilities;
+        this.combatAbilities = combatAbilities;
+        this.miningAbilities = miningAbilities;
+        this.woodcuttingAbilities = woodcuttingAbilities;
+        this.farmingAbilities = farmingAbilities;
     }
 
     // CLIENT SERVER
@@ -194,14 +216,12 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
     @Override
     public boolean attackEntityAsMob(Entity entityIn)
     {
-        double damage = (getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).getAttributeValue()) / (isDualAttacking() ? 2.0 : 1.0);
+        double damage = getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).getAttributeValue();
         int fireAspect = 0;
         int knockBack = 0;
 
         if (hasTool())
         {
-            damage += (ToolHelper.getToolAttackDamage(getHeldItem(calculateAttackingHand()))) / (isDualAttacking() ? 2.0 : 1.0);
-
             List<NBTTagCompound> enchantments = ToolHelper.getEnchantmentTagsFromTool(getHeldItem(calculateAttackingHand()));
             for (NBTTagCompound enchantmentTag : enchantments)
             {
@@ -443,14 +463,16 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
             checkTimers();
         }
 
-        if (getAutoswitchRight())
+        if (getAutoswitchLeft())
         {
             switchTool(EnumHand.MAIN_HAND);
         }
-        if (getAutoswitchLeft())
+        if (getAutoswitchRight())
         {
             switchTool(EnumHand.OFF_HAND);
         }
+
+        checkBonusStats();
     }
 
     // Also called once every tick
@@ -508,7 +530,12 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
                 {
                     if (player == getOwner())
                     {
-                        if (ToolHelper.isTool(item))
+                        if (ItemHelper.isFlower(item))
+                        {
+                            heal(1.0f);
+                            playTameEffect(true);
+                        }
+                        else if (ToolHelper.isTool(item))
                         {
                             setHeldItemFromInteract(stack, EnumHand.MAIN_HAND, player);
                         }
@@ -516,17 +543,27 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
                 }
             }
             else // Is sneaking
-            {openGui(player);
+            {
                 if (isTamed())
                 {
                     if (player == getOwner())
                     {
-                        if (ToolHelper.isTool(item))
+                        if (ItemHelper.isFlower(item))
+                        {
+                            ItemStack blocklingStack = ItemBlockling.createStack(this);
+                            if (!player.addItemStackToInventory(blocklingStack))
+                            {
+                                entityDropItem(blocklingStack, 0.0f);
+                            }
+                        }
+                        else if (ToolHelper.isTool(item))
                         {
                             setHeldItemFromInteract(stack, EnumHand.OFF_HAND, player);
                         }
-
-                        //openGui(player);
+                        else
+                        {
+                            openGui(player);
+                        }
                     }
                 }
             }
@@ -628,7 +665,7 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
 
     private boolean switchTool(EnumHand hand)
     {
-        int bestValue = -1;
+        float bestValue = -1.0f;
         int slot = -1;
         int handSlot = hand == EnumHand.MAIN_HAND ? GuiHelper.TOOL_SLOT_LEFT : GuiHelper.TOOL_SLOT_RIGHT;
         ItemStack bestStack = getHeldItem(hand);
@@ -655,12 +692,12 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
             bestValue = ToolHelper.getToolAttackPower(bestStack);
         }
 
-        for (int i = GuiHelper.TOOL_SLOT_RIGHT; i < inv.getSizeInventory(); i++)
+        for (int i = GuiHelper.TOOL_SLOT_RIGHT + 1; i < inv.getSizeInventory(); i++)
         {
             ItemStack invStack = inv.getStackInSlot(i);
             if (isAttacking())
             {
-                int newValue = ToolHelper.getToolAttackPower(invStack);
+                float newValue = ToolHelper.getToolAttackPower(invStack);
                 if (newValue > bestValue)
                 {
                     bestValue = newValue;
@@ -700,7 +737,7 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
             }
             else if (isSetToAttack())
             {
-                int newValue = ToolHelper.getToolAttackPower(invStack);
+                float newValue = ToolHelper.getToolAttackPower(invStack);
                 if (newValue > bestValue)
                 {
                     bestValue = newValue;
@@ -941,6 +978,57 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
         if (task != EntityHelper.Task.HUNT && guard != EntityHelper.Guard.GUARD)
         {
             setAttackTarget(null);
+        }
+    }
+
+    private void checkBonusStats()
+    {
+        AttributeModifier typeBonusHealth = new AttributeModifier(UUID.fromString("a6107045-134f-4c54-a645-75c3ae5c7a27"), "Type Bonus Health", blocklingType.bonusHealth, 0);
+        AttributeModifier typeBonusAttackDamage = new AttributeModifier(UUID.fromString("a6107045-134f-4c54-a645-75c3ae5c7a28"), "Type Bonus Attack Damage", blocklingType.bonusAttackDamage, 0);
+        AttributeModifier typeBonusMovementSpeed = new AttributeModifier(UUID.fromString("a6107045-134f-4c54-a645-75c3ae5c7a29"), "Type Bonus Movement Speed", blocklingType.bonusMovementSpeed / 10.0, 0);
+
+        double weaponBonusAttackDamageValue = 0;
+        double weaponBonusAttackSpeedValue = 0;
+        boolean mainHandEmpty = getHeldItemMainhand().isEmpty();
+        boolean offHandEmpty = getHeldItemOffhand().isEmpty();
+        if (!mainHandEmpty)
+        {
+            weaponBonusAttackDamageValue += ToolHelper.getToolAttackDamage(getHeldItemMainhand());
+            weaponBonusAttackSpeedValue += ToolHelper.getToolAttackSpeed(getHeldItemMainhand());
+        }
+        if (!offHandEmpty)
+        {
+            weaponBonusAttackDamageValue += ToolHelper.getToolAttackDamage(getHeldItemOffhand());
+            weaponBonusAttackSpeedValue += ToolHelper.getToolAttackSpeed(getHeldItemOffhand());
+        }
+        if (!mainHandEmpty && !offHandEmpty)
+        {
+            weaponBonusAttackDamageValue /= 2;
+            weaponBonusAttackSpeedValue /= 2;
+        }
+
+        AttributeModifier weaponBonusAttackDamage = new AttributeModifier(UUID.fromString("a6107045-134f-4c54-a645-75c3ae5c7a30"), "Weapon Bonus Attack Damage", weaponBonusAttackDamageValue, 0);
+
+        if (getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE) != null)
+        {
+            getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).removeModifier(typeBonusHealth);
+            getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).applyModifier(typeBonusHealth);
+            getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).removeModifier(typeBonusAttackDamage);
+            getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).applyModifier(typeBonusAttackDamage);
+            getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).removeModifier(typeBonusMovementSpeed);
+            getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).applyModifier(typeBonusMovementSpeed);
+
+            getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).removeModifier(weaponBonusAttackDamage);
+            getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).applyModifier(weaponBonusAttackDamage);
+        }
+
+        if (weaponBonusAttackSpeedValue != 0)
+        {
+            setAttackInterval((int)(5.0 / weaponBonusAttackSpeedValue));
+        }
+        else
+        {
+            setAttackInterval(20);
         }
     }
 
@@ -1516,7 +1604,7 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
     private void setAutoswitchID(byte value)
     {
         autoswitchID = value;
-        NetworkHelper.sync(world, new WoodcuttingXpMessage(value, getEntityId()));
+        NetworkHelper.sync(world, new AutoswitchIDMessage(value, getEntityId()));
     }
 
     public void setAutoswitchIDFromPacket(byte value)
