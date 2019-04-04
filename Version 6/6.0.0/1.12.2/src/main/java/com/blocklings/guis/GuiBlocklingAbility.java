@@ -4,20 +4,23 @@ import com.blocklings.entities.EntityBlockling;
 import com.blocklings.abilities.Ability;
 import com.blocklings.util.ResourceLocationBlocklings;
 import com.blocklings.util.helpers.GuiHelper;
+import net.minecraft.block.BlockJukebox;
+import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Items;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.TextFormatting;
+import sun.security.krb5.internal.crypto.HmacSha1Des3KdCksumType;
 
+import java.awt.*;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
 
 abstract class GuiBlocklingAbility extends GuiBlocklingBase
 {
-    protected static final ResourceLocation BACKGROUND = new ResourceLocationBlocklings("textures/guis/inventory_overlay.png");
+    protected ResourceLocation BACKGROUND = new ResourceLocationBlocklings("textures/guis/inventory_overlay.png");
     protected static final ResourceLocation ABILITIES = new ResourceLocationBlocklings("textures/guis/inventory_abilities.png");
     protected static final ResourceLocation ABILITIES2 = new ResourceLocationBlocklings("textures/guis/inventory_abilities2.png");
     protected static final ResourceLocation ABILITIES3 = new ResourceLocationBlocklings("textures/guis/inventory_abilities3.png");
@@ -54,6 +57,8 @@ abstract class GuiBlocklingAbility extends GuiBlocklingBase
     private boolean haveNotMovedSinceMouseClick = false;
     private int beforeReleaseX, beforeReleaseY;
 
+    private GuiButton buyButton;
+
     protected GuiBlocklingAbility(EntityBlockling blockling, EntityPlayer player)
     {
         super(blockling, player);
@@ -63,6 +68,8 @@ abstract class GuiBlocklingAbility extends GuiBlocklingBase
     public void initGui()
     {
         super.initGui();
+
+        buttonList.add(buyButton = new GuiButton(0, width / 2 - 35, height / 2 + 76, 72, 20, "Buy Ability"));
 
         if (init)
         {
@@ -94,6 +101,29 @@ abstract class GuiBlocklingAbility extends GuiBlocklingBase
     public void updateScreen()
     {
         super.updateScreen();
+
+        for (Ability ability : abilities)
+        {
+            if (ability.parentAbility == null || ability.parentAbility.state.ordinal() > ability.state.ordinal())
+            {
+                boolean hasLevels = true;
+                for (String skill : ability.levelRequirements.keySet())
+                {
+                    if (blockling.getLevel(skill) < ability.levelRequirements.get(skill))
+                    {
+                        hasLevels = false;
+                        break;
+                    }
+                }
+
+                if (ability.state == Ability.State.LOCKED && hasLevels && (ability.parentAbility == null || ability.parentAbility.state == Ability.State.ACQUIRED))
+                {
+                    ability.state = Ability.State.UNLOCKED;
+                }
+            }
+        }
+
+        buyButton.enabled = selectedAbility != null && blockling.getSkillPoints() >= selectedAbility.skillPointCost;
     }
 
     @Override
@@ -132,31 +162,20 @@ abstract class GuiBlocklingAbility extends GuiBlocklingBase
         super.drawScreen(mouseX, mouseY, partialTicks);
     }
 
+    Ability selectedAbility = null;
     @Override
     protected void mouseReleased(int mouseX, int mouseY, int state)
     {
         if (beforeReleaseX == x && beforeReleaseY == y)
         {
             Ability ability = getAbilityAtMouseLocation(mouseX, mouseY);
+            selectedAbility = ability;
 
             if (ability != null)
             {
-                boolean isParentGreater = (ability.parentAbility == null || ability.parentAbility.state.ordinal() > ability.state.ordinal() || ability.state.ordinal() == Ability.State.values().length - 1);
-                boolean areChildrenLower = true;
-                for (Ability childAbility : ability.getChildren(abilities))
+                if (ability.state != Ability.State.UNLOCKED || ability.hasConflictingAbility(abilities))
                 {
-                    if (childAbility.state.ordinal() > 0)
-                    {
-                        areChildrenLower = false;
-                    }
-                }
-
-                if (isParentGreater)
-                {
-                    if (ability.state == Ability.State.UNLOCKED) ability.state = Ability.State.ACQUIRED;
-                    else if (ability.state == Ability.State.ACQUIRED && areChildrenLower) ability.state = Ability.State.LOCKED;
-                    else if (ability.state == Ability.State.LOCKED) ability.state = Ability.State.UNLOCKED;
-                    blockling.syncAbilities();
+                    selectedAbility = null;
                 }
             }
 
@@ -170,6 +189,19 @@ abstract class GuiBlocklingAbility extends GuiBlocklingBase
 
         isClicking = false;
         haveNotMovedSinceMouseClick = false;
+    }
+
+    @Override
+    protected void actionPerformed(GuiButton button) throws IOException
+    {
+        if (button == buyButton)
+        {
+            if (buyButton.enabled)
+            {
+                selectedAbility.state = Ability.State.ACQUIRED;
+                blockling.incrementSkillPoints(-selectedAbility.skillPointCost);
+            }
+        }
     }
 
     @Override
@@ -190,15 +222,29 @@ abstract class GuiBlocklingAbility extends GuiBlocklingBase
         if (hoveredAbility != null)
         {
             String text1 = hoveredAbility.name;
-            List<String> desc = hoveredAbility.description;
+
+            LinkedHashMap<String, Integer> desc = new LinkedHashMap<String, Integer>()
+            {{
+                for (String str : hoveredAbility.description)
+                {
+                    put(str, 0xffffff);
+                }
+                put("", 0xffffff);
+                put("Skill Point(s): " + Integer.toString(hoveredAbility.skillPointCost), blockling.getSkillPoints() >= hoveredAbility.skillPointCost ? 0xaaffaa : 0xffaaaa);
+                for (String skill : hoveredAbility.levelRequirements.keySet())
+                {
+                    put(skill + " Level: " + Integer.toString(hoveredAbility.levelRequirements.get(skill)), blockling.getLevel(skill) >= hoveredAbility.levelRequirements.get(skill) ? 0xaaffaa : 0xffaaaa);
+                }
+            }};
+
             int width1 = fontRenderer.getStringWidth(text1);
             int width2 = 100;
-            for (String string : desc)
+            for (String string : desc.keySet())
             {
                 width2 = width2 < fontRenderer.getStringWidth(string) ? fontRenderer.getStringWidth(string) : width2;
             }
 
-            int startX = actualAbilityX(hoveredAbility) - 5, startY = actualAbilityY(hoveredAbility) + 3;
+            int startX = actualAbilityX(hoveredAbility) - 5, startY = actualAbilityY(hoveredAbility) + 2;
             int width = 90;
 
             if (width1 > width2) width = width1 + 34;
@@ -222,7 +268,7 @@ abstract class GuiBlocklingAbility extends GuiBlocklingBase
                     drawTexturedModalRect(startX + width, startY + 17 + (12 * i) - 2, 192, TEXTURE_HEIGHT + 22, 8, 18);
                 }
             }
-            GlStateManager.color(hoveredAbility.colour.getRed() / 255f, hoveredAbility.colour.getGreen() / 255f, hoveredAbility.colour.getBlue() / 255f);
+            GlStateManager.color(hoveredAbility.highlightColour.getRed() / 255f, hoveredAbility.highlightColour.getGreen() / 255f, hoveredAbility.highlightColour.getBlue() / 255f);
             drawTexturedModalRect(startX, startY, 0, TEXTURE_HEIGHT, width, 20);
             drawTexturedModalRect(startX + width, startY, 192, TEXTURE_HEIGHT, 8, 20);
             GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
@@ -231,8 +277,8 @@ abstract class GuiBlocklingAbility extends GuiBlocklingBase
             fontRenderer.drawString(text1, startX + 34, startY + 6, 0xffffff, true);
             for (int i = 0; i < desc.size(); i++)
             {
-                String string = desc.get(i);
-                fontRenderer.drawString(string, startX + 5, startY + 24 + (12 * i), 0xeeeeee, true);
+                String string = (String)desc.keySet().toArray()[i];
+                fontRenderer.drawString(string, startX + 5, startY + 24 + (12 * i), desc.get(string), true);
             }
             GlStateManager.translate(0, 0, -25);
         }
@@ -245,8 +291,11 @@ abstract class GuiBlocklingAbility extends GuiBlocklingBase
         zLevel += 10;
         drawTexturedModalRect(left, top, 0, 0, TEXTURE_WIDTH, TEXTURE_HEIGHT);
         GlStateManager.translate(0, 0, 11);
-        fontRenderer.drawString("30", screenLeft + 12, screenTop - 1, 0x333333);
-        fontRenderer.drawString("30", screenLeft + 11, screenTop - 2, 0xffffff);
+        String skillPoints = Integer.toString(blockling.getSkillPoints());
+        int center = fontRenderer.getStringWidth(skillPoints) / 2;
+        if (skillPoints.length() == 2) center = 0;
+        fontRenderer.drawString(skillPoints, screenLeft + 12 + center, screenTop - 1, 0x333333);
+        fontRenderer.drawString(skillPoints, screenLeft + 11 + center, screenTop - 2, 0xffffff);
         GlStateManager.translate(0, 0, -11);
         zLevel -= 10;
     }
@@ -262,19 +311,8 @@ abstract class GuiBlocklingAbility extends GuiBlocklingBase
         {
             for (Ability child : ability.getChildren(abilities))
             {
-                int colour1 = 0xff6a6a6a;
+                int colour1 = ability.state.colour.brighter().getRGB();
                 int colour2 = 0xff121212;
-
-                if (ability.state == Ability.State.LOCKED)
-                {
-                    colour1 = 0xff454545;
-                    colour2 = 0xff121212;
-                }
-                else if (ability.state == Ability.State.ACQUIRED)
-                {
-                    colour1 = 0xffdddddd;
-                    colour2 = 0xff121212;
-                }
 
                 int abilityX = ability.x + (ability.width / 2), abilityY = ability.y + (ability.height / 2);
                 int childX = child.x + (child.width / 2), childY = child.y + (child.height / 2);
@@ -403,10 +441,6 @@ abstract class GuiBlocklingAbility extends GuiBlocklingBase
         GlStateManager.enableBlend();
         RenderHelper.disableStandardItemLighting();
 
-        mc.getTextureManager().bindTexture(ABILITIES);
-        if (ability.state == Ability.State.ACQUIRED) mc.getTextureManager().bindTexture(ABILITIES2);
-        else if (ability.state == Ability.State.LOCKED) mc.getTextureManager().bindTexture(ABILITIES3);
-
         int startX = 0, startY = 0;
         int startDrawX = 0;
         int startDrawY = 0;
@@ -445,17 +479,37 @@ abstract class GuiBlocklingAbility extends GuiBlocklingBase
 
         if (difX <= ability.width && difY <= ability.height)
         {
+            Color abilityColour = ability.state.colour;
+            if (ability.hasConflictingAbility(abilities)) abilityColour = new Color(0x4E1815);
+            if (selectedAbility != null && ability == selectedAbility) abilityColour = new Color(0x4DFF46);
+            float transparency = 1.0f;
+            if (selectedAbility != null && ability == selectedAbility) transparency = 1.0f;
+            else if (ability.state == Ability.State.LOCKED) transparency = 0.5f;
+            else if (ability.hasConflictingAbility(abilities)) transparency = 0.50f;
+
             if (hoveredAbility != null)
             {
                 int i = hoveredAbility == ability ? 20 : 0;
 
                 zLevel+=i;
-                drawTexturedModalRect(screenLeft + x + ability.x + startX, screenTop + y + ability.y + startY, ability.textureX + startDrawX, ability.textureY + startDrawY, ability.width - difX, ability.height - difY);
+                mc.getTextureManager().bindTexture(ABILITIES);
+                GlStateManager.color(abilityColour.getRed() / 255f, abilityColour.getGreen() / 255f, abilityColour.getBlue() / 255f);
+                drawTexturedModalRect(screenLeft + x + ability.x + startX, screenTop + y + ability.y + startY, ability.shapeX + startDrawX, ability.shapeY + startDrawY, ability.width - difX, ability.height - difY);
+                GlStateManager.color(1.0f, 1.0f, 1.0f, transparency);
+                mc.getTextureManager().bindTexture(ABILITIES2);
+                drawTexturedModalRect(screenLeft + x + ability.x + startX, screenTop + y + ability.y + startY, ability.iconX + startDrawX, ability.iconY + startDrawY, ability.width - difX, ability.height - difY);
+                GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
                 zLevel-=i;
             }
             else
             {
-                drawTexturedModalRect(screenLeft + x + ability.x + startX, screenTop + y + ability.y + startY, ability.textureX + startDrawX, ability.textureY + startDrawY, ability.width - difX, ability.height - difY);
+                mc.getTextureManager().bindTexture(ABILITIES);
+                GlStateManager.color(abilityColour.getRed() / 255f, abilityColour.getGreen() / 255f, abilityColour.getBlue() / 255f);
+                drawTexturedModalRect(screenLeft + x + ability.x + startX, screenTop + y + ability.y + startY, ability.shapeX + startDrawX, ability.shapeY + startDrawY, ability.width - difX, ability.height - difY);
+                GlStateManager.color(1.0f, 1.0f, 1.0f, transparency);
+                mc.getTextureManager().bindTexture(ABILITIES2);
+                drawTexturedModalRect(screenLeft + x + ability.x + startX, screenTop + y + ability.y + startY, ability.iconX + startDrawX, ability.iconY + startDrawY, ability.width - difX, ability.height - difY);
+                GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
             }
         }
     }
@@ -528,5 +582,12 @@ abstract class GuiBlocklingAbility extends GuiBlocklingBase
     private int actualAbilityY(Ability ability)
     {
         return screenTop + y + ability.y;
+    }
+
+    @Override
+    public void onGuiClosed()
+    {
+        blockling.syncAbilities();
+        super.onGuiClosed();
     }
 }

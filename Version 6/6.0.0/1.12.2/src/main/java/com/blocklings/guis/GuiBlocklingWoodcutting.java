@@ -15,6 +15,7 @@ class GuiBlocklingWoodcutting extends GuiBlocklingAbility
         super(blockling, player);
 
         abilities = blockling.woodcuttingAbilities.abilities;
+        BACKGROUND = new ResourceLocationBlocklings("textures/guis/inventory_overlay_2.png");
     }
 
     @Override

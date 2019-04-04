@@ -10,8 +10,12 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
+import java.util.Random;
+
 public class BlocklingAIBase extends EntityAIBase
 {
+    Random rand = new Random();
+
     EntityBlockling blockling;
     World world;
 

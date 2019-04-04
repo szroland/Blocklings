@@ -16,6 +16,6 @@ public class SlotUpgrade extends Slot
     @Override
     public boolean isItemValid(ItemStack stack)
     {
-        return ItemHelper.isUpgradeMaterial(stack.getItem());
+        return ItemHelper.isUpgradeMaterial(stack);
     }
 }

@@ -174,6 +174,7 @@ public class BlocklingAIMining extends BlocklingAIBase
             blockling.damageItem(EnumHand.OFF_HAND);
         }
 
+        blockling.incrementMiningXp(5);
         world.setBlockToAir(targetPos);
     }
 

@@ -37,6 +37,8 @@ public class NetworkHelper
         network.registerMessage(GuardIDMessage.Handler.class, GuardIDMessage.class, id++, Side.SERVER);
         network.registerMessage(StateIDMessage.Handler.class, StateIDMessage.class, id++, Side.CLIENT);
         network.registerMessage(StateIDMessage.Handler.class, StateIDMessage.class, id++, Side.SERVER);
+        network.registerMessage(SkillPointsMessage.Handler.class, SkillPointsMessage.class, id++, Side.CLIENT);
+        network.registerMessage(SkillPointsMessage.Handler.class, SkillPointsMessage.class, id++, Side.SERVER);
         network.registerMessage(CombatLevelMessage.Handler.class, CombatLevelMessage.class, id++, Side.CLIENT);
         network.registerMessage(CombatLevelMessage.Handler.class, CombatLevelMessage.class, id++, Side.SERVER);
         network.registerMessage(AttackingHandMessage.Handler.class, AttackingHandMessage.class, id++, Side.CLIENT);
@@ -59,15 +61,15 @@ public class NetworkHelper
         network.registerMessage(WoodcuttingLevelMessage.Handler.class, WoodcuttingLevelMessage.class, id++, Side.SERVER);
         network.registerMessage(FarmingLevelMessage.Handler.class, FarmingLevelMessage.class, id++, Side.CLIENT);
         network.registerMessage(FarmingLevelMessage.Handler.class, FarmingLevelMessage.class, id++, Side.SERVER);
+        network.registerMessage(CombatXpMessage.Handler.class, CombatXpMessage.class, id++, Side.CLIENT);
         network.registerMessage(CombatXpMessage.Handler.class, CombatXpMessage.class, id++, Side.SERVER);
-        network.registerMessage(CombatXpMessage.Handler.class, CombatXpMessage.class, id++, Side.SERVER);
+        network.registerMessage(MiningXpMessage.Handler.class, MiningXpMessage.class, id++, Side.CLIENT);
         network.registerMessage(MiningXpMessage.Handler.class, MiningXpMessage.class, id++, Side.SERVER);
-        network.registerMessage(MiningXpMessage.Handler.class, MiningXpMessage.class, id++, Side.SERVER);
+        network.registerMessage(WoodcuttingXpMessage.Handler.class, WoodcuttingXpMessage.class, id++, Side.CLIENT);
         network.registerMessage(WoodcuttingXpMessage.Handler.class, WoodcuttingXpMessage.class, id++, Side.SERVER);
-        network.registerMessage(WoodcuttingXpMessage.Handler.class, WoodcuttingXpMessage.class, id++, Side.SERVER);
+        network.registerMessage(FarmingXpMessage.Handler.class, FarmingXpMessage.class, id++, Side.CLIENT);
         network.registerMessage(FarmingXpMessage.Handler.class, FarmingXpMessage.class, id++, Side.SERVER);
-        network.registerMessage(FarmingXpMessage.Handler.class, FarmingXpMessage.class, id++, Side.SERVER);
-        network.registerMessage(AutoswitchIDMessage.Handler.class, AutoswitchIDMessage.class, id++, Side.SERVER);
+        network.registerMessage(AutoswitchIDMessage.Handler.class, AutoswitchIDMessage.class, id++, Side.CLIENT);
         network.registerMessage(AutoswitchIDMessage.Handler.class, AutoswitchIDMessage.class, id++, Side.SERVER);
     }
 

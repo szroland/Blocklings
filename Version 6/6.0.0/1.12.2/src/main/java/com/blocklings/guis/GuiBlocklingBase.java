@@ -84,6 +84,7 @@ abstract class GuiBlocklingBase extends GuiScreen
 
         if (tab != null && blockling.getGuiID() != tab.id)
         {
+            blockling.syncAbilities();
             blockling.openGui(tab.id, player);
         }
 

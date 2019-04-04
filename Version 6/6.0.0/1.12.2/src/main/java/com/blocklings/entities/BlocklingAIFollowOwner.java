@@ -1,5 +1,6 @@
 package com.blocklings.entities;
 
+import com.blocklings.util.BlocklingType;
 import com.blocklings.util.helpers.EntityHelper;
 import net.minecraft.block.state.BlockFaceShape;
 import net.minecraft.block.state.IBlockState;
@@ -136,7 +137,7 @@ public class BlocklingAIFollowOwner extends EntityAIBase
                             {
                                 for (int i1 = 0; i1 <= 4; ++i1)
                                 {
-                                    if ((l < 1 || i1 < 1 || l > 3 || i1 > 3) && this.isTeleportFriendlyBlock(i, j, k, l, i1))
+                                    if (blockling.blocklingType != BlocklingType.blocklingTypes.get(11) && (l < 1 || i1 < 1 || l > 3 || i1 > 3) && this.isTeleportFriendlyBlock(i, j, k, l, i1))
                                     {
                                         this.tameable.setLocationAndAngles((double)((float)(i + l) + 0.5F), (double)k, (double)((float)(j + i1) + 0.5F), this.tameable.rotationYaw, this.tameable.rotationPitch);
                                         this.petPathfinder.clearPath();

@@ -1,11 +1,10 @@
 package com.blocklings.entities;
 
-import com.blocklings.util.helpers.BlockHelper;
-import com.blocklings.util.helpers.DropHelper;
-import com.blocklings.util.helpers.EntityHelper;
-import com.blocklings.util.helpers.ToolHelper;
+import com.blocklings.util.helpers.*;
+import com.sun.deploy.panel.AndOrRadioPropertyGroup;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.pathfinding.Path;
@@ -185,9 +184,15 @@ public class BlocklingAIWoodcutting extends BlocklingAIBase
     private void chopTarget()
     {
         BlockPos logPos = tree.get(tree.size() - 1);
+
         NonNullList<ItemStack> dropStacks = DropHelper.getDops(blockling, world, logPos);
         for (ItemStack dropStack : dropStacks)
         {
+            if (blockling.woodcuttingAbilities.isAbilityAcquired(AbilityHelper.forestFire))
+            {
+                dropStack = new ItemStack(Items.COAL, dropStack.getCount(), 1);
+            }
+
             ItemStack leftoverStack = blockling.inv.addItem(dropStack);
             if (!leftoverStack.isEmpty())
             {
@@ -204,6 +209,7 @@ public class BlocklingAIWoodcutting extends BlocklingAIBase
             blockling.damageItem(EnumHand.OFF_HAND);
         }
 
+        blockling.incrementWoodcuttingXp(5);
         world.setBlockToAir(logPos);
         tree.remove(tree.size() - 1);
     }

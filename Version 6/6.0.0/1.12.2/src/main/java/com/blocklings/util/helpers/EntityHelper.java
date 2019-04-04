@@ -36,7 +36,7 @@ public class EntityHelper
 
     public static int getXpUntilNextLevel(int level)
     {
-        return (int) Math.exp(level / 2.0) + 5;
+        return (int) Math.exp(level / 3.0) + 5;
     }
 
     public enum Task

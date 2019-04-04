@@ -96,7 +96,7 @@ public class GuiBlocklingStats extends GuiBlocklingBase
         {
             int xp = blockling.getMiningXp();
             int nextXp = EntityHelper.getXpUntilNextLevel(blockling.getMiningLevel());
-            int speed = (int)((1.0  / (double) blockling.getMiningInterval()) * 20.0);
+            int speed = blockling.getMiningInterval();
             List<String> info = new ArrayList<>();
             info.add(TextFormatting.GOLD + "Mining");
             info.add(TextFormatting.DARK_AQUA + "XP: " + xp + "/" + nextXp);
@@ -107,7 +107,7 @@ public class GuiBlocklingStats extends GuiBlocklingBase
         {
             int xp = blockling.getWoodcuttingXp();
             int nextXp = EntityHelper.getXpUntilNextLevel(blockling.getWoodcuttingLevel());
-            int speed = (int)((1.0  / (double) blockling.getChoppingInterval()) * 20.0);
+            int speed = blockling.getChoppingInterval();
             List<String> info = new ArrayList<>();
             info.add(TextFormatting.GOLD + "Woodcutting");
             info.add(TextFormatting.DARK_AQUA + "XP: " + xp + "/" + nextXp);
@@ -118,7 +118,7 @@ public class GuiBlocklingStats extends GuiBlocklingBase
         {
             int xp = blockling.getFarmingXp();
             int nextXp = EntityHelper.getXpUntilNextLevel(blockling.getFarmingLevel());
-            int speed = (int)((1.0  / (double) blockling.getFarmingInterval()) * 20.0);
+            int speed = blockling.getFarmingInterval();
             List<String> info = new ArrayList<>();
             info.add(TextFormatting.GOLD + "Farming");
             info.add(TextFormatting.DARK_AQUA + "XP: " + xp + "/" + nextXp);
@@ -221,7 +221,7 @@ public class GuiBlocklingStats extends GuiBlocklingBase
         fontRenderer.drawString(damageString, xx - fontRenderer.getStringWidth(damageString), yy - (j * 1), colour, true);
         String attackSpeedString = "" + blockling.getAttackInterval();
         fontRenderer.drawString(attackSpeedString, xx - fontRenderer.getStringWidth(attackSpeedString), yy - (j * 2), colour, true);
-        String speedString = "" + (int)(blockling.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).getAttributeValue() * 10.0);
+        String speedString = "" + (int)(blockling.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).getAttributeValue() * 40.0);
         fontRenderer.drawString(speedString, xx - fontRenderer.getStringWidth(speedString), yy - (j * 3), colour, true);
 
         size = 11;

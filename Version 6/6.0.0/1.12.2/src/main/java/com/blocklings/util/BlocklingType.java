@@ -14,8 +14,8 @@ public class BlocklingType
     static
     {
         blocklingTypes.add(new BlocklingType("blockling_0", new ItemStack[] { new ItemStack(Blocks.GRASS), new ItemStack(Blocks.DIRT) },
-            5.0, 2.0, 3.0, 3.0));
-        blocklingTypes.add(new BlocklingType("blockling_1", new ItemStack[] { new ItemStack(Blocks.LOG) },
+            0.0, 0.0, 0.0, 0.0));
+        blocklingTypes.add(new BlocklingType("blockling_1", new ItemStack[] { new ItemStack(Blocks.LOG, 1, 0), new ItemStack(Blocks.LOG, 1, 1), new ItemStack(Blocks.LOG, 1, 2), new ItemStack(Blocks.LOG, 1, 3), new ItemStack(Blocks.LOG2, 1, 0), new ItemStack(Blocks.LOG2, 1, 1) },
             5.0, 2.0, 3.0, 4.0));
         blocklingTypes.add(new BlocklingType("blockling_2", new ItemStack(Blocks.STONE),
             5.0, 2.0, 3.0, 4.0));
@@ -35,6 +35,8 @@ public class BlocklingType
             5.0, 2.0, 3.0, 4.0));
         blocklingTypes.add(new BlocklingType("blockling_10", new ItemStack(Blocks.PUMPKIN),
             5.0, 2.0, 3.0, 4.0));
+        blocklingTypes.add(new BlocklingType("blockling_11", new ItemStack(Blocks.BEDROCK),
+            5000.0, 2000.0, 3000.0, 0.001));
     }
 
     public static BlocklingType getTypeFromItemStack(ItemStack itemStack)

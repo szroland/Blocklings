@@ -12,6 +12,7 @@ class GuiBlocklingFarming extends GuiBlocklingAbility
         super(blockling, player);
 
         abilities = blockling.farmingAbilities.abilities;
+        BACKGROUND = new ResourceLocationBlocklings("textures/guis/inventory_overlay_3.png");
     }
 
     @Override

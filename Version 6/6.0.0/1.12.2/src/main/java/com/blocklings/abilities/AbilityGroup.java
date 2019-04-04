@@ -2,10 +2,7 @@ package com.blocklings.abilities;
 
 import net.minecraft.nbt.NBTTagCompound;
 
-import com.blocklings.abilities.Ability;
-
 import java.awt.*;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,6 +25,38 @@ public class AbilityGroup
         this.abilities = abilities;
     }
 
+    public boolean contains(Ability ability)
+    {
+        for (Ability testAbility : abilities)
+        {
+            if (testAbility.equals(ability))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private Ability getMatchingAbility(Ability ability)
+    {
+        for (Ability testAbility : abilities)
+        {
+            if (testAbility.equals(ability))
+            {
+                return testAbility;
+            }
+        }
+
+        return null;
+    }
+
+    public boolean isAbilityAcquired(Ability ability)
+    {
+        Ability matchingAbility = getMatchingAbility(ability);
+        return matchingAbility != null && matchingAbility.state == Ability.State.ACQUIRED;
+    }
+
     public void writeToNBT(NBTTagCompound c)
     {
         c.setString("GroupName" + id, groupName);
@@ -38,9 +67,9 @@ public class AbilityGroup
             if (ability.parentAbility != null) c.setInteger(groupName + ability.id + "ParentId", ability.parentAbility.id);
             else c.setInteger(groupName + ability.id + "ParentId", -1);
             c.setInteger(groupName + ability.id + "StateId", ability.state.ordinal());
-            c.setInteger(groupName + ability.id + "Colour", ability.colour.getRGB());
-            c.setInteger(groupName + ability.id + "TextureX", ability.textureX);
-            c.setInteger(groupName + ability.id + "TextureY", ability.textureY);
+            c.setInteger(groupName + ability.id + "Colour", ability.highlightColour.getRGB());
+            c.setInteger(groupName + ability.id + "TextureX", ability.iconX);
+            c.setInteger(groupName + ability.id + "TextureY", ability.iconY);
             c.setInteger(groupName + ability.id + "Width", ability.width);
             c.setInteger(groupName + ability.id + "Height", ability.height);
             c.setInteger(groupName + ability.id + "X", ability.x);
@@ -68,9 +97,9 @@ public class AbilityGroup
             ability.id = i;
             ability.parentId = c.getInteger(groupName + i + "ParentId");
             ability.state = Ability.State.values()[c.getInteger(groupName + i + "StateId")];
-            ability.colour = new Color(c.getInteger(groupName + i + "Colour"));
-            ability.textureX = c.getInteger(groupName + i + "TextureX");
-            ability.textureY = c.getInteger(groupName + i + "TextureY");
+            ability.highlightColour = new Color(c.getInteger(groupName + i + "Colour"));
+            ability.iconX = c.getInteger(groupName + i + "TextureX");
+            ability.iconY = c.getInteger(groupName + i + "TextureY");
             ability.width = c.getInteger(groupName + i + "Width");
             ability.height = c.getInteger(groupName + i + "Height");
             ability.x = c.getInteger(groupName + i + "X");

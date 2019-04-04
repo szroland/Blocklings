@@ -1,5 +1,6 @@
 package com.blocklings.entities;
 
+import com.blocklings.util.helpers.AbilityHelper;
 import com.blocklings.util.helpers.BlockHelper;
 import com.blocklings.util.helpers.DropHelper;
 import com.blocklings.util.helpers.EntityHelper;
@@ -8,6 +9,7 @@ import net.minecraft.block.BlockCrops;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.pathfinding.Path;
 import net.minecraft.util.EnumHand;
@@ -159,6 +161,13 @@ public class BlocklingAIFarming extends BlocklingAIBase
         NonNullList<ItemStack> dropStacks = DropHelper.getDops(blockling, world, targetPos);
         for (ItemStack dropStack : dropStacks)
         {
+            if (blockling.farmingAbilities.isAbilityAcquired(AbilityHelper.cropDrop) && rand.nextFloat() <= 0.5f)
+            {
+                if (!(dropStack.getItem() instanceof ItemBlock))
+                {
+                    dropStack.grow(dropStack.getCount());
+                }
+            }
             ItemStack leftoverStack = blockling.inv.addItem(dropStack);
             if (!leftoverStack.isEmpty())
             {
@@ -175,6 +184,7 @@ public class BlocklingAIFarming extends BlocklingAIBase
             blockling.damageItem(EnumHand.OFF_HAND);
         }
 
+        blockling.incrementFarmingXp(5);
         Item seed = BlockHelper.getSeed(getBlockFromPos(targetPos));
         if (seed != Items.AIR)
         {

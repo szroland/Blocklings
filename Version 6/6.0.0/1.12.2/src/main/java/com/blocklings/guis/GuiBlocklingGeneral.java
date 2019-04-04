@@ -16,6 +16,7 @@ class GuiBlocklingGeneral extends GuiBlocklingAbility
         super(blockling, player);
 
         abilities = blockling.generalAbilities.abilities;
+        BACKGROUND = new ResourceLocationBlocklings("textures/guis/inventory_overlay_4.png");
     }
 
     @Override
