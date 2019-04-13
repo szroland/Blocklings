@@ -34,7 +34,7 @@ public class BlocklingsItems
     public static void registerRenders(ModelRegistryEvent event)
     {
         ModelBakery.registerItemVariants(itemBlockling, new ModelResourceLocation(itemBlockling.getRegistryName(), "inventory"));
-        ModelBakery.registerItemVariants(itemBlockling, new ModelResourceLocation(itemBlockling.getRegistryName() + "_1", "inventory"));
+        ModelBakery.registerItemVariants(itemBlockling, new ModelResourceLocation(itemBlockling.getRegistryName() + "_8", "inventory"));
         ModelBakery.registerItemVariants(itemBlockling, new ModelResourceLocation(itemBlockling.getRegistryName() + "_20", "inventory"));
 
         ModelLoader.setCustomMeshDefinition(itemBlockling, new ItemMeshDefinition()
@@ -42,7 +42,7 @@ public class BlocklingsItems
             @Override
             public ModelResourceLocation getModelLocation(ItemStack stack)
             {
-                return new ModelResourceLocation(itemBlockling.getRegistryName() + "_20", "inventory");
+                return new ModelResourceLocation(itemBlockling.getRegistryName() + "_8", "inventory");
             }
         });
     }

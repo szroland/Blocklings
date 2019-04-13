@@ -3,6 +3,7 @@ package com.blocklings.guis;
 import com.blocklings.entities.EntityBlockling;
 import com.blocklings.abilities.Ability;
 import com.blocklings.util.ResourceLocationBlocklings;
+import com.blocklings.util.helpers.EntityHelper;
 import com.blocklings.util.helpers.GuiHelper;
 import net.minecraft.block.BlockJukebox;
 import net.minecraft.client.gui.GuiButton;
@@ -20,6 +21,8 @@ import java.util.List;
 
 abstract class GuiBlocklingAbility extends GuiBlocklingBase
 {
+    protected Random rand = new Random();
+
     protected ResourceLocation BACKGROUND = new ResourceLocationBlocklings("textures/guis/inventory_overlay.png");
     protected static final ResourceLocation ABILITIES = new ResourceLocationBlocklings("textures/guis/inventory_abilities.png");
     protected static final ResourceLocation ABILITIES2 = new ResourceLocationBlocklings("textures/guis/inventory_abilities2.png");
@@ -58,6 +61,7 @@ abstract class GuiBlocklingAbility extends GuiBlocklingBase
     private int beforeReleaseX, beforeReleaseY;
 
     private GuiButton buyButton;
+    GuiButton reallocateButton;
 
     protected GuiBlocklingAbility(EntityBlockling blockling, EntityPlayer player)
     {
@@ -69,7 +73,8 @@ abstract class GuiBlocklingAbility extends GuiBlocklingBase
     {
         super.initGui();
 
-        buttonList.add(buyButton = new GuiButton(0, width / 2 - 35, height / 2 + 76, 72, 20, "Buy Ability"));
+        buttonList.add(buyButton = new GuiButton(0, width / 2 - 77, height / 2 + 76, 72, 20, "Buy Ability"));
+        buttonList.add(reallocateButton = new GuiButton(1, width / 2 + 5, height / 2 + 76, 72, 20, "Reallocate"));
 
         if (init)
         {
@@ -104,26 +109,36 @@ abstract class GuiBlocklingAbility extends GuiBlocklingBase
 
         for (Ability ability : abilities)
         {
-            if (ability.parentAbility == null || ability.parentAbility.state.ordinal() > ability.state.ordinal())
+            boolean hasLevels = true;
+            for (String skill : ability.levelRequirements.keySet())
             {
-                boolean hasLevels = true;
-                for (String skill : ability.levelRequirements.keySet())
+                if (blockling.getLevel(skill) < ability.levelRequirements.get(skill))
                 {
-                    if (blockling.getLevel(skill) < ability.levelRequirements.get(skill))
-                    {
-                        hasLevels = false;
-                        break;
-                    }
+                    hasLevels = false;
+                    break;
                 }
+            }
 
-                if (ability.state == Ability.State.LOCKED && hasLevels && (ability.parentAbility == null || ability.parentAbility.state == Ability.State.ACQUIRED))
-                {
-                    ability.state = Ability.State.UNLOCKED;
-                }
+            if (ability.state != Ability.State.ACQUIRED && hasLevels && (ability.parentAbility == null || ability.parentAbility.state == Ability.State.ACQUIRED))
+            {
+                ability.state = Ability.State.UNLOCKED;
+            }
+            else if (ability.state == Ability.State.UNLOCKED)
+            {
+                ability.state = Ability.State.LOCKED;
             }
         }
 
         buyButton.enabled = selectedAbility != null && blockling.getSkillPoints() >= selectedAbility.skillPointCost;
+        reallocateButton.enabled = false;
+        for (Ability ability : abilities)
+        {
+            if (ability.state == Ability.State.ACQUIRED)
+            {
+                reallocateButton.enabled = true;
+                break;
+            }
+        }
     }
 
     @Override
@@ -200,6 +215,63 @@ abstract class GuiBlocklingAbility extends GuiBlocklingBase
             {
                 selectedAbility.state = Ability.State.ACQUIRED;
                 blockling.incrementSkillPoints(-selectedAbility.skillPointCost);
+            }
+        }
+        else if (button == reallocateButton)
+        {
+            for (Ability ability : abilities)
+            {
+                if (ability.state == Ability.State.ACQUIRED)
+                {
+                    boolean loseSkillPoint = rand.nextFloat() >= 0.5;
+                    if (loseSkillPoint)
+                    {
+                        int i = 0;
+                        int highest = blockling.getCombatLevel();
+                        if (blockling.getMiningLevel() > highest) { highest = blockling.getMiningLevel(); i = 1; }
+                        if (blockling.getWoodcuttingLevel() > highest) { highest = blockling.getWoodcuttingLevel(); i = 2; }
+                        if (blockling.getFarmingLevel() > highest) { i = 3; }
+
+                        int noOfSkillPointsToLose = 0;
+                        int highest2 = highest;
+                        while (highest2 > 1 && noOfSkillPointsToLose != ability.skillPointCost)
+                        {
+                            noOfSkillPointsToLose++;
+                            highest2-= EntityHelper.SKILL_POINT_INTERVAL;
+                        }
+
+                        if (noOfSkillPointsToLose > 0)
+                        {
+                            blockling.incrementSkillPoints(-noOfSkillPointsToLose);
+                            switch (i)
+                            {
+                                case 0:
+                                    blockling.setCombatLevel(highest - (noOfSkillPointsToLose * EntityHelper.SKILL_POINT_INTERVAL));
+                                    if (blockling.getCombatLevel() <= 0) blockling.setCombatLevel(1);
+                                    blockling.setCombatXp(0);
+                                    break;
+                                case 1:
+                                    blockling.setMiningLevel(highest - (noOfSkillPointsToLose * EntityHelper.SKILL_POINT_INTERVAL));
+                                    if (blockling.getMiningLevel() <= 0) blockling.setMiningLevel(1);
+                                    blockling.setMiningXp(0);
+                                    break;
+                                case 2:
+                                    blockling.setWoodcuttingLevel(highest - (noOfSkillPointsToLose * EntityHelper.SKILL_POINT_INTERVAL));
+                                    if (blockling.getWoodcuttingLevel() <= 0) blockling.setWoodcuttingLevel(1);
+                                    blockling.setWoodcuttingXp(0);
+                                    break;
+                                case 3:
+                                    blockling.setFarmingLevel(highest - (noOfSkillPointsToLose * EntityHelper.SKILL_POINT_INTERVAL));
+                                    if (blockling.getFarmingLevel() <= 0) blockling.setFarmingLevel(1);
+                                    blockling.setFarmingXp(0);
+                                    break;
+                            }
+                        }
+                    }
+
+                    ability.state = Ability.State.LOCKED;
+                    blockling.incrementSkillPoints(ability.skillPointCost);
+                }
             }
         }
     }
@@ -481,7 +553,7 @@ abstract class GuiBlocklingAbility extends GuiBlocklingBase
         {
             Color abilityColour = ability.state.colour;
             if (ability.hasConflictingAbility(abilities)) abilityColour = new Color(0x4E1815);
-            if (selectedAbility != null && ability == selectedAbility) abilityColour = new Color(0x4DFF46);
+            if (selectedAbility != null && ability == selectedAbility) abilityColour = new Color(0x45B92F);
             float transparency = 1.0f;
             if (selectedAbility != null && ability == selectedAbility) transparency = 1.0f;
             else if (ability.state == Ability.State.LOCKED) transparency = 0.5f;

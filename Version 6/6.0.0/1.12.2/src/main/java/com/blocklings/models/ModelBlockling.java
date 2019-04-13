@@ -35,44 +35,44 @@ public class ModelBlockling extends ModelBase
         this.textureWidth = 128;
         this.textureHeight = 64;
 
-        this.body = new ModelRenderer(this, 20, 0);
-        this.body.addBox(-8.0F, -8.0F, -8.0F, 16, 16, 16);
+        this.body = new ModelRenderer(this, 16, 0);
+        this.body.addBox(-6.0F, -3.0F, -6.0F, 12, 12, 12);
         this.body.setRotationPoint(0.0F, 13.0F, 0.0F);
         this.body.setTextureSize(128, 64);
         this.body.showModel = true;
         setRotation(this.body, 0.0872665F, 0.0F, 0.0F);
-        this.rightLeg = new ModelRenderer(this, 24, 32);
-        this.rightLeg.addBox(-3.5F, 0.0F, -3.5F, 7, 7, 7);
+        this.rightLeg = new ModelRenderer(this, 16, 24);
+        this.rightLeg.addBox(-1.5F, 1.0F, -3.5F, 5, 6, 6);
         this.rightLeg.setRotationPoint(-4.0F, 4.0F, 0.5F);
         this.rightLeg.setTextureSize(128, 64);
         this.rightLeg.showModel = true;
         setRotation(this.rightLeg, -0.0872665F, 0.0F, 0.0F);
-        this.leftLeg = new ModelRenderer(this, 52, 32);
-        this.leftLeg.addBox(-3.5F, 0.0F, -3.5F, 7, 7, 7);
+        this.leftLeg = new ModelRenderer(this, 42, 24);
+        this.leftLeg.addBox(-3.5F, 1.0F, -3.5F, 5, 6, 6);
         this.leftLeg.setRotationPoint(4.0F, 4.0F, 0.5F);
         this.leftLeg.setTextureSize(128, 64);
         this.leftLeg.showModel = true;
         setRotation(this.leftLeg, -0.0872665F, 0.0F, 0.0F);
-        this.rightArm = new ModelRenderer(this, 84, 18);
-        this.rightArm.addBox(-3.0F, 0.0F, -7.0F, 3, 7, 7);
+        this.rightArm = new ModelRenderer(this, 0, 12);
+        this.rightArm.addBox(0.0F, 2.0F, -7.0F, 2, 6, 6);
         this.rightArm.setRotationPoint(-8.0F, -3.0F, 0.0F);
         this.rightArm.setTextureSize(128, 64);
         this.rightArm.showModel = true;
         setRotation(this.rightArm, rightArmBaseX, 0.0F, 0.0F);
-        this.leftArm = new ModelRenderer(this, 0, 18);
-        this.leftArm.addBox(0.0F, 0.0F, -7.0F, 3, 7, 7);
+        this.leftArm = new ModelRenderer(this, 64, 12);
+        this.leftArm.addBox(-2.0F, 2.0F, -7.0F, 2, 6, 6);
         this.leftArm.setRotationPoint(8.0F, -3.0F, 0.0F);
         this.leftArm.setTextureSize(128, 64);
         this.leftArm.showModel = true;
         setRotation(this.leftArm, leftArmBaseX, 0.0F, 0.0F);
-        this.rightEye = new ModelRenderer(this, 30, 12);
-        this.rightEye.addBox(-1.0F, -1.5F, -0.5F, 2, 3, 1);
+        this.rightEye = new ModelRenderer(this, 22, 8);
+        this.rightEye.addBox(-1.0F, 0.5F, 1.5F, 2, 3, 1);
         this.rightEye.setRotationPoint(-2.0F, 3.0F, -8.0F);
         this.rightEye.setTextureSize(128, 64);
         this.rightEye.showModel = true;
         setRotation(this.rightEye, 0.0F, 0.0F, 0.0F);
-        this.leftEye = new ModelRenderer(this, 68, 12);
-        this.leftEye.addBox(-1.0F, -1.5F, -0.5F, 2, 3, 1);
+        this.leftEye = new ModelRenderer(this, 52, 8);
+        this.leftEye.addBox(-1.0F, 0.5F, 1.5F, 2, 3, 1);
         this.leftEye.setRotationPoint(2.0F, 3.0F, -8.0F);
         this.leftEye.setTextureSize(128, 64);
         this.leftEye.showModel = true;
@@ -154,7 +154,7 @@ public class ModelBlockling extends ModelBase
             flipFlopper = flipFlopper(age + time * 30.0f, swingSpeed) * (swingHeight);
 
             int ticksLeft = blockling.getAttackInterval() - blockling.getAttackTimer();
-            if (ticksLeft < 2)
+            if (ticksLeft < 2 && blockling.isInAttackRange)
             {
                 if (blockling.hasTool())
                 {
@@ -329,6 +329,7 @@ public class ModelBlockling extends ModelBase
             }
 
             swingHeight = logSpeed / 4.0f;
+            swingSpeed = 1.2f;
             flipFlopper = flipFlopper(age + time * 30.0f, swingSpeed) * (swingHeight);
             leftLeg.rotateAngleX = leftLegBaseX - (flipFlopper);
             rightLeg.rotateAngleX = rightLegBaseX + (flipFlopper);

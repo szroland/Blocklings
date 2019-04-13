@@ -17,7 +17,7 @@ public class Ability implements Serializable
     {
         LOCKED(new Color(0x444444)),
         UNLOCKED(new Color(0xF4F4F4)),
-        ACQUIRED(new Color(0xFFEC1C));
+        ACQUIRED(new Color(0xFFC409));
 
         public Color colour;
 

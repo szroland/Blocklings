@@ -18,7 +18,9 @@ import java.util.ArrayList;
 public class EntityHelper
 {
     public static final float BASE_SCALE = 0.75f;
-    public static final float BASE_SCALE_FOR_HITBOX = BASE_SCALE * 1.1f;
+    public static final float BASE_SCALE_FOR_HITBOX = BASE_SCALE * 0.95f;
+
+    public static final int SKILL_POINT_INTERVAL = 5;
 
     public static final float SWING_SPEED_COEF = 0.75f;
 
@@ -36,7 +38,7 @@ public class EntityHelper
 
     public static int getXpUntilNextLevel(int level)
     {
-        return (int) Math.exp(level / 3.0) + 5;
+        return (int) (Math.exp(level / 25.0) * 40) - 30;
     }
 
     public enum Task

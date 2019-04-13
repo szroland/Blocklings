@@ -15,7 +15,7 @@ public class BlocklingType
     {
         blocklingTypes.add(new BlocklingType("blockling_0", new ItemStack[] { new ItemStack(Blocks.GRASS), new ItemStack(Blocks.DIRT) },
             0.0, 0.0, 0.0, 0.0));
-        blocklingTypes.add(new BlocklingType("blockling_1", new ItemStack[] { new ItemStack(Blocks.LOG, 1, 0), new ItemStack(Blocks.LOG, 1, 1), new ItemStack(Blocks.LOG, 1, 2), new ItemStack(Blocks.LOG, 1, 3), new ItemStack(Blocks.LOG2, 1, 0), new ItemStack(Blocks.LOG2, 1, 1) },
+        blocklingTypes.add(new BlocklingType("blockling_567", new ItemStack[] { new ItemStack(Blocks.LOG, 1, 0), new ItemStack(Blocks.LOG, 1, 1), new ItemStack(Blocks.LOG, 1, 2), new ItemStack(Blocks.LOG, 1, 3), new ItemStack(Blocks.LOG2, 1, 0), new ItemStack(Blocks.LOG2, 1, 1) },
             5.0, 2.0, 3.0, 4.0));
         blocklingTypes.add(new BlocklingType("blockling_2", new ItemStack(Blocks.STONE),
             5.0, 2.0, 3.0, 4.0));
@@ -32,7 +32,7 @@ public class BlocklingType
         blocklingTypes.add(new BlocklingType("blockling_8", new ItemStack(Items.DIAMOND),
             20.0, 10.0, 5.0, 4.0));
         blocklingTypes.add(new BlocklingType("blockling_9", new ItemStack(Blocks.OBSIDIAN),
-            5.0, 2.0, 3.0, 4.0));
+            50.0, 5.0, 0.0, -4.0));
         blocklingTypes.add(new BlocklingType("blockling_10", new ItemStack(Blocks.PUMPKIN),
             5.0, 2.0, 3.0, 4.0));
         blocklingTypes.add(new BlocklingType("blockling_11", new ItemStack(Blocks.BEDROCK),

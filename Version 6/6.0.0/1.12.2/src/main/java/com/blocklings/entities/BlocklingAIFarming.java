@@ -5,7 +5,6 @@ import com.blocklings.util.helpers.BlockHelper;
 import com.blocklings.util.helpers.DropHelper;
 import com.blocklings.util.helpers.EntityHelper;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockCrops;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
@@ -136,12 +135,14 @@ public class BlocklingAIFarming extends BlocklingAIBase
 
     private boolean tryHarvestTarget()
     {
+        blockling.getLookHelper().setLookPosition(targetVec.x, targetVec.y, targetVec.z, 1000, 100);
+
         if (!blockling.isMining())
         {
             blockling.startMining();
         }
 
-        if (blockling.getMiningTimer() >= blockling.getMiningInterval())
+        if (blockling.getMiningTimer() >= blockling.getFarmingInterval())
         {
             harvestBlock();
             blockling.stopMining();
@@ -150,7 +151,7 @@ public class BlocklingAIFarming extends BlocklingAIBase
         }
         else
         {
-            int progress = (int)(((float)(blockling.getMiningTimer()) / (float)blockling.getMiningInterval()) * 9.0f);
+            int progress = (int)(((float)(blockling.getMiningTimer()) / (float)blockling.getFarmingInterval()) * 9.0f);
             world.sendBlockBreakProgress(blockling.getEntityId(), targetPos, progress);
             return false;
         }
@@ -161,7 +162,7 @@ public class BlocklingAIFarming extends BlocklingAIBase
         NonNullList<ItemStack> dropStacks = DropHelper.getDops(blockling, world, targetPos);
         for (ItemStack dropStack : dropStacks)
         {
-            if (blockling.farmingAbilities.isAbilityAcquired(AbilityHelper.cropDrop) && rand.nextFloat() <= 0.5f)
+            if (blockling.farmingAbilities.isAbilityAcquired(AbilityHelper.plentifulHarvest) && rand.nextFloat() <= 0.5f)
             {
                 if (!(dropStack.getItem() instanceof ItemBlock))
                 {

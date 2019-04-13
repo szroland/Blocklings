@@ -12,6 +12,7 @@ import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.crafting.FurnaceRecipes;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
 
@@ -75,7 +76,9 @@ public class GuiBlocklingStats extends GuiBlocklingBase
         drawInfo();
 
         setDefaultRenderSettings();
-        drawEntityOnScreen(width / 2, height / 2 + 16, 45, width / 2 - mouseX,  height / 2 - mouseY - 16, blockling);
+
+        int yness = blockling.hasTool() ? 0 : 4;
+        drawEntityOnScreen(width / 2, height / 2 + 16 - yness, 55, width / 2 - mouseX,  height / 2 - mouseY - 16 - yness, blockling);
 
         int size = 11;
         int i = -50, j = -22, k = -72;
@@ -85,11 +88,11 @@ public class GuiBlocklingStats extends GuiBlocklingBase
         {
             int xp = blockling.getCombatXp();
             int nextXp = EntityHelper.getXpUntilNextLevel(blockling.getCombatLevel());
-            int speed = (int)((1.0  / (double) blockling.getAttackInterval()) * 20.0);
+            int speed = blockling.getAttackInterval();
             List<String> info = new ArrayList<>();
             info.add(TextFormatting.GOLD + "Combat");
-            info.add(TextFormatting.DARK_AQUA + "XP: " + xp + "/" + nextXp);
-            info.add(TextFormatting.BLUE + "Speed: " + speed);
+            info.add(TextFormatting.GRAY + "XP: " + TextFormatting.DARK_AQUA + xp + "/" + nextXp);
+            info.add(TextFormatting.GRAY + "Attack Interval: " + TextFormatting.DARK_RED + speed);
             drawHoveringText(info, mouseX, mouseY);
         }
         else if (isMouseOver(mouseX, mouseY, xx, yy - (j * 1), size, size))
@@ -99,8 +102,8 @@ public class GuiBlocklingStats extends GuiBlocklingBase
             int speed = blockling.getMiningInterval();
             List<String> info = new ArrayList<>();
             info.add(TextFormatting.GOLD + "Mining");
-            info.add(TextFormatting.DARK_AQUA + "XP: " + xp + "/" + nextXp);
-            info.add(TextFormatting.BLUE + "Speed: " + speed);
+            info.add(TextFormatting.GRAY + "XP: " + TextFormatting.DARK_AQUA + xp + "/" + nextXp);
+            info.add(TextFormatting.GRAY + "Mining Interval: " + TextFormatting.DARK_RED + speed);
             drawHoveringText(info, mouseX, mouseY);
         }
         else if (isMouseOver(mouseX, mouseY, xx, yy - (j * 2), size, size))
@@ -110,8 +113,8 @@ public class GuiBlocklingStats extends GuiBlocklingBase
             int speed = blockling.getChoppingInterval();
             List<String> info = new ArrayList<>();
             info.add(TextFormatting.GOLD + "Woodcutting");
-            info.add(TextFormatting.DARK_AQUA + "XP: " + xp + "/" + nextXp);
-            info.add(TextFormatting.BLUE + "Speed: " + speed);
+            info.add(TextFormatting.GRAY + "XP: " + TextFormatting.DARK_AQUA + xp + "/" + nextXp);
+            info.add(TextFormatting.GRAY + "Chopping Interval: " + TextFormatting.DARK_RED + speed);
             drawHoveringText(info, mouseX, mouseY);
         }
         else if (isMouseOver(mouseX, mouseY, xx, yy - (j * 3), size, size))
@@ -121,8 +124,8 @@ public class GuiBlocklingStats extends GuiBlocklingBase
             int speed = blockling.getFarmingInterval();
             List<String> info = new ArrayList<>();
             info.add(TextFormatting.GOLD + "Farming");
-            info.add(TextFormatting.DARK_AQUA + "XP: " + xp + "/" + nextXp);
-            info.add(TextFormatting.BLUE + "Speed: " + speed);
+            info.add(TextFormatting.GRAY + "XP: " + TextFormatting.DARK_AQUA + xp + "/" + nextXp);
+            info.add(TextFormatting.GRAY + "Farming Interval: " + TextFormatting.DARK_RED + speed);
             drawHoveringText(info, mouseX, mouseY);
         }
 
@@ -148,13 +151,13 @@ public class GuiBlocklingStats extends GuiBlocklingBase
         else if (isMouseOver(mouseX, mouseY, xx, yy - (j * 2), size, size))
         {
             List<String> info = new ArrayList<>();
-            info.add(TextFormatting.GOLD + "Attack Speed");
+            info.add(TextFormatting.GOLD + "Attack Interval");
             drawHoveringText(info, mouseX, mouseY);
         }
         else if (isMouseOver(mouseX, mouseY, xx, yy - (j * 3), size, size))
         {
             List<String> info = new ArrayList<>();
-            info.add(TextFormatting.GOLD + "Move Speed");
+            info.add(TextFormatting.GOLD + "Movement Speed");
             drawHoveringText(info, mouseX, mouseY);
         }
 

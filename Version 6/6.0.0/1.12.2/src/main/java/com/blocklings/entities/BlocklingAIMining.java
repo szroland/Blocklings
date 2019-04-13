@@ -1,9 +1,6 @@
 package com.blocklings.entities;
 
-import com.blocklings.util.helpers.BlockHelper;
-import com.blocklings.util.helpers.DropHelper;
-import com.blocklings.util.helpers.EntityHelper;
-import com.blocklings.util.helpers.ToolHelper;
+import com.blocklings.util.helpers.*;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
@@ -24,7 +21,7 @@ import static com.blocklings.util.helpers.DropHelper.getDops;
 
 public class BlocklingAIMining extends BlocklingAIBase
 {
-    private static final int X_RADIUS = 10, Y_RADIUS = 10;
+    private int X_RADIUS = 10, Y_RADIUS = 10;
 
     private int targetYValue;
 
@@ -36,6 +33,17 @@ public class BlocklingAIMining extends BlocklingAIBase
     @Override
     public boolean shouldExecute()
     {
+        if (blockling.miningAbilities.isAbilityAcquired(AbilityHelper.dwarvenSenses1))
+        {
+            X_RADIUS = 20;
+            Y_RADIUS = 20;
+        }
+        else
+        {
+            X_RADIUS = 10;
+            Y_RADIUS = 10;
+        }
+
         if (blockling.getTask() != EntityHelper.Task.MINE)
         {
             return false;
@@ -61,7 +69,7 @@ public class BlocklingAIMining extends BlocklingAIBase
                     Block block = getBlockAt(x, y, z);
                     if (BlockHelper.isOre(block))
                     {
-                        if (canSeeBlock(x, y, z))
+                        if (blockling.miningAbilities.isAbilityAcquired(AbilityHelper.dwarvenSenses2) || canSeeBlock(x, y, z))
                         {
                             double xx = x + 0.5f;
                             double yy = y + 0.5f;
@@ -133,9 +141,22 @@ public class BlocklingAIMining extends BlocklingAIBase
 
     private boolean tryMineTarget()
     {
+        blockling.getLookHelper().setLookPosition(targetVec.x, targetVec.y, targetVec.z, 1000, 100);
+
         if (!blockling.isMining())
         {
             blockling.startMining();
+        }
+
+        if (blockling.getMiningTimer() == 0 && blockling.miningAbilities.isAbilityAcquired(AbilityHelper.brittleBlock))
+        {
+            if (rand.nextFloat() < 0.1f)
+            {
+                mineTarget();
+                blockling.stopMining();
+                world.sendBlockBreakProgress(blockling.getEntityId(), targetPos, -1);
+                return true;
+            }
         }
 
         if (blockling.getMiningTimer() >= blockling.getMiningInterval())
@@ -158,6 +179,12 @@ public class BlocklingAIMining extends BlocklingAIBase
         NonNullList<ItemStack> dropStacks = DropHelper.getDops(blockling, world, targetPos);
         for (ItemStack dropStack : dropStacks)
         {
+            if (blockling.miningAbilities.isAbilityAcquired(AbilityHelper.blocksmith))
+            {
+                ItemStack smeltResult = DropHelper.getFurnaceResult(blockling, dropStack);
+                dropStack = smeltResult != ItemStack.EMPTY ? smeltResult : dropStack;
+            }
+
             ItemStack leftoverStack = blockling.inv.addItem(dropStack);
             if (!leftoverStack.isEmpty())
             {

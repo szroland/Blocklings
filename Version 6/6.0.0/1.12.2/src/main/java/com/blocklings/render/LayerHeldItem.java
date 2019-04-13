@@ -46,7 +46,7 @@ public class LayerHeldItem implements LayerRenderer<EntityLivingBase>
         {
             GlStateManager.pushMatrix();
             boolean flag = handSide == EnumHandSide.LEFT;
-            GlStateManager.translate((float)(flag ? -1 : 1) / 1.68F, 0.65f, 0.0F);
+            GlStateManager.translate((float)(flag ? -1 : 1) / 2.28F, 0.65f, 0.0F);
             GlStateManager.rotate(-146.0F, 1.0F, 0.0F, 0.0F);
             GlStateManager.rotate(180.0F, 0.0F, 1.0F, 0.0F);
 
@@ -91,7 +91,7 @@ public class LayerHeldItem implements LayerRenderer<EntityLivingBase>
             else if (blockling.getAnimationState() == EntityBlockling.AnimationState.ATTACKING)
             {
                 int ticksLeft = blockling.getAttackInterval() - blockling.getAttackTimer();
-                if (ticksLeft < 2)
+                if (ticksLeft < 2 && blockling.isInAttackRange)
                 {
                     if (blockling.hasTool())
                     {
@@ -210,7 +210,7 @@ public class LayerHeldItem implements LayerRenderer<EntityLivingBase>
                 }
             }
 
-            GlStateManager.translate(0.0F, 0.0f, -0.29F);
+            GlStateManager.translate(0.0F, -0.14f, -0.31F);
 
             Minecraft.getMinecraft().getItemRenderer().renderItemSide(entity, stack, transform, flag);
             GlStateManager.popMatrix();

@@ -160,14 +160,24 @@ public class BlocklingAIWoodcutting extends BlocklingAIBase
 
     private boolean tryChopTarget()
     {
+        blockling.getLookHelper().setLookPosition(targetVec.x, targetVec.y, targetVec.z, 1000, 100);
+
         if (!blockling.isMining())
         {
             blockling.startMining();
         }
 
         BlockPos logPos = tree.get(tree.size() - 1);
-        if (blockling.getMiningTimer() >= blockling.getMiningInterval())
+        if (blockling.getMiningTimer() >= blockling.getChoppingInterval())
         {
+            if (blockling.woodcuttingAbilities.isAbilityAcquired(AbilityHelper.sawmill))
+            {
+                if (rand.nextFloat() < 0.1f && tree.size() > 1)
+                {
+                    chopTarget(tree.size() - 2);
+                }
+            }
+
             chopTarget();
             blockling.stopMining();
             world.sendBlockBreakProgress(blockling.getEntityId(), logPos, -1);
@@ -175,7 +185,7 @@ public class BlocklingAIWoodcutting extends BlocklingAIBase
         }
         else
         {
-            int progress = (int)(((float)(blockling.getMiningTimer()) / (float)blockling.getMiningInterval()) * 9.0f);
+            int progress = (int)(((float)(blockling.getMiningTimer()) / (float)blockling.getChoppingInterval()) * 9.0f);
             world.sendBlockBreakProgress(blockling.getEntityId(), logPos, progress);
             return false;
         }
@@ -183,7 +193,12 @@ public class BlocklingAIWoodcutting extends BlocklingAIBase
 
     private void chopTarget()
     {
-        BlockPos logPos = tree.get(tree.size() - 1);
+        chopTarget(tree.size() - 1);
+    }
+
+    private void chopTarget(int pos)
+    {
+        BlockPos logPos = tree.get(pos);
 
         NonNullList<ItemStack> dropStacks = DropHelper.getDops(blockling, world, logPos);
         for (ItemStack dropStack : dropStacks)
@@ -211,7 +226,7 @@ public class BlocklingAIWoodcutting extends BlocklingAIBase
 
         blockling.incrementWoodcuttingXp(5);
         world.setBlockToAir(logPos);
-        tree.remove(tree.size() - 1);
+        tree.remove(logPos);
     }
 
     private boolean isTree()

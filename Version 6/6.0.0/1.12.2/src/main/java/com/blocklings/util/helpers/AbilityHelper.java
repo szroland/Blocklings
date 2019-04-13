@@ -37,6 +37,10 @@ public class AbilityHelper
         .initInfo(4, "Ender Boye", new String[] { "Chance to teleport", "to destination" }, null, 1)
         .initGui(150, 0, 24 * 7, 0, 0, 0, new Color(0x1A154A));
 
+    public static Ability outline = new Ability()
+        .initInfo(6, "Outline", new String[] { "Outlines the blockling", "with glowing effect" }, null, 1)
+        .initGui(200, 0, 24 * 5, 24 * 1, 0, 0, new Color(0xFFE857));
+
 
     // COMBAT
 
@@ -45,24 +49,69 @@ public class AbilityHelper
         .initGui(0, 0, 24 * 4, 0, 0, 0, new Color(0x7AE621));
     public static Ability regen2 = new Ability()
         .initInfo(1, "Regen II", new String[] { "Heals 2 health every", "10 seconds" }, regen1, 1)
-        .initGui(60, 60, 24 * 5, 0, 0, 0, new Color(0x7AE621));
+        .initGui(0, 50, 24 * 5, 0, 0, 0, new Color(0x7AE621));
     public static Ability regen3 = new Ability()
         .initInfo(2, "Regen III", new String[] { "Heals 3 health every", "10 seconds" }, regen2, 1)
-        .initGui(120, 120, 24 * 6, 0, 0, 0, new Color(0x7AE621));
+        .initGui(0, 100, 24 * 6, 0, 0, 0, new Color(0x7AE621));
+
+    public static Ability shinobi1 = new Ability()
+        .initInfo(3, "Shinobi I", new String[] { "Double damage from", "backstabs" }, null, 1)
+        .initGui(100, 0, 24 * 4, 24 * 1, 0, 0, new Color(0xBC1A2F));
+    public static Ability shinobi2 = new Ability()
+        .initInfo(4, "Shinobi II", new String[] { "Triple damage from", "backstabs" }, shinobi1, 1)
+        .initGui(100, 100, 24 * 0, 24 * 3, 0, 0, new Color(0x8B001A));
+
+
+    // MINING
+
+    public static Ability hasteMining = new Ability()
+        .initInfo(0, "Haste", new String[] { "Decreases mining interval", "by 10" }, null, 1)
+        .initGui(0, 0, 24 * 3, 24 * 1, 0, 0, new Color(0xE5D600));
+    public static Ability brittleBlock = new Ability()
+    .initInfo(1, "Brittle Block", new String[] { "10% chance to instantly", "mine a block" }, hasteMining, 1)
+    .initGui(0, 50, 24 * 1, 24 * 2, 0, 0, new Color(0x828F7F));
+
+    public static Ability blocksmith = new Ability()
+        .initInfo(2, "Blocksmith", new String[] { "Automatically smelts", "ores mined" }, null, 1)
+        .initGui(50, 0, 24 * 8, 24 * 1, 0, 0, new Color(0xFF8200));
+    public static Ability metallurgy1 = new Ability()
+        .initInfo(3, "Metallurgy I", new String[] { "25% chance for", "double smelt" }, blocksmith, 1)
+        .initGui(50, 50, 24 * 9, 24 * 1, 0, 0, new Color(0xDCDACE));
+    public static Ability metallurgy2 = new Ability()
+        .initInfo(4, "Metallurgy II", new String[] { "25% chance for", "triple smelt" }, metallurgy1, 1)
+        .initGui(50, 100, 24 * 0, 24 * 2, 0, 0, new Color(0xFFBE0E));
+
+    public static Ability dwarvenSenses1 = new Ability()
+        .initInfo(5, "Dwarven Sense I", new String[] { "Bigger search radius" }, null, 1)
+        .initGui(100, 0, 24 * 2, 24 * 2, 0, 0, new Color(0xB2FFEB));
+    public static Ability dwarvenSenses2 = new Ability()
+        .initInfo(6, "Dwarven Sense II", new String[] { "Blockling can path to", "blocks they can't even see" }, dwarvenSenses1, 1)
+        .initGui(100, 100, 24 * 3, 24 * 2, 0, 0, new Color(0x41FFFA));
 
 
     // WOODCUTTING
 
+    public static Ability hasteWoodcutting = new Ability()
+        .initInfo(0, "Haste", new String[] { "Decreases chopping interval", "by 10" }, null, 1)
+        .initGui(0, 0, 24 * 3, 24 * 1, 0, 0, new Color(0xE5D600));
+    public static Ability sawmill = new Ability()
+        .initInfo(2, "Sawmill", new String[] { "10% chance to cut an", "extra log from the tree" }, hasteWoodcutting, 1)
+        .initGui(0, 100, 24 * 4, 24 * 2, 0, 0, new Color(0x853D25));
+
     public static Ability forestFire = new Ability()
-        .initInfo(0, "Forest Fire", new String[] { "Convert all logs", "chopped to charcoal" }, null, 1)
-        .initGui(0, 0, 24 * 1, 24 * 1, 0, 0, new Color(0x1A0C05));
+        .initInfo(1, "Forest Fire", new String[] { "Convert all logs", "chopped to charcoal" }, null, 1)
+        .initGui(100, 0, 24 * 1, 24 * 1, 0, 0, new Color(0x1A0C05));
 
 
     // FARMING
 
-    public static Ability cropDrop = new Ability()
-        .initInfo(0, "Crop Drop", new String[] { "50% chance to drop", "double crops" }, null, 1)
-        .initGui(0, 0, 24 * 0, 24 * 1, 0, 0, new Color(0xD5DA45));
+    public static Ability hasteFarming = new Ability()
+        .initInfo(0, "Haste", new String[] { "Decreases farming interval", "by 10" }, null, 1)
+        .initGui(0, 0, 24 * 3, 24 * 1, 0, 0, new Color(0xE5D600));
+
+    public static Ability plentifulHarvest = new Ability()
+        .initInfo(1, "Plentiful Harvest", new String[] { "50% chance to drop", "double crops" }, null, 1)
+        .initGui(100, 100, 24 * 0, 24 * 1, 0, 0, new Color(0xD5DA45));
 
     public static List<Ability> generalAbilities = new ArrayList<Ability>();
     public static List<Ability> combatAbilities = new ArrayList<Ability>();
@@ -80,6 +129,7 @@ public class AbilityHelper
         generalAbilities.add(packling);
         generalAbilities.add(armadillo);
         generalAbilities.add(enderBoye);
+        generalAbilities.add(outline);
     }
     static
     {
@@ -96,20 +146,29 @@ public class AbilityHelper
         combatAbilities.add(regen1);
         combatAbilities.add(regen2);
         combatAbilities.add(regen3);
+        combatAbilities.add(shinobi1);
+        combatAbilities.add(shinobi2);
     }
     static
     {
-
+        miningAbilities.add(hasteMining);
+        miningAbilities.add(brittleBlock);
+        miningAbilities.add(blocksmith);
+        miningAbilities.add(metallurgy1);
+        miningAbilities.add(metallurgy2);
+        miningAbilities.add(dwarvenSenses1);
+        miningAbilities.add(dwarvenSenses2);
     }
     static
     {
+        woodcuttingAbilities.add(hasteWoodcutting);
+        woodcuttingAbilities.add(sawmill);
         woodcuttingAbilities.add(forestFire);
-        woodcuttingAbilities.add(regen3);
     }
     static
     {
-        farmingAbilities.add(cropDrop);
-        farmingAbilities.add(regen3);
+        farmingAbilities.add(hasteFarming);
+        farmingAbilities.add(plentifulHarvest);
     }
 
     public static void readAbilityGroupFromBuf(ByteBuf buf, List<Ability> abilities, int length)

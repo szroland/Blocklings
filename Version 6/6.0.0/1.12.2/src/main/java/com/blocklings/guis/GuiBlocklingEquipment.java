@@ -3,10 +3,13 @@ package com.blocklings.guis;
 import com.blocklings.entities.EntityBlockling;
 import com.blocklings.inventories.ContainerEquipmentBlockling;
 import com.blocklings.inventories.InventoryBlockling;
+import com.blocklings.util.BlocklingType;
 import com.blocklings.util.helpers.GuiHelper;
 import com.blocklings.util.ResourceLocationBlocklings;
 import com.blocklings.util.helpers.GuiHelper.Tab;
 
+import com.blocklings.util.helpers.ItemHelper;
+import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.inventory.GuiContainer;
@@ -14,11 +17,15 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.entity.RenderManager;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.TextFormatting;
 
 import java.util.Arrays;
+import java.util.List;
 
 class GuiBlocklingEquipment extends GuiContainer
 {
@@ -78,7 +85,8 @@ class GuiBlocklingEquipment extends GuiContainer
         super.drawScreen(mouseX, mouseY, partialTicks);
 
         int entityXAdjustment = 40;
-        drawEntityOnScreen(width / 2 + entityXAdjustment , height / 2 - 28, 38, width / 2 - mouseX + entityXAdjustment,  height / 2 - mouseY - 28, blockling);
+        int yness = blockling.hasTool() ? 0 : 2;
+        drawEntityOnScreen(width / 2 + entityXAdjustment , height / 2 - 30 - yness, 40, width / 2 - mouseX + entityXAdjustment,  height / 2 - mouseY - 30 -yness, blockling);
 
         int colourLeft = blockling.getAutoswitchLeft() ? 0xff00aa00 : 0xffee0000;
         int colourLeft2 = blockling.getAutoswitchLeft() ? 0xff005600 : 0xff560000;
@@ -162,6 +170,57 @@ class GuiBlocklingEquipment extends GuiContainer
         {
             this.drawTexturedModalRect(left + 83, top + 44, 36, 84, 16, 16);
         }
+    }
+
+    @Override
+    public List<String> getItemToolTip(ItemStack p_191927_1_)
+    {
+        List<String> list = p_191927_1_.getTooltip(this.mc.player, this.mc.gameSettings.advancedItemTooltips ? ITooltipFlag.TooltipFlags.ADVANCED : ITooltipFlag.TooltipFlags.NORMAL);
+
+        for (int i = 0; i < list.size(); ++i)
+        {
+            if (i == 0)
+            {
+                TextFormatting colour = ItemHelper.isUpgradeMaterial(p_191927_1_) ? TextFormatting.GOLD : p_191927_1_.getRarity().rarityColor;
+                list.set(i, colour + (String)list.get(i));
+            }
+            else
+            {
+                list.set(i, TextFormatting.GRAY + (String)list.get(i));
+            }
+        }
+
+        if (ItemHelper.isUpgradeMaterial(p_191927_1_))
+        {
+            BlocklingType type = BlocklingType.getTypeFromItemStack(p_191927_1_);
+
+            if (type.bonusHealth != 0)
+            {
+                String bonusHealth = TextFormatting.GRAY + "Max Health: " + TextFormatting.GREEN + "+" + (int)type.bonusHealth;
+                if (type.bonusHealth < 0) bonusHealth = TextFormatting.GRAY + "Max Health: " + TextFormatting.RED + (int)type.bonusHealth;
+                list.add(bonusHealth);
+            }
+            if (type.bonusAttackDamage != 0)
+            {
+                String bonusDamage = TextFormatting.GRAY + "Attack Damage: " + TextFormatting.GREEN + "+" + (int)type.bonusAttackDamage;
+                if (type.bonusAttackDamage < 0) bonusDamage = TextFormatting.GRAY + "Attack Damage: " + TextFormatting.RED + (int)type.bonusAttackDamage;
+                list.add(bonusDamage);
+            }
+            if (type.bonusAttackSpeed != 0)
+            {
+                String bonusAttackSpeed = TextFormatting.GRAY + "Attack Speed: " + TextFormatting.GREEN + "+" + (int)type.bonusAttackSpeed;
+                if (type.bonusAttackSpeed < 0) bonusAttackSpeed = TextFormatting.GRAY + "Attack Speed: " + TextFormatting.RED + (int)type.bonusAttackSpeed;
+                list.add(bonusAttackSpeed);
+            }
+            if (type.bonusMovementSpeed != 0)
+            {
+                String bonusMovementSpeed = TextFormatting.GRAY + "Movement Speed: " + TextFormatting.GREEN + "+" + (int)type.bonusMovementSpeed;
+                if (type.bonusMovementSpeed < 0) bonusMovementSpeed = TextFormatting.GRAY + "Movement Speed: " + TextFormatting.RED + (int)type.bonusMovementSpeed;
+                list.add(bonusMovementSpeed);
+            }
+        }
+
+        return list;
     }
 
     @Override

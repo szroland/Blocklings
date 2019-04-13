@@ -5,6 +5,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.FurnaceRecipes;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.NonNullList;
@@ -13,9 +14,12 @@ import net.minecraft.world.World;
 
 import javax.tools.Tool;
 import java.util.List;
+import java.util.Random;
 
 public class DropHelper
 {
+    private static final Random rand = new Random();
+
     public static NonNullList<ItemStack> getDops(EntityBlockling blockling, World world, BlockPos blockPos)
     {
         NonNullList<ItemStack> dropStacks = NonNullList.create();
@@ -77,5 +81,25 @@ public class DropHelper
         }
 
         return dropStacks;
+    }
+
+    public static ItemStack getFurnaceResult(EntityBlockling blockling, ItemStack stack)
+    {
+        ItemStack result = FurnaceRecipes.instance().getSmeltingResult(stack);
+        ItemStack copy = result.copy();
+
+        if (rand.nextFloat() < 0.25f)
+        {
+            if (blockling.miningAbilities.isAbilityAcquired(AbilityHelper.metallurgy2))
+            {
+                copy.setCount(copy.getCount() * 3);
+            }
+            else if (blockling.miningAbilities.isAbilityAcquired(AbilityHelper.metallurgy1))
+            {
+                copy.setCount(copy.getCount() * 2);
+            }
+        }
+
+        return copy;
     }
 }

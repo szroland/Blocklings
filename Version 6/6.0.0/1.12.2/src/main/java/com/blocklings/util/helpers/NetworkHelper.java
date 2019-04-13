@@ -25,6 +25,8 @@ public class NetworkHelper
         network.registerMessage(ScaleMessage.Handler.class, ScaleMessage.class, id++, Side.SERVER);
         network.registerMessage(NameMessage.Handler.class, NameMessage.class, id++, Side.CLIENT);
         network.registerMessage(NameMessage.Handler.class, NameMessage.class, id++, Side.SERVER);
+        network.registerMessage(IsInAttackRangeMessage.Handler.class, IsInAttackRangeMessage.class, id++, Side.CLIENT);
+        network.registerMessage(IsInAttackRangeMessage.Handler.class, IsInAttackRangeMessage.class, id++, Side.SERVER);
         network.registerMessage(AnimationStateMessage.Handler.class, AnimationStateMessage.class, id++, Side.CLIENT);
         network.registerMessage(AnimationStateMessage.Handler.class, AnimationStateMessage.class, id++, Side.SERVER);
         network.registerMessage(GuiIDMessage.Handler.class, GuiIDMessage.class, id++, Side.CLIENT);

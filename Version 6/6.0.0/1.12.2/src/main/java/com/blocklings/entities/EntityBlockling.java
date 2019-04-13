@@ -9,6 +9,7 @@ import com.blocklings.util.BlocklingType;
 import com.blocklings.util.helpers.*;
 import com.blocklings.util.helpers.GuiHelper.Tab;
 
+import com.mojang.realmsclient.gui.ChatFormatting;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.*;
@@ -24,14 +25,18 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.pathfinding.PathNavigate;
 import net.minecraft.pathfinding.PathPoint;
+import net.minecraft.potion.Potion;
+import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import org.jline.utils.Log;
 
 import java.util.List;
 import java.util.Random;
@@ -48,6 +53,8 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
     public static final double BASE_ATTACK_DAMAGE = 1.0;
 
     public BlocklingType blocklingType = BlocklingType.blocklingTypes.get(0);
+
+    public boolean isInAttackRange;
 
     public InventoryBlockling inv;
     private int unlockedSlots = 12;
@@ -144,7 +151,7 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
             {
                 scale = 1.0f + ((float) RANDOM.nextGaussian() / 15.0f);
             }
-            while (scale < 0.75f || scale > 1.25f);
+            while (scale < 0.6f || scale > 1.4f);
         }
     }
 
@@ -258,31 +265,46 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
             damage = Math.ceil(((EntityLiving)entityIn).getHealth());
         }
 
+        float angle = 90.0f;
+        float blocklingYaw = this.rotationYaw < 180.0f ? this.rotationYaw + 360.0f : this.rotationYaw;
+        float entityYaw = entityIn.rotationYaw < 180.0f ? entityIn.rotationYaw + 360.0f : entityIn.rotationYaw;
+
+        if (blocklingYaw - angle / 2.0f < entityYaw && blocklingYaw + angle / 2.0f > entityYaw)
+        {
+            if (combatAbilities.isAbilityAcquired(AbilityHelper.shinobi2))
+            {
+                damage *= 3;
+            }
+            else if (combatAbilities.isAbilityAcquired(AbilityHelper.shinobi1))
+            {
+                damage *= 2;
+            }
+        }
+
         ((EntityLiving)entityIn).knockBack(this, knockBack,1,1);
         entityIn.setFire(fireAspect);
         entityIn.attackEntityFrom(DamageSource.causeMobDamage(this), (float)((int)damage));
 
-        incrementCombatXp((int)(damage / 2.0f) + 1);
+        incrementCombatXp((int)(damage / 4.0f) + 1);
 
         setAttackingHand(attackingHand == EnumHand.MAIN_HAND ? EnumHand.OFF_HAND : EnumHand.MAIN_HAND);
         return super.attackEntityAsMob(entityIn);
     }
 
-    public boolean isDualAttacking()
+    public void updateIsInAttackRange()
     {
-        if (hasWeapon(EnumHand.MAIN_HAND) && hasWeapon(EnumHand.OFF_HAND))
+        if (getAttackTarget() != null)
         {
-            return true;
+            double sqDist = getDistanceSq(getAttackTarget().posX, getAttackTarget().getEntityBoundingBox().minY, getAttackTarget().posZ);
+            double dist = (double)(this.width * 2.0F * this.width * 2.0F + getAttackTarget().width);
+            this.isInAttackRange = sqDist <= dist * dist;
         }
-        else if (!hasWeapon(EnumHand.MAIN_HAND) || !hasWeapon(EnumHand.OFF_HAND))
+        else
         {
-            if (hasTool(EnumHand.MAIN_HAND) && hasTool(EnumHand.OFF_HAND))
-            {
-                return true;
-            }
+            this.isInAttackRange = false;
         }
 
-        return false;
+        NetworkHelper.sync(this.world, new IsInAttackRangeMessage(this.isInAttackRange, this.getEntityId()));
     }
 
     public EnumHand calculateAttackingHand()
@@ -506,6 +528,11 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
 
         checkAbilities();
         checkBonusStats();
+
+        if (!this.world.isRemote)
+        {
+            updateIsInAttackRange();
+        }
     }
 
     // Also called once every tick
@@ -858,6 +885,11 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
     private void checkAbilities()
     {
         setUnlockedSlots(generalAbilities.isAbilityAcquired(AbilityHelper.mule2) ? 36 : generalAbilities.isAbilityAcquired(AbilityHelper.mule1) ? 24 : 12);
+
+        if (generalAbilities.isAbilityAcquired(AbilityHelper.outline))
+        {
+            addPotionEffect(new PotionEffect(Potion.getPotionById(24), 20, 0, false, false));
+        }
     }
 
     public void openGui(EntityPlayer player)
@@ -1086,20 +1118,22 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
         double weaponBonusAttackSpeedValue = 0;
         boolean mainHandEmpty = getHeldItemMainhand().isEmpty();
         boolean offHandEmpty = getHeldItemOffhand().isEmpty();
-        if (!mainHandEmpty)
+        boolean bothTools = hasTool(EnumHand.MAIN_HAND) && hasTool(EnumHand.OFF_HAND) && !hasWeapon(EnumHand.MAIN_HAND) && !hasWeapon(EnumHand.OFF_HAND);
+        boolean shouldCountMain = bothTools || hasWeapon(EnumHand.MAIN_HAND);
+        boolean shouldCountOff = bothTools || hasWeapon(EnumHand.OFF_HAND);
+        if (!mainHandEmpty && shouldCountMain)
         {
             weaponBonusAttackDamageValue += ToolHelper.getToolAttackDamage(getHeldItemMainhand());
             weaponBonusAttackSpeedValue += ToolHelper.getToolAttackSpeed(getHeldItemMainhand());
         }
-        if (!offHandEmpty)
+        if (!offHandEmpty && shouldCountOff)
         {
             weaponBonusAttackDamageValue += ToolHelper.getToolAttackDamage(getHeldItemOffhand());
             weaponBonusAttackSpeedValue += ToolHelper.getToolAttackSpeed(getHeldItemOffhand());
         }
-        if (!mainHandEmpty && !offHandEmpty)
+        if (shouldCountMain && shouldCountOff)
         {
             weaponBonusAttackDamageValue /= 2;
-            weaponBonusAttackSpeedValue /= 2;
         }
 
         AttributeModifier weaponBonusAttackDamage = new AttributeModifier(UUID.fromString("a6107045-134f-4c54-a645-75c3ae5c7a30"), "Weapon Bonus Attack Damage", weaponBonusAttackDamageValue, 0);
@@ -1136,9 +1170,12 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
         }
 
 
-        setMiningInterval(calcBonusMiningSpeedFromLevel(miningLevel));
-        setChoppingInterval(calcBonusMiningSpeedFromLevel(woodcuttingLevel));
-        setFarmingInterval(calcBonusMiningSpeedFromLevel(farmingLevel));
+        if (hasPickaxe()) setMiningInterval(calcBonusMiningSpeedFromLevel(miningLevel) - (miningAbilities.isAbilityAcquired(AbilityHelper.hasteMining) ? 10 : 0));
+        else setMiningInterval(0);
+        if (hasAxe()) setChoppingInterval(calcBonusMiningSpeedFromLevel(woodcuttingLevel) - (woodcuttingAbilities.isAbilityAcquired(AbilityHelper.hasteWoodcutting) ? 10 : 0));
+        else setChoppingInterval(0);
+        if (hasHoe()) setFarmingInterval(calcBonusMiningSpeedFromLevel(farmingLevel) - (farmingAbilities.isAbilityAcquired(AbilityHelper.hasteFarming) ? 10 : 0));
+        else setFarmingInterval(0);
 
         if (!mainHandEmpty && !offHandEmpty)
         {
@@ -1181,6 +1218,7 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
             if (combatLevel % 5 == 0)
             {
                 incrementSkillPoints(1);
+                sendSkillPointMessage();
             }
         }
         else if (miningXp >= EntityHelper.getXpUntilNextLevel(miningLevel))
@@ -1190,6 +1228,7 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
             if (miningLevel % 5 == 0)
             {
                 incrementSkillPoints(1);
+                sendSkillPointMessage();
             }
         }
         else if (woodcuttingXp >= EntityHelper.getXpUntilNextLevel(woodcuttingLevel))
@@ -1199,6 +1238,7 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
             if (woodcuttingLevel % 5 == 0)
             {
                 incrementSkillPoints(1);
+                sendSkillPointMessage();
             }
         }
         else if (farmingXp >= EntityHelper.getXpUntilNextLevel(farmingLevel))
@@ -1208,7 +1248,17 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
             if (farmingLevel % 5 == 0)
             {
                 incrementSkillPoints(1);
+                sendSkillPointMessage();
             }
+        }
+    }
+
+    private void sendSkillPointMessage()
+    {
+        if (getOwner() != null)
+        {
+            EntityPlayer player = ((EntityPlayer)getOwner());
+            player.sendMessage(new TextComponentString(ChatFormatting.GOLD + getCustomNameTag() + ChatFormatting.WHITE + " gained a skill point!"));
         }
     }
 
@@ -1544,7 +1594,7 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
 
     public boolean hasTarget()
     {
-        return aiMining.hasTarget() || aiWoodcutting.hasTarget();
+        return aiMining.hasTarget() || aiWoodcutting.hasTarget() || aiFarming.hasTarget();
     }
 
 
