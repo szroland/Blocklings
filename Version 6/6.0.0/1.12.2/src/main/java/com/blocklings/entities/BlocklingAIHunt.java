@@ -30,7 +30,6 @@ public class BlocklingAIHunt extends EntityAIBase
     private double targetX;
     private double targetY;
     private double targetZ;
-    protected final int attackInterval = 20;
     private int failedPathFindingPenalty = 0;
     private boolean canPenalize = false;
 
@@ -77,6 +76,11 @@ public class BlocklingAIHunt extends EntityAIBase
      */
     public boolean shouldExecute()
     {
+        if (blockling.isSitting())
+        {
+            return false;
+        }
+
         if (blockling.getTask() != EntityHelper.Task.HUNT)
         {
             return false;

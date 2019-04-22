@@ -1,15 +1,10 @@
 package com.blocklings.models;
 
 import com.blocklings.entities.EntityBlockling;
-
-import com.blocklings.util.BlocklingType;
-import com.blocklings.util.helpers.EntityHelper;
-import com.blocklings.util.helpers.ToolHelper;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.EnumHand;
-import org.jline.utils.Log;
 
 public class ModelBlockling extends ModelBase
 {
@@ -66,13 +61,13 @@ public class ModelBlockling extends ModelBase
         this.leftArm.showModel = true;
         setRotation(this.leftArm, leftArmBaseX, 0.0F, 0.0F);
         this.rightEye = new ModelRenderer(this, 22, 8);
-        this.rightEye.addBox(-1.0F, 0.5F, 1.5F, 2, 3, 1);
+        this.rightEye.addBox(-1.0F, -0.2F, 1.5F, 2, 3, 1);
         this.rightEye.setRotationPoint(-2.0F, 3.0F, -8.0F);
         this.rightEye.setTextureSize(128, 64);
         this.rightEye.showModel = true;
         setRotation(this.rightEye, 0.0F, 0.0F, 0.0F);
         this.leftEye = new ModelRenderer(this, 52, 8);
-        this.leftEye.addBox(-1.0F, 0.5F, 1.5F, 2, 3, 1);
+        this.leftEye.addBox(-1.0F, -0.2F, 1.5F, 2, 3, 1);
         this.leftEye.setRotationPoint(2.0F, 3.0F, -8.0F);
         this.leftEye.setTextureSize(128, 64);
         this.leftEye.showModel = true;

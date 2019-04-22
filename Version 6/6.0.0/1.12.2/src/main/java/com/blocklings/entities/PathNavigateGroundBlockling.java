@@ -9,7 +9,6 @@ import net.minecraft.pathfinding.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.ChunkCache;
 import net.minecraft.world.World;
 
 public class PathNavigateGroundBlockling extends PathNavigateBlockling

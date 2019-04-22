@@ -1,13 +1,9 @@
 package com.blocklings.guis;
 
-import com.blocklings.abilities.Ability;
 import com.blocklings.entities.EntityBlockling;
 import com.blocklings.util.ResourceLocationBlocklings;
 import com.blocklings.util.helpers.GuiHelper;
 import net.minecraft.entity.player.EntityPlayer;
-import org.jline.utils.Log;
-
-import java.awt.*;
 
 class GuiBlocklingMining extends GuiBlocklingAbility
 {

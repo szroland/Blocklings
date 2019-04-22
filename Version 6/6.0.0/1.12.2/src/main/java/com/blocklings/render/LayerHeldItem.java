@@ -1,21 +1,17 @@
 package com.blocklings.render;
 
 import com.blocklings.entities.EntityBlockling;
-import com.blocklings.models.ModelBlockling;
-import com.blocklings.util.helpers.ToolHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.entity.RenderLivingBase;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumHandSide;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import org.jline.utils.Log;
 
 @SideOnly(Side.CLIENT)
 public class LayerHeldItem implements LayerRenderer<EntityLivingBase>

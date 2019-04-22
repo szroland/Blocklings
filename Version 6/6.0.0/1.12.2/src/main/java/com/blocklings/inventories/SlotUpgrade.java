@@ -1,7 +1,6 @@
 package com.blocklings.inventories;
 
 import com.blocklings.util.helpers.ItemHelper;
-import com.blocklings.util.helpers.ToolHelper;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;

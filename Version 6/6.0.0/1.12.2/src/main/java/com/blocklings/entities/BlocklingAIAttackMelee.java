@@ -1,13 +1,14 @@
 package com.blocklings.entities;
 
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityCreature;
+import net.minecraft.entity.EntityFlying;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.EntityAIBase;
+import net.minecraft.entity.monster.EntityCreeper;
+import net.minecraft.entity.passive.EntityVillager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.pathfinding.Path;
-import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -25,7 +26,6 @@ public class BlocklingAIAttackMelee extends EntityAIBase
     private double targetX;
     private double targetY;
     private double targetZ;
-    protected final int attackInterval = 20;
     private int failedPathFindingPenalty = 0;
     private boolean canPenalize = false;
 
@@ -46,6 +46,11 @@ public class BlocklingAIAttackMelee extends EntityAIBase
     public boolean shouldExecute()
     {
         EntityLivingBase entitylivingbase = this.attacker.getAttackTarget();
+
+        if (blockling.isSitting())
+        {
+            return false;
+        }
 
         if (entitylivingbase == null)
         {
@@ -108,7 +113,12 @@ public class BlocklingAIAttackMelee extends EntityAIBase
         }
         else
         {
-            return !(entitylivingbase instanceof EntityPlayer) || !((EntityPlayer)entitylivingbase).isSpectator() && !((EntityPlayer)entitylivingbase).isCreative();
+            return !(
+                (entitylivingbase instanceof EntityPlayer) ||
+                (entitylivingbase instanceof EntityCreeper) ||
+                (entitylivingbase instanceof EntityVillager) ||
+                (entitylivingbase instanceof EntityFlying)
+            );
         }
     }
 

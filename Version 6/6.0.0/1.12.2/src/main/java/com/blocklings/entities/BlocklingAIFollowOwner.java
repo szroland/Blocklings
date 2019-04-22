@@ -10,8 +10,6 @@ import net.minecraft.entity.ai.EntityAIBase;
 import net.minecraft.entity.passive.EntityTameable;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.pathfinding.PathNavigate;
-import net.minecraft.pathfinding.PathNavigateFlying;
-import net.minecraft.pathfinding.PathNavigateGround;
 import net.minecraft.pathfinding.PathNodeType;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
@@ -123,7 +121,7 @@ public class BlocklingAIFollowOwner extends EntityAIBase
             {
                 this.timeToRecalcPath = 10;
 
-                if (!this.petPathfinder.tryMoveToEntityLiving(this.owner, this.blockling.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).getAttributeValue() * 1.3))
+                if (!this.petPathfinder.tryMoveToEntityLiving(this.owner, this.blockling.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).getAttributeValue() * 1.5))
                 {
                     if (!this.tameable.getLeashed() && !this.tameable.isRiding())
                     {

@@ -1,23 +1,22 @@
 package com.blocklings.guis;
 
-import com.blocklings.entities.EntityBlockling;
 import com.blocklings.abilities.Ability;
+import com.blocklings.entities.EntityBlockling;
 import com.blocklings.util.ResourceLocationBlocklings;
 import com.blocklings.util.helpers.EntityHelper;
 import com.blocklings.util.helpers.GuiHelper;
-import net.minecraft.block.BlockJukebox;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.TextFormatting;
-import sun.security.krb5.internal.crypto.HmacSha1Des3KdCksumType;
 
 import java.awt.*;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Random;
 
 abstract class GuiBlocklingAbility extends GuiBlocklingBase
 {
@@ -309,7 +308,7 @@ abstract class GuiBlocklingAbility extends GuiBlocklingBase
                 }
             }};
 
-            int width1 = fontRenderer.getStringWidth(text1);
+            int width1 = fontRenderer.getStringWidth(text1) + 34;
             int width2 = 100;
             for (String string : desc.keySet())
             {
@@ -319,7 +318,7 @@ abstract class GuiBlocklingAbility extends GuiBlocklingBase
             int startX = actualAbilityX(hoveredAbility) - 5, startY = actualAbilityY(hoveredAbility) + 2;
             int width = 90;
 
-            if (width1 > width2) width = width1 + 34;
+            if (width1 > width2) width = width1;
             else width = width2 + 2;
 
             for (int i = 0; i < desc.size(); i++)

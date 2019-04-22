@@ -4,14 +4,11 @@ import com.blocklings.entities.EntityBlockling;
 import com.blocklings.inventories.ContainerEquipmentBlockling;
 import com.blocklings.inventories.InventoryBlockling;
 import com.blocklings.util.BlocklingType;
-import com.blocklings.util.helpers.GuiHelper;
 import com.blocklings.util.ResourceLocationBlocklings;
+import com.blocklings.util.helpers.GuiHelper;
 import com.blocklings.util.helpers.GuiHelper.Tab;
-
 import com.blocklings.util.helpers.ItemHelper;
-import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
@@ -24,7 +21,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
 
-import java.util.Arrays;
 import java.util.List;
 
 class GuiBlocklingEquipment extends GuiContainer

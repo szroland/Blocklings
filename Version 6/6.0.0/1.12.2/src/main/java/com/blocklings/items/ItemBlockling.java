@@ -1,23 +1,19 @@
 package com.blocklings.items;
 
-import com.blocklings.abilities.AbilityGroup;
 import com.blocklings.entities.EntityBlockling;
-import net.minecraft.client.renderer.ItemMeshDefinition;
-import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.Constants;
 
-public class ItemBlockling extends Item implements ItemMeshDefinition
+public class ItemBlockling extends Item
 {
     private String name;
 
@@ -29,6 +25,18 @@ public class ItemBlockling extends Item implements ItemMeshDefinition
         setMaxStackSize(1);
     }
 
+    @Override
+    public String getItemStackDisplayName(ItemStack stack)
+    {
+        NBTTagCompound c = stack.getTagCompound();
+        if (c != null)
+        {
+            return TextFormatting.GOLD + c.getString("Name");
+        }
+
+        return TextFormatting.GOLD + "Blockling";
+    }
+
     public static ItemStack createStack(EntityBlockling blockling)
     {
         ItemStack stack = new ItemStack(BlocklingsItems.itemBlockling, 1, 0);
@@ -37,11 +45,7 @@ public class ItemBlockling extends Item implements ItemMeshDefinition
 
         if (blockling != null)
         {
-            blockling.generalAbilities.writeToNBT(c);
-            blockling.combatAbilities.writeToNBT(c);
-            blockling.miningAbilities.writeToNBT(c);
-            blockling.woodcuttingAbilities.writeToNBT(c);
-            blockling.farmingAbilities.writeToNBT(c);
+            blockling.writeEntityToNBT(c);
         }
 
         stack.setTagCompound(c);
@@ -51,7 +55,7 @@ public class ItemBlockling extends Item implements ItemMeshDefinition
     @Override
     public EnumActionResult onItemUse(EntityPlayer player, World worldIn, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
-        if (worldIn.isRemote)
+        if (worldIn.isRemote || hand != EnumHand.MAIN_HAND)
         {
             return EnumActionResult.SUCCESS;
         }
@@ -65,27 +69,17 @@ public class ItemBlockling extends Item implements ItemMeshDefinition
 
         if (c != null)
         {
-            EntityBlockling blockling = new EntityBlockling(
-                worldIn,
-                AbilityGroup.createFromNBTAndId(c, 0),
-                AbilityGroup.createFromNBTAndId(c, 1),
-                AbilityGroup.createFromNBTAndId(c, 2),
-                AbilityGroup.createFromNBTAndId(c, 3),
-                AbilityGroup.createFromNBTAndId(c, 4)
-            );
+            EntityBlockling blockling = new EntityBlockling(worldIn);
             blockling.setLocationAndAngles(x, y, z, MathHelper.wrapDegrees(worldIn.rand.nextFloat() * 360.0F), 0.0F);
+            blockling.readEntityFromNBT(c);
+            blockling.setOwnerId(player.getUniqueID());
 
             worldIn.spawnEntity(blockling);
+            if (!player.capabilities.isCreativeMode) stack.shrink(1);
 
             return EnumActionResult.PASS;
         }
 
         return EnumActionResult.FAIL;
-    }
-
-    @Override
-    public ModelResourceLocation getModelLocation(ItemStack stack)
-    {
-        return new ModelResourceLocation(this.getRegistryName() + "_8", "inventory");
     }
 }

@@ -2,13 +2,10 @@ package com.blocklings.util.helpers;
 
 import com.blocklings.main.Blocklings;
 import com.blocklings.network.*;
-import javafx.scene.transform.Scale;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.relauncher.Side;
-
-import java.security.Guard;
 
 public class NetworkHelper
 {

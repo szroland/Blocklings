@@ -1,16 +1,12 @@
 package com.blocklings.inventories;
 
 import com.blocklings.entities.EntityBlockling;
-import com.blocklings.inventories.InventoryBlockling;
 import com.blocklings.util.helpers.GuiHelper;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.Slot;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import org.jline.utils.Log;
 
 public class ContainerInventoryBlockling extends Container
 {

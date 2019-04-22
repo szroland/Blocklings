@@ -12,7 +12,6 @@ import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.crafting.FurnaceRecipes;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
 
@@ -52,7 +51,6 @@ public class GuiBlocklingStats extends GuiBlocklingBase
             }
         };
         nameTextField.setText(blockling.getCustomNameTag());
-        nameTextField.setFocused(true);
     }
 
     @Override

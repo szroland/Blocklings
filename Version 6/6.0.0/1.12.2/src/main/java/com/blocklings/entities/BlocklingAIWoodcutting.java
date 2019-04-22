@@ -1,12 +1,11 @@
 package com.blocklings.entities;
 
 import com.blocklings.util.helpers.*;
-import com.sun.deploy.panel.AndOrRadioPropertyGroup;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockSapling;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.pathfinding.Path;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.NonNullList;
@@ -15,7 +14,6 @@ import net.minecraft.util.math.Vec3d;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 public class BlocklingAIWoodcutting extends BlocklingAIBase
 {
@@ -35,8 +33,26 @@ public class BlocklingAIWoodcutting extends BlocklingAIBase
     }
 
     @Override
+    public void resetTask()
+    {
+        blockling.stopMining();
+
+        if (tree != null && !tree.isEmpty())
+        {
+            world.sendBlockBreakProgress(blockling.getEntityId(), tree.get(tree.size() - 1), -1);
+        }
+
+        super.resetTask();
+    }
+
+    @Override
     public boolean shouldExecute()
     {
+        if (blockling.isSitting())
+        {
+            return false;
+        }
+
         if (blockling.getTask() != EntityHelper.Task.CHOP)
         {
             return false;
@@ -71,6 +87,12 @@ public class BlocklingAIWoodcutting extends BlocklingAIBase
                     {
                         BlockPos blockPos = new BlockPos(x, y, z);
                         Vec3d blockVec = getVecFromBlockPos(blockPos);
+
+                        Block belowBlock = getBlockAt(x, y - 1, z);
+                        if (!BlockHelper.isDirt(belowBlock))
+                        {
+                            continue;
+                        }
 
                         // We have already decided before that this is not a tree;
                         if (logsThatAreNotTrees.contains(blockPos))
@@ -174,11 +196,11 @@ public class BlocklingAIWoodcutting extends BlocklingAIBase
             {
                 if (rand.nextFloat() < 0.1f && tree.size() > 1)
                 {
-                    chopTarget(tree.size() - 2);
+                    chopLog(tree.size() - 2);
                 }
             }
 
-            chopTarget();
+            chopLog();
             blockling.stopMining();
             world.sendBlockBreakProgress(blockling.getEntityId(), logPos, -1);
             return true;
@@ -191,14 +213,52 @@ public class BlocklingAIWoodcutting extends BlocklingAIBase
         }
     }
 
-    private void chopTarget()
+    private void chopLog()
     {
-        chopTarget(tree.size() - 1);
+        chopLog(tree.size() - 1);
     }
 
-    private void chopTarget(int pos)
+    private void chopLog(int pos)
     {
         BlockPos logPos = tree.get(pos);
+
+        if (blockling.woodcuttingAbilities.isAbilityAcquired(AbilityHelper.leafBlower))
+        {
+            for (int i = -1; i < 2; i++)
+            {
+                for (int j = -1; j < 2; j++)
+                {
+                    for (int k = -1; k < 2; k++)
+                    {
+                        if (i == 0 && j == 0 && k == 0)
+                        {
+                            continue;
+                        }
+
+                        BlockPos surroundingPos = new BlockPos(logPos.getX() + i, logPos.getY() + j, logPos.getZ() + k);
+                        Block surroundingBlock = getBlockFromPos(surroundingPos);
+
+                        if (BlockHelper.isLeaf(surroundingBlock))
+                        {
+                            if (blockling.woodcuttingAbilities.isAbilityAcquired(AbilityHelper.treeSurgeon))
+                            {
+                                NonNullList<ItemStack> dropStacks = DropHelper.getDops(blockling, world, surroundingPos);
+                                for (ItemStack dropStack : dropStacks)
+                                {
+                                    ItemStack leftoverStack = blockling.inv.addItem(dropStack);
+                                    if (!leftoverStack.isEmpty())
+                                    {
+                                        blockling.entityDropItem(leftoverStack, 0);
+                                    }
+                                }
+                            }
+
+                            world.setBlockToAir(surroundingPos);
+                        }
+                    }
+                }
+            }
+        }
 
         NonNullList<ItemStack> dropStacks = DropHelper.getDops(blockling, world, logPos);
         for (ItemStack dropStack : dropStacks)
@@ -224,8 +284,23 @@ public class BlocklingAIWoodcutting extends BlocklingAIBase
             blockling.damageItem(EnumHand.OFF_HAND);
         }
 
-        blockling.incrementWoodcuttingXp(5);
-        world.setBlockToAir(logPos);
+        ItemStack sapling = ItemHelper.getSaplingForLog(world.getBlockState(targetPos));
+        if (sapling != null && pos == 0 && blockling.woodcuttingAbilities.isAbilityAcquired(AbilityHelper.treeHugger) && blockling.inv.takeStackFromInventory(sapling))
+        {
+            world.setBlockState(targetPos, Blocks.SAPLING.getStateFromMeta(sapling.getMetadata()));
+            if (blockling.woodcuttingAbilities.isAbilityAcquired(AbilityHelper.fertilisationWoodcutting) && blockling.inv.takeStackFromInventory(new ItemStack(Items.DYE, 1, 15)))
+            {
+                BlockSapling saplingBlock = ((BlockSapling)getBlockFromPos(targetPos));
+                saplingBlock.grow(world, targetPos, world.getBlockState(targetPos), rand);
+                world.playEvent(2005, targetPos, 0);
+            }
+        }
+        else
+        {
+            world.setBlockToAir(logPos);
+        }
+
+        blockling.incrementWoodcuttingXp(rand.nextInt(5) + 3);
         tree.remove(logPos);
     }
 

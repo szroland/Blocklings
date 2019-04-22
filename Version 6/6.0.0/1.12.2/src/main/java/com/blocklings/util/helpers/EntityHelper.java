@@ -1,19 +1,15 @@
 package com.blocklings.util.helpers;
 
-import com.blocklings.abilities.Ability;
 import com.blocklings.entities.EntityBlockling;
 import com.blocklings.main.Blocklings;
 import com.blocklings.render.RenderBlockling;
-
 import com.blocklings.util.ResourceLocationBlocklings;
+import net.minecraft.entity.EnumCreatureType;
+import net.minecraft.init.Biomes;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-
-import java.awt.Color;
-import java.util.List;
-import java.util.ArrayList;
 
 public class EntityHelper
 {
@@ -27,7 +23,16 @@ public class EntityHelper
     public static void registerEntities()
     {
         int id = 1;
-        EntityRegistry.registerModEntity(new ResourceLocationBlocklings("entity_blockling"), EntityBlockling.class, "Blockling", id++, Blocklings.instance, 64, 3, true, 0xffff00, 0x00ffff);
+        EntityRegistry.registerModEntity(new ResourceLocationBlocklings("entity_blockling"), EntityBlockling.class, "blockling", id++, Blocklings.instance, 64, 3, true, 7951674, 7319108);
+        EntityRegistry.addSpawn(EntityBlockling.class, 10, 1, 2, EnumCreatureType.CREATURE,
+            Biomes.PLAINS,
+            Biomes.FOREST,
+            Biomes.FOREST_HILLS,
+            Biomes.REDWOOD_TAIGA,
+            Biomes.ROOFED_FOREST,
+            Biomes.TAIGA,
+            Biomes.TAIGA_HILLS
+        );
     }
 
     @SideOnly(Side.CLIENT)
@@ -102,7 +107,7 @@ public class EntityHelper
 
     public enum State
     {
-        SIT("Sit", 1),
+        STAY("Stay", 1),
         FOLLOW("Follow", 2),
         WANDER("Wander", 3);
 

@@ -2,9 +2,7 @@ package com.blocklings.network;
 
 import com.blocklings.entities.EntityBlockling;
 import com.blocklings.main.Blocklings;
-
 import io.netty.buffer.ByteBuf;
-import org.jline.utils.Log;
 import net.minecraft.entity.Entity;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;

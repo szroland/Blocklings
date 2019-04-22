@@ -1,7 +1,6 @@
 package com.blocklings.abilities;
 
 import com.blocklings.util.helpers.AbilityHelper;
-import com.sun.crypto.provider.DESCipher;
 import javafx.util.Pair;
 import scala.actors.threadpool.Arrays;
 

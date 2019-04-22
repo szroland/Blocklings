@@ -5,6 +5,8 @@ import com.blocklings.util.helpers.BlockHelper;
 import com.blocklings.util.helpers.DropHelper;
 import com.blocklings.util.helpers.EntityHelper;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockCrops;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
@@ -28,8 +30,26 @@ public class BlocklingAIFarming extends BlocklingAIBase
     }
 
     @Override
+    public void resetTask()
+    {
+        blockling.stopMining();
+
+        if (hasTarget())
+        {
+            world.sendBlockBreakProgress(blockling.getEntityId(), targetPos, -1);
+        }
+
+        super.resetTask();
+    }
+
+    @Override
     public boolean shouldExecute()
     {
+        if (blockling.isSitting())
+        {
+            return false;
+        }
+
         if (blockling.getTask() != EntityHelper.Task.FARM)
         {
             return false;
@@ -56,14 +76,9 @@ public class BlocklingAIFarming extends BlocklingAIBase
                     if (BlockHelper.isCrop(block))
                     {
                         // Check block is grown
-                        int grownAge = BlockHelper.getGrownAge(block);
-                        if (grownAge != -1)
+                        if (!BlockHelper.isGrown(world.getBlockState(new BlockPos(x, y, z))))
                         {
-                            int age = BlockHelper.getAge(world.getBlockState(new BlockPos(x, y, z)));
-                            if (age < grownAge)
-                            {
-                                continue;
-                            }
+                            continue;
                         }
 
                         double xx = x + 0.5f;
@@ -159,6 +174,69 @@ public class BlocklingAIFarming extends BlocklingAIBase
 
     private void harvestBlock()
     {
+        if (blockling.farmingAbilities.isAbilityAcquired(AbilityHelper.scythe))
+        {
+            if (rand.nextFloat() < 0.1f)
+            {
+                for (int x = -1; x < 2; x++)
+                {
+                    for (int z = -1; z < 2; z++)
+                    {
+                        BlockPos surroundingPos = new BlockPos(targetPos.getX() + x, targetPos.getY(), targetPos.getZ() + z);
+                        Block surroundingBlock = getBlockFromPos(surroundingPos);
+                        if (BlockHelper.isCrop(surroundingBlock))
+                        {
+                            IBlockState surroundingState = world.getBlockState(surroundingPos);
+                            if (BlockHelper.isGrown(surroundingState))
+                            {
+                                NonNullList<ItemStack> dropStacks = DropHelper.getDops(blockling, world, surroundingPos);
+                                for (ItemStack dropStack : dropStacks)
+                                {
+                                    if (blockling.farmingAbilities.isAbilityAcquired(AbilityHelper.plentifulHarvest) && rand.nextFloat() <= 0.5f)
+                                    {
+                                        if (!(dropStack.getItem() instanceof ItemBlock))
+                                        {
+                                            dropStack.grow(dropStack.getCount());
+                                        }
+                                    }
+                                    ItemStack leftoverStack = blockling.inv.addItem(dropStack);
+                                    if (!leftoverStack.isEmpty())
+                                    {
+                                        blockling.entityDropItem(leftoverStack, 0);
+                                    }
+                                }
+
+                                Item seed = BlockHelper.getSeed(getBlockFromPos(surroundingPos));
+                                if (seed != Items.AIR)
+                                {
+                                    int slot = blockling.inv.find(seed);
+                                    world.setBlockToAir(surroundingPos);
+                                    world.setBlockState(surroundingPos, surroundingBlock.getDefaultState());
+                                    if (slot != -1)
+                                    {
+                                        if (blockling.farmingAbilities.isAbilityAcquired(AbilityHelper.clinicalDibber) && rand.nextFloat() < 0.5)
+                                        {
+                                            blockling.inv.getStackInSlot(slot).shrink(1);
+                                        }
+                                        if (blockling.farmingAbilities.isAbilityAcquired(AbilityHelper.fertilisationFarming) && blockling.inv.takeStackFromInventory(new ItemStack(Items.DYE, 1, 15)))
+                                        {
+                                            BlockCrops cropBlock = ((BlockCrops)getBlockFromPos(surroundingPos));
+                                            cropBlock.grow(world, rand, surroundingPos, world.getBlockState(surroundingPos));
+                                            world.playEvent(2005, surroundingPos, 0);
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    world.setBlockToAir(surroundingPos);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         NonNullList<ItemStack> dropStacks = DropHelper.getDops(blockling, world, targetPos);
         for (ItemStack dropStack : dropStacks)
         {
@@ -185,16 +263,25 @@ public class BlocklingAIFarming extends BlocklingAIBase
             blockling.damageItem(EnumHand.OFF_HAND);
         }
 
-        blockling.incrementFarmingXp(5);
-        Item seed = BlockHelper.getSeed(getBlockFromPos(targetPos));
+        blockling.incrementFarmingXp(rand.nextInt(5) + 3);
+        Item seed = blockling.farmingAbilities.isAbilityAcquired(AbilityHelper.replanter) ? BlockHelper.getSeed(getBlockFromPos(targetPos)) : null;
         if (seed != Items.AIR)
         {
             int slot = blockling.inv.find(seed);
             world.setBlockToAir(targetPos);
+            world.setBlockState(targetPos, targetBlock.getDefaultState());
             if (slot != -1)
             {
-                blockling.inv.getStackInSlot(slot).shrink(1);
-                world.setBlockState(targetPos, targetBlock.getDefaultState());
+                if (blockling.farmingAbilities.isAbilityAcquired(AbilityHelper.clinicalDibber) && rand.nextFloat() < 0.5)
+                {
+                    blockling.inv.getStackInSlot(slot).shrink(1);
+                }
+                if (blockling.farmingAbilities.isAbilityAcquired(AbilityHelper.fertilisationFarming) && blockling.inv.takeStackFromInventory(new ItemStack(Items.DYE, 1, 15)))
+                {
+                    BlockCrops cropBlock = ((BlockCrops)getBlockFromPos(targetPos));
+                    cropBlock.grow(world, rand, targetPos, world.getBlockState(targetPos));
+                    world.playEvent(2005, targetPos, 0);
+                }
             }
         }
         else

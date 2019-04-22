@@ -1,23 +1,17 @@
 package com.blocklings.entities;
 
-import com.blocklings.util.helpers.*;
+import com.blocklings.util.helpers.AbilityHelper;
+import com.blocklings.util.helpers.BlockHelper;
+import com.blocklings.util.helpers.DropHelper;
+import com.blocklings.util.helpers.EntityHelper;
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.pathfinding.Path;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
-
-import javax.annotation.Nonnull;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-
-import static com.blocklings.util.helpers.DropHelper.getDops;
 
 public class BlocklingAIMining extends BlocklingAIBase
 {
@@ -31,8 +25,26 @@ public class BlocklingAIMining extends BlocklingAIBase
     }
 
     @Override
+    public void resetTask()
+    {
+        blockling.stopMining();
+
+        if (hasTarget())
+        {
+            world.sendBlockBreakProgress(blockling.getEntityId(), targetPos, -1);
+        }
+
+        super.resetTask();
+    }
+
+    @Override
     public boolean shouldExecute()
     {
+        if (blockling.isSitting())
+        {
+            return false;
+        }
+
         if (blockling.miningAbilities.isAbilityAcquired(AbilityHelper.dwarvenSenses1))
         {
             X_RADIUS = 20;
@@ -201,7 +213,7 @@ public class BlocklingAIMining extends BlocklingAIBase
             blockling.damageItem(EnumHand.OFF_HAND);
         }
 
-        blockling.incrementMiningXp(5);
+        blockling.incrementMiningXp(rand.nextInt(5) + 3);
         world.setBlockToAir(targetPos);
     }
 

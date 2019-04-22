@@ -4,7 +4,6 @@ import com.blocklings.entities.EntityBlockling;
 import com.blocklings.inventories.ContainerEquipmentBlockling;
 import com.blocklings.inventories.ContainerInventoryBlockling;
 import com.blocklings.util.helpers.GuiHelper.Tab;
-
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;

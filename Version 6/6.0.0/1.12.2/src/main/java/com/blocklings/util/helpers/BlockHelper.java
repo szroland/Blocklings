@@ -1,7 +1,6 @@
 package com.blocklings.util.helpers;
 
 import com.blocklings.util.CropStruct;
-import javafx.util.Pair;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockBeetroot;
 import net.minecraft.block.BlockCrops;
@@ -9,12 +8,8 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import scala.Tuple3;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 public class BlockHelper
@@ -78,6 +73,22 @@ public class BlockHelper
     // LEAVES END
 
 
+    // DIRT
+
+    private static List<Block> dirt = new ArrayList<>();
+    static
+    {
+        dirt.add(Blocks.DIRT);
+        dirt.add(Blocks.GRASS);
+    }
+
+    public static boolean isDirt(Block block)
+    {
+        return dirt.contains(block);
+    }
+
+    // DIRT END
+
 
     // CROPS
 
@@ -117,6 +128,21 @@ public class BlockHelper
         }
 
         return Items.AIR;
+    }
+
+    public static boolean isGrown(IBlockState blockState)
+    {
+        int grownAge = getGrownAge(blockState.getBlock());
+        if (grownAge != -1)
+        {
+            int age = BlockHelper.getAge(blockState);
+            if (age < grownAge)
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     public static int getGrownAge(Block block)

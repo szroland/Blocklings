@@ -1,42 +1,41 @@
 package com.blocklings.main;
 
-import net.minecraft.client.model.ModelRenderer;
-import net.minecraft.client.renderer.block.model.ModelBakery;
-import net.minecraft.client.renderer.block.model.ModelResourceLocation;
-import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.item.Item;
-import net.minecraftforge.client.event.ModelRegistryEvent;
-import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import org.apache.logging.log4j.Logger;
-
-import com.blocklings.proxy.CommonProxy;
-
+import com.blocklings.events.AttackEventHandler;
+import com.blocklings.guis.GuiHandler;
+import com.blocklings.items.BlocklingsItems;
+import com.blocklings.proxy.IProxy;
+import com.blocklings.util.helpers.EntityHelper;
+import com.blocklings.util.helpers.NetworkHelper;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
 
 @Mod(modid = Blocklings.MODID, name = Blocklings.MODNAME, version = Blocklings.VERSION, useMetadata = true)
 public class Blocklings
 {
     public static final String MODID = "blocklings";
     public static final String MODNAME = "Blocklings";
-    public static final String VERSION = "5.0.0a";
+    public static final String VERSION = "6.0.0a";
 
     @SidedProxy(clientSide = "com.blocklings.proxy.ClientProxy", serverSide = "com.blocklings.proxy.ServerProxy")
-    public static CommonProxy proxy;
+    public static IProxy proxy;
 
     @Mod.Instance
     public static Blocklings instance;
 
-    public static Logger logger;
-
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event)
     {
-        logger = event.getModLog();
+        BlocklingsItems.init();
+        EntityHelper.registerEntities();
+        NetworkHelper.registerMessages();
+        NetworkRegistry.INSTANCE.registerGuiHandler(Blocklings.instance, new GuiHandler());
+        MinecraftForge.EVENT_BUS.register(new AttackEventHandler());
+
         proxy.preInit(event);
     }
 

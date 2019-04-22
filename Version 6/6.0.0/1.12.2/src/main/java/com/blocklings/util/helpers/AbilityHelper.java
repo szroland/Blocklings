@@ -19,27 +19,33 @@ public class AbilityHelper
         .initGui(0, 0, 0, 0, 0, 0, new Color(0xFFBF79));
     public static Ability mule2 = new Ability()
         .initInfo(1, "Mule II", new String[] { "Increases inventory", "slots by 12" }, mule1, 1)
-        .initGui(0, 80, 24, 0, 0, 0, new Color(0xFFBF79));
+        .initGui(0, 50, 24, 0, 0, 0, new Color(0xFFBF79));
+
+    public static Ability botanist = new Ability()
+        .initInfo(7, "Botanist", new String[] { "Blockling can be healed", "using flowers for 1", "health each" }, null, 1)
+        .initGui(50, -50, 24 * 3, 24 * 3, 0, 0, new Color(0xCC0E26));
 
     public static Ability flowerPower = new Ability()
-        .initInfo(2, "Flower Power", new String[] { "Drop XP when healed" }, null, 1)
+        .initInfo(2, "Flower Power", new String[] { "Drop XP when healed" }, botanist, 1)
         .initGui(50, 0, 24 * 2, 0, 0, 0, new Color(0xAFFF48));
 
     public static Ability packling = new Ability()
-        .initInfo(5, "Packling", new String[] { "Pick blockling up", "by using a flower" }, null, 1)
+        .initInfo(5, "Packling", new String[] { "Pick blockling up", "by using a flower" }, botanist, 1)
         .initGui(100, 0, 24 * 8, 0, 0, 0, new Color(0xBEA60C));
-
     public static Ability armadillo = new Ability()
         .initInfo(3, "Armadillo", new String[] { "Blockling drops as", "item instead of dying" }, packling, 1)
-        .initGui(100, 80, 24 * 3, 0, 0, 0, new Color(0x945A51));
+        .initGui(100, 100, 24 * 3, 0, 0, 0, new Color(0x945A51));
 
-    public static Ability enderBoye = new Ability()
-        .initInfo(4, "Ender Boye", new String[] { "Chance to teleport", "to destination" }, null, 1)
+    public static Ability enderBoye1 = new Ability()
+        .initInfo(4, "Ender Boye I", new String[] { "Chance to teleport", "to destination" }, null, 1)
         .initGui(150, 0, 24 * 7, 0, 0, 0, new Color(0x1A154A));
+    public static Ability enderBoye2 = new Ability()
+        .initInfo(8, "Ender Boye II", new String[] { "Higher chance to teleport", "to destination" }, enderBoye1, 1)
+        .initGui(150, 50, 24 * 4, 24 * 3, 0, 0, new Color(0x0A0539));
 
     public static Ability outline = new Ability()
         .initInfo(6, "Outline", new String[] { "Outlines the blockling", "with glowing effect" }, null, 1)
-        .initGui(200, 0, 24 * 5, 24 * 1, 0, 0, new Color(0xFFE857));
+        .initGui(-50, 0, 24 * 5, 24 * 1, 0, 0, new Color(0xFFE857));
 
 
     // COMBAT
@@ -66,26 +72,26 @@ public class AbilityHelper
 
     public static Ability hasteMining = new Ability()
         .initInfo(0, "Haste", new String[] { "Decreases mining interval", "by 10" }, null, 1)
-        .initGui(0, 0, 24 * 3, 24 * 1, 0, 0, new Color(0xE5D600));
+        .initGui(50, 0, 24 * 3, 24 * 1, 0, 0, new Color(0xE5D600));
     public static Ability brittleBlock = new Ability()
     .initInfo(1, "Brittle Block", new String[] { "10% chance to instantly", "mine a block" }, hasteMining, 1)
-    .initGui(0, 50, 24 * 1, 24 * 2, 0, 0, new Color(0x828F7F));
+    .initGui(50, 50, 24 * 1, 24 * 2, 0, 0, new Color(0x828F7F));
 
     public static Ability blocksmith = new Ability()
-        .initInfo(2, "Blocksmith", new String[] { "Automatically smelts", "ores mined" }, null, 1)
-        .initGui(50, 0, 24 * 8, 24 * 1, 0, 0, new Color(0xFF8200));
+        .initInfo(2, "Blocksmith", new String[] { "Automatically smelts", "ores mined" }, hasteMining, 1)
+        .initGui(0, 50, 24 * 8, 24 * 1, 0, 0, new Color(0xFF8200));
     public static Ability metallurgy1 = new Ability()
         .initInfo(3, "Metallurgy I", new String[] { "25% chance for", "double smelt" }, blocksmith, 1)
-        .initGui(50, 50, 24 * 9, 24 * 1, 0, 0, new Color(0xDCDACE));
+        .initGui(0, 100, 24 * 9, 24 * 1, 0, 0, new Color(0xDCDACE));
     public static Ability metallurgy2 = new Ability()
         .initInfo(4, "Metallurgy II", new String[] { "25% chance for", "triple smelt" }, metallurgy1, 1)
-        .initGui(50, 100, 24 * 0, 24 * 2, 0, 0, new Color(0xFFBE0E));
+        .initGui(0, 150, 24 * 0, 24 * 2, 0, 0, new Color(0xFFBE0E));
 
     public static Ability dwarvenSenses1 = new Ability()
-        .initInfo(5, "Dwarven Sense I", new String[] { "Bigger search radius" }, null, 1)
-        .initGui(100, 0, 24 * 2, 24 * 2, 0, 0, new Color(0xB2FFEB));
+        .initInfo(5, "Dwarven Senses I", new String[] { "Bigger search radius" }, null, 1)
+        .initGui(100, 50, 24 * 2, 24 * 2, 0, 0, new Color(0xB2FFEB));
     public static Ability dwarvenSenses2 = new Ability()
-        .initInfo(6, "Dwarven Sense II", new String[] { "Blockling can path to", "blocks they can't even see" }, dwarvenSenses1, 1)
+        .initInfo(6, "Dwarven Senses II", new String[] { "Blockling can path to", "blocks they can't even", "see" }, dwarvenSenses1, 1)
         .initGui(100, 100, 24 * 3, 24 * 2, 0, 0, new Color(0x41FFFA));
 
 
@@ -93,14 +99,28 @@ public class AbilityHelper
 
     public static Ability hasteWoodcutting = new Ability()
         .initInfo(0, "Haste", new String[] { "Decreases chopping interval", "by 10" }, null, 1)
-        .initGui(0, 0, 24 * 3, 24 * 1, 0, 0, new Color(0xE5D600));
+        .initGui(50, 0, 24 * 3, 24 * 1, 0, 0, new Color(0xE5D600));
     public static Ability sawmill = new Ability()
         .initInfo(2, "Sawmill", new String[] { "10% chance to cut an", "extra log from the tree" }, hasteWoodcutting, 1)
-        .initGui(0, 100, 24 * 4, 24 * 2, 0, 0, new Color(0x853D25));
+        .initGui(50, 50, 24 * 4, 24 * 2, 0, 0, new Color(0x853D25));
 
     public static Ability forestFire = new Ability()
         .initInfo(1, "Forest Fire", new String[] { "Convert all logs", "chopped to charcoal" }, null, 1)
-        .initGui(100, 0, 24 * 1, 24 * 1, 0, 0, new Color(0x1A0C05));
+        .initGui(100, 50, 24 * 1, 24 * 1, 0, 0, new Color(0x1A0C05));
+
+    public static Ability leafBlower = new Ability()
+        .initInfo(3, "Leaf Blower", new String[] { "Break the leaves on", "adjacent to logs" }, hasteWoodcutting, 1)
+        .initGui(0, 50, 24 * 5, 24 * 2, 0, 0, new Color(0x397129));
+    public static Ability treeSurgeon = new Ability()
+        .initInfo(4, "Tree Surgeon", new String[] { "Collect the drops from", "leaves" }, leafBlower, 1)
+        .initGui(0, 100, 24 * 6, 24 * 2, 0, 0, new Color(0x30A502));
+
+    public static Ability treeHugger = new Ability()
+        .initInfo(5, "Tree Hugger", new String[] { "Plant a sapling after", "chopping a tree" }, null, 1)
+        .initGui(150, 50, 24 * 1, 24 * 3, 0, 0, new Color(0xA7662C));
+    public static Ability fertilisationWoodcutting = new Ability()
+        .initInfo(6, "Fertilisation", new String[] { "Fertilise any sapling", "planted using bonemeal", "in inventory" }, treeHugger, 1)
+        .initGui(150, 100, 24 * 9, 24 * 2, 0, 0, new Color(0xEBEBEB));
 
 
     // FARMING
@@ -108,10 +128,26 @@ public class AbilityHelper
     public static Ability hasteFarming = new Ability()
         .initInfo(0, "Haste", new String[] { "Decreases farming interval", "by 10" }, null, 1)
         .initGui(0, 0, 24 * 3, 24 * 1, 0, 0, new Color(0xE5D600));
+    public static Ability scythe = new Ability()
+        .initInfo(2, "Scythe", new String[] { "10% chance to harvest", "crops in a 3x3 area" }, hasteFarming, 1)
+        .initGui(0, 100, 24 * 2, 24 * 1, 0, 0, new Color(0xC7A600));
 
     public static Ability plentifulHarvest = new Ability()
         .initInfo(1, "Plentiful Harvest", new String[] { "50% chance to drop", "double crops" }, null, 1)
-        .initGui(100, 100, 24 * 0, 24 * 1, 0, 0, new Color(0xD5DA45));
+        .initGui(100, 0, 24 * 0, 24 * 1, 0, 0, new Color(0xD5DA45));
+
+    public static Ability replanter = new Ability()
+        .initInfo(3, "Replanter", new String[] { "Can replant seeds after", "harvest" }, null, 1)
+        .initGui(50, -50, 24 * 2, 24 * 3, 0, 0, new Color(0x92C62F));
+    public static Ability clinicalDibber = new Ability()
+        .initInfo(4, "Clinical Dibber", new String[] { "50% chance not to use", "seed on plant" }, replanter, 1)
+        .initGui(50, 0, 24 * 7, 24 * 2, 0, 0, new Color(0xD6BF97));
+    public static Ability fertilisationFarming = new Ability()
+        .initInfo(5, "Fertilisation", new String[] { "Fertilise any crop", "planted using bonemeal", "in inventory" }, clinicalDibber, 1)
+        .initGui(50, 50, 24 * 9, 24 * 2, 0, 0, new Color(0xEBEBEB));
+    public static Ability natureAura = new Ability()
+        .initInfo(6, "Nature Aura", new String[] { "Chance to fertilise nearby", "crops" }, fertilisationFarming, 1)
+        .initGui(50, 100, 24 * 8, 24 * 2, 0, 0, new Color(0x0B9F00));
 
     public static List<Ability> generalAbilities = new ArrayList<Ability>();
     public static List<Ability> combatAbilities = new ArrayList<Ability>();
@@ -123,12 +159,14 @@ public class AbilityHelper
     {
         flowerPower.initConflictingAbilities(new Ability[] {mule1, mule2});
 
+        generalAbilities.add(botanist);
         generalAbilities.add(mule1);
         generalAbilities.add(mule2);
         generalAbilities.add(flowerPower);
         generalAbilities.add(packling);
         generalAbilities.add(armadillo);
-        generalAbilities.add(enderBoye);
+        generalAbilities.add(enderBoye1);
+        generalAbilities.add(enderBoye2);
         generalAbilities.add(outline);
     }
     static
@@ -164,11 +202,20 @@ public class AbilityHelper
         woodcuttingAbilities.add(hasteWoodcutting);
         woodcuttingAbilities.add(sawmill);
         woodcuttingAbilities.add(forestFire);
+        woodcuttingAbilities.add(leafBlower);
+        woodcuttingAbilities.add(treeSurgeon);
+        woodcuttingAbilities.add(treeHugger);
+        woodcuttingAbilities.add(fertilisationWoodcutting);
     }
     static
     {
         farmingAbilities.add(hasteFarming);
         farmingAbilities.add(plentifulHarvest);
+        farmingAbilities.add(scythe);
+        farmingAbilities.add(replanter);
+        farmingAbilities.add(clinicalDibber);
+        farmingAbilities.add(fertilisationFarming);
+        farmingAbilities.add(natureAura);
     }
 
     public static void readAbilityGroupFromBuf(ByteBuf buf, List<Ability> abilities, int length)

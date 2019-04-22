@@ -1,11 +1,7 @@
 package com.blocklings.render;
 
-import javax.annotation.Nonnull;
-
 import com.blocklings.entities.EntityBlockling;
 import com.blocklings.models.ModelBlockling;
-import com.blocklings.util.ResourceLocationBlocklings;
-
 import com.blocklings.util.helpers.EntityHelper;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.Render;
@@ -14,6 +10,8 @@ import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.client.registry.IRenderFactory;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
+import javax.annotation.Nonnull;
 
 @SideOnly(net.minecraftforge.fml.relauncher.Side.CLIENT)
 public class RenderBlockling extends RenderLiving<EntityBlockling>
@@ -42,7 +40,7 @@ public class RenderBlockling extends RenderLiving<EntityBlockling>
     @Override
     protected ResourceLocation getEntityTexture(@Nonnull EntityBlockling entity)
     {
-        return entity.blocklingType.texture;
+        return entity.blocklingType.entityTexture;
     }
 
     public static class Factory implements IRenderFactory<EntityBlockling>

@@ -1,13 +1,13 @@
 package com.blocklings.inventories;
 
 import com.blocklings.entities.EntityBlockling;
-
 import com.blocklings.util.helpers.GuiHelper;
-import com.blocklings.util.helpers.ItemHelper;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.InventoryBasic;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class InventoryBlockling extends InventoryBasic
 {
@@ -99,5 +99,36 @@ public class InventoryBlockling extends InventoryBasic
         }
 
         return -1;
+    }
+
+    public boolean takeStackFromInventory(ItemStack stack)
+    {
+        int stackSize = stack.getCount();
+        List<ItemStack> slotsToTakeFrom = new ArrayList<>();
+
+        for (int i = 0; i < getSizeInventory(); i++)
+        {
+            ItemStack slotStack = getStackInSlot(i);
+            if (slotStack.getItem() == stack.getItem() && slotStack.getMetadata() == stack.getMetadata())
+            {
+                if (stackSize > slotStack.getCount())
+                {
+                    stackSize -= slotStack.getCount();
+                    slotsToTakeFrom.add(slotStack);
+                }
+                else
+                {
+                    slotStack.shrink(stackSize);
+                    for (ItemStack s : slotsToTakeFrom)
+                    {
+                        s.setCount(0);
+                    }
+
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 }
