@@ -5,6 +5,8 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.EntityAIBase;
+import net.minecraft.entity.monster.*;
+import net.minecraft.entity.passive.*;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.pathfinding.Path;
 import net.minecraft.util.EntitySelectors;
@@ -53,17 +55,34 @@ public class BlocklingAIHunt extends EntityAIBase
 
             if (t1 != closestTo && EntitySelectors.NOT_SPECTATING.apply(t1))
             {
-                if (t1 instanceof EntityPlayer)
-                {
-                    continue;
-                }
+                EntityLivingBase entitylivingbase = (EntityLivingBase)t1;
 
-                double d1 = closestTo.getDistanceSq(t1);
-
-                if (d1 <= d0)
+                if (entitylivingbase instanceof EntityChicken ||
+                entitylivingbase instanceof EntityCow ||
+                entitylivingbase instanceof EntityGiantZombie ||
+                entitylivingbase instanceof EntityPig ||
+                entitylivingbase instanceof EntitySheep ||
+                entitylivingbase instanceof EntityEndermite ||
+                entitylivingbase instanceof EntityEvoker ||
+                entitylivingbase instanceof EntityHusk ||
+                entitylivingbase instanceof EntityIllusionIllager ||
+                entitylivingbase instanceof EntityMagmaCube ||
+                entitylivingbase instanceof EntitySlime ||
+                entitylivingbase instanceof EntityStray ||
+                entitylivingbase instanceof EntityWitch ||
+                entitylivingbase instanceof EntityWitherSkeleton ||
+                entitylivingbase instanceof EntityZombie ||
+                entitylivingbase instanceof EntityCaveSpider ||
+                entitylivingbase instanceof EntityEnderman ||
+                entitylivingbase instanceof EntitySpider)
                 {
-                    t = t1;
-                    d0 = d1;
+                    double d1 = closestTo.getDistanceSq(t1);
+
+                    if (d1 <= d0)
+                    {
+                        t = t1;
+                        d0 = d1;
+                    }
                 }
             }
         }
@@ -89,7 +108,7 @@ public class BlocklingAIHunt extends EntityAIBase
         Vec3d blocklingVec = blockling.getPositionVector();
         Vec3d corner1 = blocklingVec.subtract(20, 10, 20);
         Vec3d corner2 = blocklingVec.addVector(20, 10, 20);
-        EntityLivingBase entitylivingbase = findNearestEntityWithinAABB(EntityLivingBase.class, new AxisAlignedBB(corner1, corner2), blockling);
+        EntityLivingBase entitylivingbase = findNearestEntityWithinAABB(EntityLivingBase.class, new AxisAlignedBB(corner1.x, corner1.y, corner1.z, corner2.x, corner2.y, corner2.z), blockling);
         blockling.setAttackTarget(entitylivingbase);
 
         if (entitylivingbase == null)
@@ -153,7 +172,24 @@ public class BlocklingAIHunt extends EntityAIBase
         }
         else
         {
-            return !(entitylivingbase instanceof EntityPlayer) || !((EntityPlayer)entitylivingbase).isSpectator() && !((EntityPlayer)entitylivingbase).isCreative();
+            return entitylivingbase instanceof EntityChicken ||
+                entitylivingbase instanceof EntityCow ||
+                entitylivingbase instanceof EntityGiantZombie ||
+                entitylivingbase instanceof EntityPig ||
+                entitylivingbase instanceof EntitySheep ||
+                entitylivingbase instanceof EntityEndermite ||
+                entitylivingbase instanceof EntityEvoker ||
+                entitylivingbase instanceof EntityHusk ||
+                entitylivingbase instanceof EntityIllusionIllager ||
+                entitylivingbase instanceof EntityMagmaCube ||
+                entitylivingbase instanceof EntitySlime ||
+                entitylivingbase instanceof EntityStray ||
+                entitylivingbase instanceof EntityWitch ||
+                entitylivingbase instanceof EntityWitherSkeleton ||
+                entitylivingbase instanceof EntityZombie ||
+                entitylivingbase instanceof EntityCaveSpider ||
+                entitylivingbase instanceof EntityEnderman ||
+                entitylivingbase instanceof EntitySpider;
         }
     }
 
@@ -173,7 +209,24 @@ public class BlocklingAIHunt extends EntityAIBase
     {
         EntityLivingBase entitylivingbase = this.blockling.getAttackTarget();
 
-        if (entitylivingbase instanceof EntityPlayer && (((EntityPlayer)entitylivingbase).isSpectator() || ((EntityPlayer)entitylivingbase).isCreative()))
+        if (!(entitylivingbase instanceof EntityChicken ||
+            entitylivingbase instanceof EntityCow ||
+            entitylivingbase instanceof EntityGiantZombie ||
+            entitylivingbase instanceof EntityPig ||
+            entitylivingbase instanceof EntitySheep ||
+            entitylivingbase instanceof EntityEndermite ||
+            entitylivingbase instanceof EntityEvoker ||
+            entitylivingbase instanceof EntityHusk ||
+            entitylivingbase instanceof EntityIllusionIllager ||
+            entitylivingbase instanceof EntityMagmaCube ||
+            entitylivingbase instanceof EntitySlime ||
+            entitylivingbase instanceof EntityStray ||
+            entitylivingbase instanceof EntityWitch ||
+            entitylivingbase instanceof EntityWitherSkeleton ||
+            entitylivingbase instanceof EntityZombie ||
+            entitylivingbase instanceof EntityCaveSpider ||
+            entitylivingbase instanceof EntityEnderman ||
+            entitylivingbase instanceof EntitySpider))
         {
             this.blockling.setAttackTarget((EntityLivingBase)null);
         }

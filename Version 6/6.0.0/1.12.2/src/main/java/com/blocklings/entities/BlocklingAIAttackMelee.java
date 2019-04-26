@@ -138,7 +138,10 @@ public class BlocklingAIAttackMelee extends EntityAIBase
     {
         EntityLivingBase entitylivingbase = this.attacker.getAttackTarget();
 
-        if (entitylivingbase instanceof EntityPlayer && (((EntityPlayer)entitylivingbase).isSpectator() || ((EntityPlayer)entitylivingbase).isCreative()))
+        if ((entitylivingbase instanceof EntityPlayer) ||
+            (entitylivingbase instanceof EntityCreeper) ||
+            (entitylivingbase instanceof EntityVillager) ||
+            (entitylivingbase instanceof EntityFlying))
         {
             this.attacker.setAttackTarget((EntityLivingBase)null);
         }

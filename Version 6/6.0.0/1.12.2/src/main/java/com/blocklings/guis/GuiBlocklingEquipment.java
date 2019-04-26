@@ -71,6 +71,8 @@ class GuiBlocklingEquipment extends GuiContainer
     {
         left = guiLeft;
         top = guiTop + GuiHelper.YOFFSET;
+
+        inventorySlots.detectAndSendChanges();
     }
 
     @Override

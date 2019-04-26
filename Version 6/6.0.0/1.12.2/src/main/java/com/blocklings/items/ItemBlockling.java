@@ -1,6 +1,7 @@
 package com.blocklings.items;
 
 import com.blocklings.entities.EntityBlockling;
+import com.blocklings.util.helpers.EntityHelper;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -46,6 +47,9 @@ public class ItemBlockling extends Item
         if (blockling != null)
         {
             blockling.writeEntityToNBT(c);
+            c.setInteger("TaskID", EntityHelper.Task.IDLE.id);
+            c.setInteger("GuardID", EntityHelper.Guard.GUARD.id);
+            c.setInteger("StateID", EntityHelper.State.FOLLOW.id);
         }
 
         stack.setTagCompound(c);

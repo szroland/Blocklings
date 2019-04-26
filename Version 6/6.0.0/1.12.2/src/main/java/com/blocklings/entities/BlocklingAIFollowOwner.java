@@ -37,7 +37,6 @@ public class BlocklingAIFollowOwner extends EntityAIBase
         this.petPathfinder = tameableIn.getNavigator();
         this.minDist = minDistIn;
         this.maxDist = maxDistIn;
-        this.setMutexBits(3);
     }
 
     /**
@@ -50,7 +49,7 @@ public class BlocklingAIFollowOwner extends EntityAIBase
             return false;
         }
 
-        if (blockling.hasTarget())
+        if (blockling.hasTarget() || blockling.getAttackTarget() != null)
         {
             return false;
         }

@@ -16,11 +16,9 @@ import net.minecraft.entity.ai.*;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.item.EntityXPOrb;
-import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.monster.EntitySpider;
 import net.minecraft.entity.monster.EntityZombie;
 import net.minecraft.entity.passive.EntityTameable;
-import net.minecraft.entity.passive.EntityVillager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -66,7 +64,6 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
     public AbilityGroup woodcuttingAbilities;
     public AbilityGroup farmingAbilities;
 
-    @SideOnly(Side.CLIENT)
     public boolean isInGui = false;
 
     private float scale;
@@ -166,7 +163,7 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
         aiOwnerHurt = new BlocklingAIOwnerHurtTarget(this);
         aiAttackMelee = new BlocklingAIAttackMelee(this, true);
         aiFollow = new BlocklingAIFollowOwner(this, 2, 8);
-        aiWander = new BlocklingAIWanderAvoidWater(this, 0.5F);
+        aiWander = new BlocklingAIWanderAvoidWater(this, 1.0F);
         aiMining = new BlocklingAIMining(this);
         aiWoodcutting = new BlocklingAIWoodcutting(this);
         aiFarming = new BlocklingAIFarming(this);
@@ -188,7 +185,7 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
         this.targetTasks.addTask(4, aiHunt);
     }
 
-    private void UpdateAI()
+    private void updateAI()
     {
         setSitting(state == EntityHelper.State.STAY);
     }
@@ -272,6 +269,24 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
 
         setAttackingHand(attackingHand == EnumHand.MAIN_HAND ? EnumHand.OFF_HAND : EnumHand.MAIN_HAND);
         return super.attackEntityAsMob(entityIn);
+    }
+
+    @Override
+    public boolean attackEntityFrom(DamageSource source, float amount)
+    {
+        float chanceToBlock = this.combatAbilities.isAbilityAcquired(AbilityHelper.thickSkin3) ? 0.2f :
+        this.combatAbilities.isAbilityAcquired(AbilityHelper.thickSkin2) ? 0.1f :
+        this.combatAbilities.isAbilityAcquired(AbilityHelper.thickSkin1) ? 0.05f : 0.0f;
+
+        if (chanceToBlock != 0)
+        {
+            if (rand.nextFloat() < chanceToBlock)
+            {
+                return false;
+            }
+        }
+
+        return super.attackEntityFrom(source, amount);
     }
 
     public void updateIsInAttackRange()
@@ -438,6 +453,7 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
         setHeldItem(getHeldItemOffhand(), EnumHand.OFF_HAND);
 
         setSize(EntityHelper.BASE_SCALE_FOR_HITBOX * scale, EntityHelper.BASE_SCALE_FOR_HITBOX * scale);
+        updateAI();
     }
 
     // Used to save the data (variables) that need to be synced on spawn
@@ -516,6 +532,7 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
         }
 
         setSize(EntityHelper.BASE_SCALE_FOR_HITBOX * scale, EntityHelper.BASE_SCALE_FOR_HITBOX * scale);
+        updateAI();
     }
 
     private int regenTimer = -1;
@@ -527,6 +544,8 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
     public void onLivingUpdate()
     {
         super.onLivingUpdate();
+
+        updateAI();
 
         if (!world.isRemote)
         {
@@ -542,7 +561,7 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
             switchTool(EnumHand.OFF_HAND);
         }
 
-        int regenLevel = combatAbilities.isAbilityAcquired(AbilityHelper.regen3) ? 3 : combatAbilities.isAbilityAcquired(AbilityHelper.regen2) ? 2 : combatAbilities.isAbilityAcquired(AbilityHelper.regen1) ? 1 : 0;
+        int regenLevel = combatAbilities.isAbilityAcquired(AbilityHelper.regen3) ? 4 : combatAbilities.isAbilityAcquired(AbilityHelper.regen2) ? 2 : combatAbilities.isAbilityAcquired(AbilityHelper.regen1) ? 1 : 0;
         if (regenLevel != 0)
         {
             if (regenTimer <= -1)
@@ -589,25 +608,25 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
                 }
             }
 
-            if (true)
-            {
-                if (rand.nextFloat() < 0.1f)
-                {
-                    List<Entity> entities = this.world.getEntitiesWithinAABB(Entity.class, getEntityBoundingBox().expand(2, 2, 2).expand(-2, -2, -2), null);
-                    for (Entity entity : entities)
-                    {
-                        if (entity instanceof EntityBlockling || entity instanceof EntityPlayer || entity instanceof EntityVillager)
-                        {
-                            continue;
-                        }
-
-                        if (entity instanceof EntityMob || entity instanceof EntityCreature)
-                        {
-                            entity.setFire(2);
-                        }
-                    }
-                }
-            }
+//            if (true)
+//            {
+//                if (rand.nextFloat() < 0.1f)
+//                {
+//                    List<Entity> entities = this.world.getEntitiesWithinAABB(Entity.class, getEntityBoundingBox().expand(2, 2, 2).expand(-2, -2, -2), null);
+//                    for (Entity entity : entities)
+//                    {
+//                        if (entity instanceof EntityBlockling || entity instanceof EntityPlayer || entity instanceof EntityVillager)
+//                        {
+//                            continue;
+//                        }
+//
+//                        if (entity instanceof EntityMob || entity instanceof EntityCreature)
+//                        {
+//                            entity.setFire(2);
+//                        }
+//                    }
+//                }
+//            }
         }
 
         checkAbilities();
@@ -670,10 +689,13 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
                 {
                     if (player == getOwner())
                     {
-                        if (ItemHelper.isFlower(item) && this.generalAbilities.isAbilityAcquired(AbilityHelper.botanist))
+                        if (ItemHelper.isFlower(item))
                         {
-                            heal(1.0f);
-                            if (!player.capabilities.isCreativeMode) stack.shrink(1);
+                            if (this.generalAbilities.isAbilityAcquired(AbilityHelper.botanist))
+                            {
+                                heal(1.0f);
+                                if (!player.capabilities.isCreativeMode) stack.shrink(1);
+                            }
                         }
                         else if (ToolHelper.isTool(item))
                         {
@@ -687,7 +709,7 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
                             }
                             else
                             {
-                                world.playSound(posX, posY, posZ, new SoundEvent(new ResourceLocation("block.lava.pop")), SoundCategory.AMBIENT, 100, 100, false);
+                                world.playSound(posX, posY, posZ, new SoundEvent(new ResourceLocation("block.lava.pop")), SoundCategory.AMBIENT, 50, 100, false);
                             }
                         }
                     }
@@ -765,7 +787,9 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
         {
             if (!world.isRemote)
             {
-                entityDropItem(ItemBlockling.createStack(this), 0.0f);
+                ItemStack blocklingStack = ItemBlockling.createStack(this);
+                blocklingStack.getTagCompound().setFloat("Health", 1.0f);
+                entityDropItem(blocklingStack, 0.0f);
             }
         }
         super.onDeath(cause);
@@ -776,18 +800,8 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
         int index = hand == EnumHand.MAIN_HAND ? GuiHelper.TOOL_SLOT_LEFT : GuiHelper.TOOL_SLOT_RIGHT;
         ItemStack currentStack = inv.getStackInSlot(index);
 
-        if (player.capabilities.isCreativeMode)
-        {
-            player.setHeldItem(EnumHand.MAIN_HAND, currentStack);
-            setHeldItem(stack, hand);
-        }
-        else
-        {
-            if (player.addItemStackToInventory(currentStack))
-            {
-                setHeldItem(stack, hand);
-            }
-        }
+        player.setHeldItem(EnumHand.MAIN_HAND, currentStack);
+        setHeldItem(stack, hand);
     }
 
     @Override
@@ -963,12 +977,15 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
     @Override
     protected void dropEquipment(boolean wasRecentlyHit, int lootingModifier)
     {
-        for (int i = 0; i < inv.getSizeInventory(); i++)
+        if (!generalAbilities.isAbilityAcquired(AbilityHelper.armadillo))
         {
-            ItemStack stack = inv.getStackInSlot(i);
-            if (!stack.isEmpty())
+            for (int i = 0; i < inv.getSizeInventory(); i++)
             {
-                entityDropItem(stack, 0.0f);
+                ItemStack stack = inv.getStackInSlot(i);
+                if (!stack.isEmpty())
+                {
+                    entityDropItem(stack, 0.0f);
+                }
             }
         }
     }
@@ -1235,7 +1252,6 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
 
         AttributeModifier weaponBonusAttackDamage = new AttributeModifier(UUID.fromString("a6107045-134f-4c54-a645-75c3ae5c7a30"), "Weapon Bonus Attack Damage", weaponBonusAttackDamageValue, 0);
 
-
         AttributeModifier levelBonusHealth = new AttributeModifier(UUID.fromString("a6107045-134f-4c54-a645-75c3ae5c7a31"), "Level Bonus Health", calcBonusHealthFromLevel(), 0);
         AttributeModifier levelBonusAttackDamage = new AttributeModifier(UUID.fromString("a6107045-134f-4c54-a645-75c3ae5c7a32"), "Level Bonus Attack Damage", calcBonusDamageFromLevel(), 0);
 
@@ -1255,6 +1271,14 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
             getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).applyModifier(levelBonusHealth);
             getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).removeModifier(levelBonusAttackDamage);
             getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).applyModifier(levelBonusAttackDamage);
+        }
+
+        if (this.combatAbilities.isAbilityAcquired(AbilityHelper.berserker))
+        {
+            float multiplier = 0.5f - ((getHealth() / getMaxHealth()) / 2.0f);
+            AttributeModifier damageMultiplier = new AttributeModifier(UUID.fromString("a6107045-134f-4c54-a645-75c3ae5c7a33"), "Damage Multiplier", multiplier, 2);
+            getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).removeModifier(damageMultiplier);
+            getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).applyModifier(damageMultiplier);
         }
 
         if (weaponBonusAttackSpeedValue != 0)
@@ -1355,7 +1379,7 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
         if (getOwner() != null)
         {
             EntityPlayer player = ((EntityPlayer)getOwner());
-            player.sendMessage(new TextComponentString(ChatFormatting.GOLD + getCustomNameTag() + ChatFormatting.WHITE + " gained a skill point!"));
+            if (world.isRemote) player.sendMessage(new TextComponentString(ChatFormatting.GOLD + getCustomNameTag() + ChatFormatting.WHITE + " gained a skill point!"));
         }
     }
 
@@ -1375,13 +1399,13 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
         task = value;
         NetworkHelper.sync(world, new TaskIDMessage(value.id, getEntityId()));
         tryRemoveAttackTarget();
-        UpdateAI();
+        updateAI();
     }
 
     public void setTaskFromPacket(int value)
     {
         task = EntityHelper.Task.getFromID(value);
-        UpdateAI();
+        updateAI();
     }
 
     public void cycleTask()
@@ -1392,7 +1416,7 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
             id = 1;
         }
 
-        setTask(EntityHelper.Task.getFromID(id));
+        task = EntityHelper.Task.getFromID(id);
     }
 
 
@@ -1406,13 +1430,13 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
         guard = value;
         NetworkHelper.sync(world, new GuardIDMessage(value.id, getEntityId()));
         tryRemoveAttackTarget();
-        UpdateAI();
+        updateAI();
     }
 
     public void setGuardFromPacket(int value)
     {
         guard = EntityHelper.Guard.getFromID(value);
-        UpdateAI();
+        updateAI();
     }
 
     public void cycleGuard()
@@ -1436,13 +1460,13 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
     {
         state = value;
         NetworkHelper.sync(world, new StateIDMessage(value.id, getEntityId()));
-        UpdateAI();
+        updateAI();
     }
 
     public void setStateFromPacket(int value)
     {
         state = EntityHelper.State.getFromID(value);
-        UpdateAI();
+        updateAI();
     }
 
     public void cycleState()
@@ -1829,6 +1853,7 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
     public void setCombatXpFromPacket(int value)
     {
         combatXp = value;
+        onXpGained();
     }
 
 
@@ -1853,6 +1878,7 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
     public void setMiningXpFromPacket(int value)
     {
         miningXp = value;
+        onXpGained();
     }
 
 
@@ -1877,6 +1903,7 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
     public void setWoodcuttingXpFromPacket(int value)
     {
         woodcuttingXp = value;
+        onXpGained();
     }
 
 
@@ -1901,6 +1928,7 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
     public void setFarmingXpFromPacket(int value)
     {
         farmingXp = value;
+        onXpGained();
     }
 
 

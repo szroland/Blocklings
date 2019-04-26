@@ -105,7 +105,14 @@ public class BlocklingAIMining extends BlocklingAIBase
                                 {
                                     // Find the closest block (using path distance)
                                     double pathSquareDistance = getPathSquareDistance(pathToBlock);
-                                    if (y >= targetYValue && (pathSquareDistance - 10) < targetPathSquareDistance)
+                                    if (y > targetYValue)
+                                    {
+                                        targetPathSquareDistance = pathSquareDistance;
+                                        targetYValue = y;
+                                        setTarget(blockPos, pathToBlock);
+                                        foundOre = true;
+                                    }
+                                    else if (pathSquareDistance < targetPathSquareDistance)
                                     {
                                         targetPathSquareDistance = pathSquareDistance;
                                         targetYValue = y;

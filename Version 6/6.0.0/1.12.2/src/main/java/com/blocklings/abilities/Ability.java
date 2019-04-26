@@ -1,12 +1,11 @@
 package com.blocklings.abilities;
 
 import com.blocklings.util.helpers.AbilityHelper;
-import javafx.util.Pair;
-import scala.actors.threadpool.Arrays;
 
 import java.awt.*;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -69,10 +68,9 @@ public class Ability implements Serializable
         return this;
     }
 
-    public Ability initLevelRequirements(HashMap<String, Integer> levelRequirements)
+    public void addLevelRequirement(String skill, int level)
     {
-        this.levelRequirements = levelRequirements;
-        return this;
+        this.levelRequirements.put(skill, level);
     }
 
     public void initFromDefaults()
@@ -167,15 +165,10 @@ public class Ability implements Serializable
         return list;
     }
 
-    private static HashMap<Integer, Pair<Integer, Integer>> mutexTextures = new HashMap<Integer, Pair<Integer, Integer>>()
-    {{
-        put(-1, new Pair<>(0, 0));
-        put(0, new Pair<>(24, 0));
-    }};
-
     @Override
     public boolean equals(Object o)
     {
-        return ((Ability)o).name.equals(name);
+        Ability ability = (Ability)o;
+        return ability.name.equals(this.name) && ability.id == this.id;
     }
 }

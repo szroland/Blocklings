@@ -4,6 +4,7 @@ import com.blocklings.events.AttackEventHandler;
 import com.blocklings.guis.GuiHandler;
 import com.blocklings.items.BlocklingsItems;
 import com.blocklings.proxy.IProxy;
+import com.blocklings.util.helpers.AbilityHelper;
 import com.blocklings.util.helpers.EntityHelper;
 import com.blocklings.util.helpers.NetworkHelper;
 import net.minecraftforge.common.MinecraftForge;
@@ -14,12 +15,11 @@ import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 
-@Mod(modid = Blocklings.MODID, name = Blocklings.MODNAME, version = Blocklings.VERSION, useMetadata = true)
+@Mod(modid = Blocklings.MODID, name = Blocklings.MODNAME)
 public class Blocklings
 {
     public static final String MODID = "blocklings";
     public static final String MODNAME = "Blocklings";
-    public static final String VERSION = "6.0.0a";
 
     @SidedProxy(clientSide = "com.blocklings.proxy.ClientProxy", serverSide = "com.blocklings.proxy.ServerProxy")
     public static IProxy proxy;
@@ -48,6 +48,8 @@ public class Blocklings
     @Mod.EventHandler
     public void postInit(FMLPostInitializationEvent e)
     {
+        AbilityHelper.initAbilities();
+
         proxy.postInit(e);
     }
 }

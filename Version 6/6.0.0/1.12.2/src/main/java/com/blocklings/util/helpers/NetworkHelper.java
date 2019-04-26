@@ -70,6 +70,8 @@ public class NetworkHelper
         network.registerMessage(FarmingXpMessage.Handler.class, FarmingXpMessage.class, id++, Side.SERVER);
         network.registerMessage(AutoswitchIDMessage.Handler.class, AutoswitchIDMessage.class, id++, Side.CLIENT);
         network.registerMessage(AutoswitchIDMessage.Handler.class, AutoswitchIDMessage.class, id++, Side.SERVER);
+        network.registerMessage(InventoryMessage.Handler.class, InventoryMessage.class, id++, Side.CLIENT);
+        network.registerMessage(InventoryMessage.Handler.class, InventoryMessage.class, id++, Side.SERVER);
     }
 
     public static void sendToAll(IMessage message)
