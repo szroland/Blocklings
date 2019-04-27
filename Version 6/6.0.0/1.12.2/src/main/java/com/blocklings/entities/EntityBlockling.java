@@ -1,6 +1,8 @@
 package com.blocklings.entities;
 
 import com.blocklings.abilities.AbilityGroup;
+import com.blocklings.abilities.AbilityGroupType;
+import com.blocklings.abilities.AbilityHelper;
 import com.blocklings.inventories.InventoryBlockling;
 import com.blocklings.items.ItemBlockling;
 import com.blocklings.main.Blocklings;
@@ -20,6 +22,8 @@ import net.minecraft.entity.monster.EntitySpider;
 import net.minecraft.entity.monster.EntityZombie;
 import net.minecraft.entity.passive.EntityTameable;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Items;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -117,11 +121,11 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
 
         if ((generalAbilities == null || generalAbilities.abilities.size() == 0))
         {
-            generalAbilities = new AbilityGroup(0, "General", AbilityHelper.generalAbilities);
-            combatAbilities = new AbilityGroup(1, "Combat", AbilityHelper.combatAbilities);
-            miningAbilities = new AbilityGroup(2, "Mining", AbilityHelper.miningAbilities);
-            woodcuttingAbilities = new AbilityGroup(3, "Woodcutting", AbilityHelper.woodcuttingAbilities);
-            farmingAbilities = new AbilityGroup(4, "Farming", AbilityHelper.farmingAbilities);
+            generalAbilities = new AbilityGroup(AbilityGroupType.GENERAL);
+            combatAbilities = new AbilityGroup(AbilityGroupType.COMBAT);
+            miningAbilities = new AbilityGroup(AbilityGroupType.MINING);
+            woodcuttingAbilities = new AbilityGroup(AbilityGroupType.WOODCUTTING);
+            farmingAbilities = new AbilityGroup(AbilityGroupType.FARMING);
         }
 
         if (!world.isRemote)
@@ -431,11 +435,11 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
         woodcuttingXp = c.getInteger("WoodcuttingXp");
         farmingXp = c.getInteger("FarmingXp");
 
-        generalAbilities = AbilityGroup.createFromNBTAndId(c, 0);
-        combatAbilities = AbilityGroup.createFromNBTAndId(c, 1);
-        miningAbilities = AbilityGroup.createFromNBTAndId(c, 2);
-        woodcuttingAbilities = AbilityGroup.createFromNBTAndId(c, 3);
-        farmingAbilities = AbilityGroup.createFromNBTAndId(c, 4);
+        generalAbilities.initFromNBT(c);
+        combatAbilities.initFromNBT(c);
+        miningAbilities.initFromNBT(c);
+        woodcuttingAbilities.initFromNBT(c);
+        farmingAbilities.initFromNBT(c);
 
         skillPoints = c.getInteger("SkillPoints");
 
@@ -547,6 +551,16 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
 
         updateAI();
 
+        if (eatTimer >= 0)
+        {
+            eatTimer--;
+        }
+        else if (eatTimer == -1)
+        {
+            if (world.isRemote) eatUpgradeMaterial();
+            eatTimer = -2;
+        }
+
         if (!world.isRemote)
         {
             checkTimers();
@@ -598,7 +612,7 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
                     for (int z = -1; z < 2; z++)
                     {
                         BlockPos blockPos = new BlockPos(this.posX + x, this.posY + 0.5, this.posZ + z);
-                        if (this.world.getBlockState(blockPos).getBlock() instanceof BlockCrops && rand.nextFloat() < 0.001f)
+                        if (this.world.getBlockState(blockPos).getBlock() instanceof BlockCrops && rand.nextFloat() < 0.002f)
                         {
                             BlockCrops cropBlock = ((BlockCrops)this.world.getBlockState(blockPos).getBlock());
                             cropBlock.grow(world, rand, blockPos, world.getBlockState(blockPos));
@@ -672,6 +686,7 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
                             if (!player.capabilities.isCreativeMode) stack.shrink(1);
                             if (!world.isRemote)
                             {
+                                playSound(SoundEvents.ENTITY_GENERIC_EAT, 0.3f, 1.5f);
                                 if (rand.nextInt(3) == 0)
                                 {
                                     setTamed(player);
@@ -693,13 +708,25 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
                         {
                             if (this.generalAbilities.isAbilityAcquired(AbilityHelper.botanist))
                             {
-                                heal(1.0f);
-                                if (!player.capabilities.isCreativeMode) stack.shrink(1);
+                                if (getHealth() < getMaxHealth())
+                                {
+                                    heal(1.0f);
+                                    if (!world.isRemote) playSound(SoundEvents.ENTITY_GENERIC_EAT, 0.3f, 1.5f);
+                                    if (!player.capabilities.isCreativeMode) stack.shrink(1);
+                                }
                             }
                         }
                         else if (ToolHelper.isTool(item))
                         {
                             setHeldItemFromInteract(stack, EnumHand.MAIN_HAND, player);
+                        }
+                        else if (item == Items.EXPERIENCE_BOTTLE)
+                        {
+                            setCombatLevel(99);
+                            setMiningLevel(99);
+                            setWoodcuttingLevel(99);
+                            setFarmingLevel(99);
+                            setSkillPoints(99);
                         }
                         else
                         {
@@ -800,6 +827,7 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
         int index = hand == EnumHand.MAIN_HAND ? GuiHelper.TOOL_SLOT_LEFT : GuiHelper.TOOL_SLOT_RIGHT;
         ItemStack currentStack = inv.getStackInSlot(index);
 
+        if (!stack.isEmpty()) playSound(SoundEvents.ITEM_ARMOR_EQUIP_GENERIC, 0.5f, 1.25f);
         player.setHeldItem(EnumHand.MAIN_HAND, currentStack);
         setHeldItem(stack, hand);
     }
@@ -840,35 +868,62 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
         }
     }
 
-    public boolean eatUpgradeMaterial(ItemStack itemStack)
+    private int eatTimer = 0;
+
+    public void startEatingUpgradeMaterial(ItemStack itemStack)
     {
+        if (!itemStack.isEmpty())
+        {
+            eatTimer = 20;
+        }
+    }
+
+    private void eatUpgradeMaterial()
+    {
+        ItemStack itemStack = inv.getStackInSlot(GuiHelper.UPGRADE_SLOT);
+
+        if (itemStack == ItemStack.EMPTY || itemStack.getItem() == Items.AIR)
+        {
+            return;
+        }
+
         BlocklingType blocklingType = BlocklingType.getTypeFromItemStack(itemStack);
+        if (blocklingType == null || this.blocklingType == blocklingType)
+        {
+            return;
+        }
+
         itemStack.setCount(0);
-        if (blocklingType != null)
+        NetworkHelper.sync(world, new InvItemStackMessage(itemStack, GuiHelper.UPGRADE_SLOT, getEntityId()));
+        if (rand.nextFloat() < 0.25f)
         {
             this.blocklingType = blocklingType;
-            return true;
+            playSoundEffect("block.anvil.use");
+            NetworkHelper.sync(world, new BlocklingTypeMessage(blocklingType, getEntityId()));
         }
         else
         {
-            return false;
+            playSoundEffect("block.anvil.hit");
         }
+    }
+
+    public void setBlocklingTypeFromPacketOnServer(BlocklingType type)
+    {
+        blocklingType = type;
+        NetworkHelper.sync(world, new BlocklingTypeMessage(blocklingType, getEntityId()));
+    }
+
+    public void playSoundEffect(String sound)
+    {
+        if (world.isRemote) world.playSound(posX, posY, posZ, new SoundEvent(new ResourceLocation(sound)), SoundCategory.AMBIENT, 50, 100, false);
     }
 
     public void damageItem(EnumHand hand)
     {
-        Random r = new Random();
-        float breakingChance = 0;
-        for (NBTTagCompound enchantmentTag : ToolHelper.getEnchantmentTagsFromTool(getHeldItem(hand)))
+        getHeldItem(hand).damageItem(1, this);
+        if (getHeldItem(hand).getCount() <= 0 || getHeldItem(hand) == ItemStack.EMPTY || getHeldItem(hand).getItemDamage() > getHeldItem(hand).getMaxDamage())
         {
-            if (ToolHelper.Enchantment.getEnchantmentFromTag(enchantmentTag) == ToolHelper.Enchantment.UNBREAKING)
-            {
-                breakingChance = 1.0f / (float) (enchantmentTag.getInteger("lvl") + 1);
-            }
-        }
-        if (r.nextFloat() >= breakingChance)
-        {
-            getHeldItem(hand).damageItem(1, this);
+            NetworkHelper.sync(world, new InvItemStackMessage(getHeldItem(hand), hand == EnumHand.MAIN_HAND ? GuiHelper.TOOL_SLOT_RIGHT : GuiHelper.TOOL_SLOT_LEFT, getEntityId()));
         }
     }
 
@@ -1769,6 +1824,7 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
     public void setCombatLevel(int value)
     {
         combatLevel = value;
+        if (combatLevel > 99) combatLevel = 99;
         NetworkHelper.sync(world, new CombatLevelMessage(value, getEntityId()));
     }
 
@@ -1787,6 +1843,7 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
     public void setMiningLevel(int value)
     {
         miningLevel = value;
+        if (miningLevel > 99) miningLevel = 99;
         NetworkHelper.sync(world, new MiningLevelMessage(value, getEntityId()));
     }
 
@@ -1805,6 +1862,7 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
     public void setWoodcuttingLevel(int value)
     {
         woodcuttingLevel = value;
+        if (woodcuttingLevel > 99) woodcuttingLevel = 99;
         NetworkHelper.sync(world, new WoodcuttingLevelMessage(value, getEntityId()));
     }
 
@@ -1823,6 +1881,7 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
     public void setFarmingLevel(int value)
     {
         farmingLevel = value;
+        if (farmingLevel > 99) farmingLevel = 99;
         NetworkHelper.sync(world, new FarmingLevelMessage(value, getEntityId()));
     }
 

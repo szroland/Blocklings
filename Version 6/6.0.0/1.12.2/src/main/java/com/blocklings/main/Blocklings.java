@@ -4,7 +4,6 @@ import com.blocklings.events.AttackEventHandler;
 import com.blocklings.guis.GuiHandler;
 import com.blocklings.items.BlocklingsItems;
 import com.blocklings.proxy.IProxy;
-import com.blocklings.util.helpers.AbilityHelper;
 import com.blocklings.util.helpers.EntityHelper;
 import com.blocklings.util.helpers.NetworkHelper;
 import net.minecraftforge.common.MinecraftForge;
@@ -48,8 +47,6 @@ public class Blocklings
     @Mod.EventHandler
     public void postInit(FMLPostInitializationEvent e)
     {
-        AbilityHelper.initAbilities();
-
         proxy.postInit(e);
     }
 }
