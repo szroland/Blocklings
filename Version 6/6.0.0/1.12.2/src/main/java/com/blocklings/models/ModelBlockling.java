@@ -106,6 +106,7 @@ public class ModelBlockling extends ModelBase
 
             swingHeight = 0.05f + logSpeed / 4.0f;
             swingSpeed = 1.2f;
+
             flipFlopper = flipFlopper(age + time * 30.0f, swingSpeed) * (swingHeight);
             if (blockling.isSetToAttack())
             {

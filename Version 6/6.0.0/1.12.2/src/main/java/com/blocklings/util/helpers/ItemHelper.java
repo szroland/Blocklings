@@ -46,16 +46,6 @@ public class ItemHelper
     // SAPLINGS
 
     public static HashMap<IBlockState, ItemStack> saplings = new HashMap<>();
-    static
-    {
-        saplings.put(Blocks.LOG.getStateFromMeta(0), new ItemStack(Item.getItemFromBlock(Blocks.SAPLING), 1, 0));
-        saplings.put(Blocks.LOG.getStateFromMeta(1), new ItemStack(Item.getItemFromBlock(Blocks.SAPLING), 1, 1));
-        saplings.put(Blocks.LOG.getStateFromMeta(2), new ItemStack(Item.getItemFromBlock(Blocks.SAPLING), 1, 2));
-        saplings.put(Blocks.LOG.getStateFromMeta(3), new ItemStack(Item.getItemFromBlock(Blocks.SAPLING), 1, 3));
-        saplings.put(Blocks.LOG2.getStateFromMeta(0), new ItemStack(Item.getItemFromBlock(Blocks.SAPLING), 1, 4));
-        saplings.put(Blocks.LOG2.getStateFromMeta(1), new ItemStack(Item.getItemFromBlock(Blocks.SAPLING), 1, 5));
-    }
-
     public static ItemStack getSaplingForLog(IBlockState log)
     {
         return saplings.get(log);

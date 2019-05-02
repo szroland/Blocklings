@@ -28,6 +28,8 @@ public class BlocklingAIWoodcutting extends BlocklingAIGatherBase
     private int badLogResetCount = 0;
     private List<BlockPos> logsThatAreNotTrees = new ArrayList<>();
 
+    private List<BlockPos> baseLogs = new ArrayList<>();
+
     public BlocklingAIWoodcutting(EntityBlockling blockling)
     {
         super(blockling);
@@ -301,14 +303,14 @@ public class BlocklingAIWoodcutting extends BlocklingAIGatherBase
         }
 
         ItemStack sapling = ItemHelper.getSaplingForLog(world.getBlockState(targetPos));
-        if (sapling != null && pos == 0 && blockling.woodcuttingAbilities.isAbilityAcquired(AbilityHelper.treeHugger) && blockling.inv.takeStackFromInventory(sapling))
+        if (sapling != null && baseLogs.contains(logPos) && blockling.woodcuttingAbilities.isAbilityAcquired(AbilityHelper.treeHugger) && blockling.inv.takeStackFromInventory(sapling))
         {
-            world.setBlockState(targetPos, Blocks.SAPLING.getStateFromMeta(sapling.getMetadata()));
+            world.setBlockState(logPos, Blocks.SAPLING.getStateFromMeta(sapling.getMetadata()));
             if (blockling.woodcuttingAbilities.isAbilityAcquired(AbilityHelper.fertilisationWoodcutting) && blockling.inv.takeStackFromInventory(new ItemStack(Items.DYE, 1, 15)))
             {
-                BlockSapling saplingBlock = ((BlockSapling)getBlockFromPos(targetPos));
-                saplingBlock.grow(world, targetPos, world.getBlockState(targetPos), rand);
-                world.playEvent(2005, targetPos, 0);
+                BlockSapling saplingBlock = ((BlockSapling)getBlockFromPos(logPos));
+                saplingBlock.grow(world, logPos, world.getBlockState(logPos), rand);
+                world.playEvent(2005, logPos, 0);
             }
         }
         else
@@ -331,10 +333,12 @@ public class BlocklingAIWoodcutting extends BlocklingAIGatherBase
         {
             if (tree.isEmpty())
             {
+                baseLogs.clear();
                 treeSearchCount = 0;
                 leafCount = 0;
                 logsToCheck.add(targetPos);
                 tree.add(targetPos);
+                baseLogs.add(targetPos);
             }
             else
             {
@@ -373,6 +377,11 @@ public class BlocklingAIWoodcutting extends BlocklingAIGatherBase
                                 {
                                     tree.add(surroundingPos);
                                     logsToCheck.add(surroundingPos);
+
+                                    if (BlockHelper.isDirt(world.getBlockState(new BlockPos(surroundingPos.getX(), surroundingPos.getY() - 1, surroundingPos.getZ())).getBlock()))
+                                    {
+                                        baseLogs.add(surroundingPos);
+                                    }
                                 }
                             }
                             else if (BlockHelper.isLeaf(surroundingBlock))

@@ -5,6 +5,7 @@ import com.blocklings.util.helpers.BlockHelper;
 import com.blocklings.util.helpers.DropHelper;
 import com.blocklings.util.helpers.EntityHelper;
 import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.ItemStack;
 import net.minecraft.pathfinding.Path;
 import net.minecraft.util.EnumHand;
@@ -68,9 +69,17 @@ public class BlocklingAIMining extends BlocklingAIGatherBase
             {
                 for (int z = (int) blockling.posZ - xRadius; z < blockling.posZ + xRadius; z++)
                 {
-                    Block block = getBlockAt(x, y, z);
+                    IBlockState blockState = world.getBlockState(new BlockPos(x, y, z));
+                    Block block = blockState.getBlock();
                     if (BlockHelper.isOre(block))
                     {
+                        ItemStack mainStack = blockling.getHeldItemMainhand();
+                        ItemStack offStack = blockling.getHeldItemOffhand();
+                        if (!mainStack.getItem().canHarvestBlock(blockState) && !offStack.canHarvestBlock(blockState))
+                        {
+                            continue;
+                        }
+
                         if (blockling.miningAbilities.isAbilityAcquired(AbilityHelper.dwarvenSenses2) || canSeeBlock(x, y, z))
                         {
                             double xx = x + 0.5f;

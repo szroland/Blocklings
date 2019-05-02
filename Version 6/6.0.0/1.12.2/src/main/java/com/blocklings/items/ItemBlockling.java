@@ -1,7 +1,13 @@
 package com.blocklings.items;
 
+import com.blocklings.abilities.AbilityGroup;
+import com.blocklings.abilities.AbilityGroupType;
 import com.blocklings.entities.EntityBlockling;
+import com.blocklings.main.Blocklings;
 import com.blocklings.util.helpers.EntityHelper;
+import net.minecraft.client.renderer.ItemMeshDefinition;
+import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -24,6 +30,7 @@ public class ItemBlockling extends Item
         setRegistryName(name);
         setUnlocalizedName(name);
         setMaxStackSize(1);
+        setCreativeTab(CreativeTabs.MISC);
     }
 
     @Override
@@ -35,10 +42,10 @@ public class ItemBlockling extends Item
             return TextFormatting.GOLD + c.getString("Name");
         }
 
-        return TextFormatting.GOLD + "Blockling";
+        return TextFormatting.WHITE + "Blockling";
     }
 
-    public static ItemStack createStack(EntityBlockling blockling)
+    public static ItemStack createStack(EntityBlockling blockling, boolean saveProgress)
     {
         ItemStack stack = new ItemStack(BlocklingsItems.itemBlockling, 1, 0);
         NBTTagCompound c = stack.getTagCompound();
@@ -48,8 +55,37 @@ public class ItemBlockling extends Item
         {
             blockling.writeEntityToNBT(c);
             c.setInteger("TaskID", EntityHelper.Task.IDLE.id);
-            c.setInteger("GuardID", EntityHelper.Guard.GUARD.id);
+            c.setInteger("GuardID", EntityHelper.Guard.NOGUARD.id);
             c.setInteger("StateID", EntityHelper.State.FOLLOW.id);
+
+            if (!saveProgress)
+            {
+                c.removeTag("items");
+
+                c.setInteger("CombatLevel", 1);
+                c.setInteger("MiningLevel", 1);
+                c.setInteger("WoodcuttingLevel", 1);
+                c.setInteger("FarmingLevel", 1);
+
+                c.setInteger("CombatXp", 0);
+                c.setInteger("MiningXp", 0);
+                c.setInteger("WoodcuttingXp", 0);
+                c.setInteger("FarmingXp", 0);
+
+                c.setInteger("SkillPoints", 0);
+
+                AbilityGroup generalAbilities = new AbilityGroup(AbilityGroupType.GENERAL);
+                AbilityGroup combatAbilities = new AbilityGroup(AbilityGroupType.COMBAT);
+                AbilityGroup miningAbilities = new AbilityGroup(AbilityGroupType.MINING);
+                AbilityGroup woodcuttingAbilities = new AbilityGroup(AbilityGroupType.WOODCUTTING);
+                AbilityGroup farmingAbilities = new AbilityGroup(AbilityGroupType.FARMING);
+
+                generalAbilities.writeToNBT(c);
+                combatAbilities.writeToNBT(c);
+                miningAbilities.writeToNBT(c);
+                woodcuttingAbilities.writeToNBT(c);
+                farmingAbilities.writeToNBT(c);
+            }
         }
 
         stack.setTagCompound(c);
@@ -83,7 +119,15 @@ public class ItemBlockling extends Item
 
             return EnumActionResult.PASS;
         }
+        else
+        {
+            EntityBlockling blockling = new EntityBlockling(worldIn);
+            blockling.setLocationAndAngles(x, y, z, MathHelper.wrapDegrees(worldIn.rand.nextFloat() * 360.0F), 0.0F);
 
-        return EnumActionResult.FAIL;
+            worldIn.spawnEntity(blockling);
+            if (!player.capabilities.isCreativeMode) stack.shrink(1);
+
+            return EnumActionResult.PASS;
+        }
     }
 }

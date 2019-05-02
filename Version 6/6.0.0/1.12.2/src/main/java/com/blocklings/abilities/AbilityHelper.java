@@ -19,7 +19,7 @@ public class AbilityHelper
         .initGui(0, 50, 24, 0, 0, 0, new Color(0xFFBF79));
 
     public static Ability botanist = new Ability()
-        .initInfo("fc665125-5966-48d7-8f49-b03be78e2be1", "Botanist", new String[] { "Blockling can be healed", "using flowers for 1", "health each" }, null, 1)
+        .initInfo("fc665125-5966-48d7-8f49-b03be78e2be1", "Botanist", new String[] { "Blockling can be healed", "using flowers for 1-3", "health each" }, null, 1)
         .initGui(50, -50, 24 * 3, 24 * 3, 0, 0, new Color(0xCC0E26));
 
     public static Ability flowerPower = new Ability()
@@ -30,7 +30,7 @@ public class AbilityHelper
         .initInfo("0016bab0-ed6a-427c-a915-b59638355efb", "Packling", new String[] { "Pick blockling up", "by using a flower" }, botanist, 2)
         .initGui(100, 0, 24 * 8, 0, 0, 0, new Color(0xBEA60C));
     public static Ability armadillo = new Ability()
-        .initInfo("d286385b-a7f9-40de-b910-fd5dbc0c80ff", "Armadillo", new String[] { "Blockling drops as", "item instead of dying" }, packling, 3)
+        .initInfo("d286385b-a7f9-40de-b910-fd5dbc0c80ff", "Armadillo", new String[] { "Blockling keeps levels, items", "and abilities on death" }, packling, 3)
         .initGui(100, 100, 24 * 3, 0, 0, 0, new Color(0x945A51));
 
     public static Ability enderBoye1 = new Ability()

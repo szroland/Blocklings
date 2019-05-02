@@ -4,6 +4,7 @@ import com.blocklings.abilities.AbilityGroup;
 import com.blocklings.abilities.AbilityGroupType;
 import com.blocklings.abilities.AbilityHelper;
 import com.blocklings.inventories.InventoryBlockling;
+import com.blocklings.items.BlocklingsItems;
 import com.blocklings.items.ItemBlockling;
 import com.blocklings.main.Blocklings;
 import com.blocklings.network.*;
@@ -40,6 +41,7 @@ import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.oredict.OreDictionary;
 
 import java.util.List;
 import java.util.Random;
@@ -551,6 +553,15 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
 
         updateAI();
 
+        if (blocklingType == BlocklingType.getTypeFromTextureName("blockling_9"))
+        {
+            isImmuneToFire = true;
+        }
+        else
+        {
+            isImmuneToFire = true;
+        }
+
         if (eatTimer >= 0)
         {
             eatTimer--;
@@ -710,7 +721,7 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
                             {
                                 if (getHealth() < getMaxHealth())
                                 {
-                                    heal(1.0f);
+                                    heal(rand.nextInt(3) + 1);
                                     if (!world.isRemote) playSound(SoundEvents.ENTITY_GENERIC_EAT, 0.3f, 1.5f);
                                     if (!player.capabilities.isCreativeMode) stack.shrink(1);
                                 }
@@ -753,7 +764,7 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
                             if (generalAbilities.isAbilityAcquired(AbilityHelper.packling))
                             {
                                 if (!player.capabilities.isCreativeMode) stack.shrink(1);
-                                ItemStack blocklingStack = ItemBlockling.createStack(this);
+                                ItemStack blocklingStack = ItemBlockling.createStack(this, true);
                                 if (!player.addItemStackToInventory(blocklingStack))
                                 {
                                     entityDropItem(blocklingStack, 0.0f);
@@ -810,15 +821,22 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
     @Override
     public void onDeath(DamageSource cause)
     {
-        if (generalAbilities.isAbilityAcquired(AbilityHelper.armadillo))
+        if (!world.isRemote)
         {
-            if (!world.isRemote)
+            if (generalAbilities.isAbilityAcquired(AbilityHelper.armadillo))
             {
-                ItemStack blocklingStack = ItemBlockling.createStack(this);
+                ItemStack blocklingStack = ItemBlockling.createStack(this, true);
+                blocklingStack.getTagCompound().setFloat("Health", 1.0f);
+                entityDropItem(blocklingStack, 0.0f);
+            }
+            else
+            {
+                ItemStack blocklingStack = ItemBlockling.createStack(this, false);
                 blocklingStack.getTagCompound().setFloat("Health", 1.0f);
                 entityDropItem(blocklingStack, 0.0f);
             }
         }
+
         super.onDeath(cause);
     }
 
@@ -895,7 +913,7 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
 
         itemStack.setCount(0);
         NetworkHelper.sync(world, new InvItemStackMessage(itemStack, GuiHelper.UPGRADE_SLOT, getEntityId()));
-        if (rand.nextFloat() < 0.25f)
+        if (rand.nextFloat() < blocklingType.upgradeChance)
         {
             this.blocklingType = blocklingType;
             playSoundEffect("block.anvil.use");
@@ -1032,17 +1050,17 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
     @Override
     protected void dropEquipment(boolean wasRecentlyHit, int lootingModifier)
     {
-        if (!generalAbilities.isAbilityAcquired(AbilityHelper.armadillo))
-        {
-            for (int i = 0; i < inv.getSizeInventory(); i++)
-            {
-                ItemStack stack = inv.getStackInSlot(i);
-                if (!stack.isEmpty())
-                {
-                    entityDropItem(stack, 0.0f);
-                }
-            }
-        }
+//        if (!generalAbilities.isAbilityAcquired(AbilityHelper.armadillo))
+//        {
+//            for (int i = 0; i < inv.getSizeInventory(); i++)
+//            {
+//                ItemStack stack = inv.getStackInSlot(i);
+//                if (!stack.isEmpty())
+//                {
+//                    entityDropItem(stack, 0.0f);
+//                }
+//            }
+//        }
     }
 
     @Override
@@ -1391,6 +1409,7 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
         {
             setCombatXp(0);
             setCombatLevel(combatLevel + 1);
+            playSound(SoundEvents.ENTITY_PLAYER_LEVELUP, 0.5f, 2.0f);
             if (combatLevel % 5 == 0)
             {
                 incrementSkillPoints(1);
@@ -1401,6 +1420,7 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
         {
             setMiningXp(0);
             setMiningLevel(miningLevel + 1);
+            playSound(SoundEvents.ENTITY_PLAYER_LEVELUP, 0.5f, 2.0f);
             if (miningLevel % 5 == 0)
             {
                 incrementSkillPoints(1);
@@ -1411,6 +1431,7 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
         {
             setWoodcuttingXp(0);
             setWoodcuttingLevel(woodcuttingLevel + 1);
+            playSound(SoundEvents.ENTITY_PLAYER_LEVELUP, 0.5f, 2.0f);
             if (woodcuttingLevel % 5 == 0)
             {
                 incrementSkillPoints(1);
@@ -1421,6 +1442,7 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
         {
             setFarmingXp(0);
             setFarmingLevel(farmingLevel + 1);
+            playSound(SoundEvents.ENTITY_PLAYER_LEVELUP, 0.5f, 2.0f);
             if (farmingLevel % 5 == 0)
             {
                 incrementSkillPoints(1);
@@ -1787,7 +1809,8 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
     public void setSkillPoints(int value)
     {
         skillPoints = value;
-        NetworkHelper.sync(world, new SkillPointsMessage(value, getEntityId()));
+        if (skillPoints > 100) skillPoints = 99;
+        NetworkHelper.sync(world, new SkillPointsMessage(skillPoints, getEntityId()));
     }
 
     public void setSkillPointsFromPacket(int value)
@@ -1820,71 +1843,57 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
     {
         return combatLevel;
     }
-
     public void setCombatLevel(int value)
     {
         combatLevel = value;
         if (combatLevel > 99) combatLevel = 99;
-        NetworkHelper.sync(world, new CombatLevelMessage(value, getEntityId()));
+        NetworkHelper.sync(world, new CombatLevelMessage(combatLevel, getEntityId()));
     }
-
     public void setCombatLevelFromPacket(int value)
     {
         combatLevel = value;
     }
 
-
-
     public int getMiningLevel()
     {
         return miningLevel;
     }
-
     public void setMiningLevel(int value)
     {
         miningLevel = value;
         if (miningLevel > 99) miningLevel = 99;
-        NetworkHelper.sync(world, new MiningLevelMessage(value, getEntityId()));
+        NetworkHelper.sync(world, new MiningLevelMessage(miningLevel, getEntityId()));
     }
-
     public void setMiningLevelFromPacket(int value)
     {
         miningLevel = value;
     }
 
-
-
     public int getWoodcuttingLevel()
     {
         return woodcuttingLevel;
     }
-
     public void setWoodcuttingLevel(int value)
     {
         woodcuttingLevel = value;
         if (woodcuttingLevel > 99) woodcuttingLevel = 99;
-        NetworkHelper.sync(world, new WoodcuttingLevelMessage(value, getEntityId()));
+        NetworkHelper.sync(world, new WoodcuttingLevelMessage(woodcuttingLevel, getEntityId()));
     }
-
     public void setWoodcuttingLevelFromPacket(int value)
     {
         woodcuttingLevel = value;
     }
 
-
-
     public int getFarmingLevel()
     {
         return farmingLevel;
     }
-
     public void setFarmingLevel(int value)
     {
         farmingLevel = value;
         if (farmingLevel > 99) farmingLevel = 99;
-        NetworkHelper.sync(world, new FarmingLevelMessage(value, getEntityId()));
+        NetworkHelper.sync(world, new FarmingLevelMessage(farmingLevel, getEntityId()));
     }
-
     public void setFarmingLevelFromPacket(int value)
     {
         farmingLevel = value;
@@ -1896,94 +1905,76 @@ public class EntityBlockling extends EntityTameable implements IEntityAdditional
     {
         return combatXp;
     }
-
     public void incrementCombatXp(int value)
     {
-        setCombatXp(combatXp + value);
+        setCombatXp(combatXp + (int)(value * EntityHelper.XP_MULTIPLIER));
     }
-
     public void setCombatXp(int value)
     {
         combatXp = value;
         NetworkHelper.sync(world, new CombatXpMessage(value, getEntityId()));
         onXpGained();
     }
-
     public void setCombatXpFromPacket(int value)
     {
         combatXp = value;
         onXpGained();
     }
 
-
-
     public int getMiningXp()
     {
         return miningXp;
     }
-
     public void incrementMiningXp(int value)
     {
-        setMiningXp(miningXp + value);
+        setMiningXp(miningXp + (int)(value * EntityHelper.XP_MULTIPLIER));
     }
-
     public void setMiningXp(int value)
     {
         miningXp = value;
         NetworkHelper.sync(world, new MiningXpMessage(value, getEntityId()));
         onXpGained();
     }
-
     public void setMiningXpFromPacket(int value)
     {
         miningXp = value;
         onXpGained();
     }
 
-
-
     public int getWoodcuttingXp()
     {
         return woodcuttingXp;
     }
-
     public void incrementWoodcuttingXp(int value)
     {
-        setWoodcuttingXp(woodcuttingXp + value);
+        setWoodcuttingXp(woodcuttingXp + (int)(value * EntityHelper.XP_MULTIPLIER));
     }
-
     public void setWoodcuttingXp(int value)
     {
         woodcuttingXp = value;
         NetworkHelper.sync(world, new WoodcuttingXpMessage(value, getEntityId()));
         onXpGained();
     }
-
     public void setWoodcuttingXpFromPacket(int value)
     {
         woodcuttingXp = value;
         onXpGained();
     }
 
-
-
     public int getFarmingXp()
     {
         return farmingXp;
     }
-
     public void incrementFarmingXp(int value)
     {
-        setFarmingXp(farmingXp + value);
+        setFarmingXp(farmingXp + (int)(value * EntityHelper.XP_MULTIPLIER));
     }
-
     public void setFarmingXp(int value)
     {
         farmingXp = value;
         NetworkHelper.sync(world, new FarmingXpMessage(value, getEntityId()));
         onXpGained();
     }
-
     public void setFarmingXpFromPacket(int value)
     {
         farmingXp = value;

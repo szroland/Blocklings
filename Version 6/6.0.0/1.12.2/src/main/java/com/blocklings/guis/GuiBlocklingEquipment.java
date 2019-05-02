@@ -195,6 +195,9 @@ class GuiBlocklingEquipment extends GuiContainer
         {
             BlocklingType type = BlocklingType.getTypeFromItemStack(p_191927_1_);
 
+            int chance = (int)(type.upgradeChance * 100);
+            list.add(TextFormatting.GRAY + "Chance: " + TextFormatting.LIGHT_PURPLE + chance + "%");
+
             if (type.bonusHealth != 0)
             {
                 String bonusHealth = TextFormatting.GRAY + "Max Health: " + TextFormatting.GREEN + "+" + (int)type.bonusHealth;

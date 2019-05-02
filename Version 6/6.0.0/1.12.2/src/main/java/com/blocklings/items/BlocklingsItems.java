@@ -47,7 +47,14 @@ public class BlocklingsItems
             @Override
             public ModelResourceLocation getModelLocation(ItemStack stack)
             {
-                return new ModelResourceLocation(Blocklings.MODID + ":" + stack.getTagCompound().getString("BlocklingType"), "inventory");
+                if (stack.getTagCompound() != null)
+                {
+                    return new ModelResourceLocation(Blocklings.MODID + ":" + stack.getTagCompound().getString("BlocklingType"), "inventory");
+                }
+                else
+                {
+                    return new ModelResourceLocation(Blocklings.MODID + ":" + BlocklingType.blocklingTypes.get(0).textureName, "inventory");
+                }
             }
         });
     }

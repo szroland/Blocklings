@@ -2,6 +2,7 @@ package com.blocklings.util.helpers;
 
 import com.blocklings.entities.EntityBlockling;
 import com.blocklings.main.Blocklings;
+import com.blocklings.main.BlocklingsConfig;
 import com.blocklings.render.RenderBlockling;
 import com.blocklings.util.ResourceLocationBlocklings;
 import net.minecraft.entity.EnumCreatureType;
@@ -20,18 +21,29 @@ public class EntityHelper
 
     public static final float SWING_SPEED_COEF = 0.75f;
 
+    public static double XP_MULTIPLIER = 1.0;
+
     public static void registerEntities()
     {
         int id = 1;
-        EntityRegistry.registerModEntity(new ResourceLocationBlocklings("entity_blockling"), EntityBlockling.class, "blockling", id++, Blocklings.instance, 64, 3, true, 7951674, 7319108);
-        EntityRegistry.addSpawn(EntityBlockling.class, 10, 1, 2, EnumCreatureType.CREATURE,
+        EntityRegistry.registerModEntity(new ResourceLocationBlocklings("entity_blockling"), EntityBlockling.class, "blockling", id++, Blocklings.instance, 64, 3, true);
+        EntityRegistry.addSpawn(EntityBlockling.class, BlocklingsConfig.SPAWN_RATE, 1, 2, EnumCreatureType.CREATURE,
             Biomes.PLAINS,
             Biomes.FOREST,
+            Biomes.BIRCH_FOREST,
             Biomes.FOREST_HILLS,
+            Biomes.BIRCH_FOREST_HILLS,
             Biomes.REDWOOD_TAIGA,
+            Biomes.REDWOOD_TAIGA_HILLS,
             Biomes.ROOFED_FOREST,
             Biomes.TAIGA,
-            Biomes.TAIGA_HILLS
+            Biomes.TAIGA_HILLS,
+            Biomes.EXTREME_HILLS,
+            Biomes.EXTREME_HILLS_EDGE,
+            Biomes.EXTREME_HILLS_WITH_TREES,
+            Biomes.JUNGLE,
+            Biomes.JUNGLE_EDGE,
+            Biomes.JUNGLE_HILLS
         );
     }
 
