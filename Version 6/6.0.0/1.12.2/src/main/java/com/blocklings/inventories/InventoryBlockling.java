@@ -1,6 +1,6 @@
 package com.blocklings.inventories;
 
-import com.blocklings.entities.EntityBlockling;
+import com.blocklings.entity.entities.EntityBlockling;
 import com.blocklings.util.helpers.GuiHelper;
 import net.minecraft.inventory.InventoryBasic;
 import net.minecraft.item.Item;

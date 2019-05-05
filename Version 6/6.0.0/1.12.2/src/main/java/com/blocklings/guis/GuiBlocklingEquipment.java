@@ -1,6 +1,6 @@
 package com.blocklings.guis;
 
-import com.blocklings.entities.EntityBlockling;
+import com.blocklings.entity.entities.EntityBlockling;
 import com.blocklings.inventories.ContainerEquipmentBlockling;
 import com.blocklings.inventories.InventoryBlockling;
 import com.blocklings.util.BlocklingType;

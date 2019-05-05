@@ -1,10 +1,9 @@
 package com.blocklings.guis;
 
 import com.blocklings.abilities.Ability;
-import com.blocklings.entities.EntityBlockling;
+import com.blocklings.entity.entities.EntityBlockling;
 import com.blocklings.util.ResourceLocationBlocklings;
 import com.blocklings.util.helpers.EntityHelper;
-import com.blocklings.util.helpers.GuiHelper;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;

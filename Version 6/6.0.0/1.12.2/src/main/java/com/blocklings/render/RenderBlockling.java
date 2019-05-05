@@ -1,6 +1,6 @@
 package com.blocklings.render;
 
-import com.blocklings.entities.EntityBlockling;
+import com.blocklings.entity.entities.EntityBlockling;
 import com.blocklings.models.ModelBlockling;
 import com.blocklings.util.helpers.EntityHelper;
 import net.minecraft.client.renderer.GlStateManager;

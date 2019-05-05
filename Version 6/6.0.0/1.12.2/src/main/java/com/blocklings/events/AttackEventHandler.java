@@ -1,7 +1,7 @@
 package com.blocklings.events;
 
-import com.blocklings.entities.EntityBlockling;
-import com.blocklings.util.helpers.EntityHelper;
+import com.blocklings.entity.entities.EntityBlockling;
+import com.blocklings.entity.enums.Task;
 import com.blocklings.util.helpers.ToolHelper;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
@@ -52,7 +52,7 @@ public class AttackEventHandler
                 drops.add(stack);
             }
 
-            if (blockling.getTask() == EntityHelper.Task.HUNT)
+            if (blockling.getTask() == Task.HUNT)
             {
                 List<ItemStack> toDrop = new ArrayList();
                 for (ItemStack stack: drops)

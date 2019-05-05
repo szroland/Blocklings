@@ -1,6 +1,6 @@
 package com.blocklings.models;
 
-import com.blocklings.entities.EntityBlockling;
+import com.blocklings.entity.entities.EntityBlockling;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.entity.Entity;
@@ -283,11 +283,17 @@ public class ModelBlockling extends ModelBase
 
         if (blockling.isSitting())
         {
+            leftLeg.rotateAngleX += bodyBaseX;
+            rightLeg.rotateAngleX += bodyBaseX;
             body.rotateAngleX -= bodyBaseX;
+            leftLeg.offsetY = -0.08f;
+            rightLeg.offsetY = -0.08f;
             body.offsetY = 0.08f;
         }
         else
         {
+            leftLeg.offsetY = 0.0f;
+            rightLeg.offsetY = 0.0f;
             body.offsetY = 0.0f;
         }
     }

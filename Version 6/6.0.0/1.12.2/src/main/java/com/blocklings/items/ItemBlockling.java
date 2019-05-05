@@ -2,11 +2,10 @@ package com.blocklings.items;
 
 import com.blocklings.abilities.AbilityGroup;
 import com.blocklings.abilities.AbilityGroupType;
-import com.blocklings.entities.EntityBlockling;
-import com.blocklings.main.Blocklings;
-import com.blocklings.util.helpers.EntityHelper;
-import net.minecraft.client.renderer.ItemMeshDefinition;
-import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import com.blocklings.entity.entities.EntityBlockling;
+import com.blocklings.entity.enums.Guard;
+import com.blocklings.entity.enums.State;
+import com.blocklings.entity.enums.Task;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -54,9 +53,9 @@ public class ItemBlockling extends Item
         if (blockling != null)
         {
             blockling.writeEntityToNBT(c);
-            c.setInteger("TaskID", EntityHelper.Task.IDLE.id);
-            c.setInteger("GuardID", EntityHelper.Guard.NOGUARD.id);
-            c.setInteger("StateID", EntityHelper.State.FOLLOW.id);
+            c.setInteger("TaskID", Task.IDLE.id);
+            c.setInteger("GuardID", Guard.NOGUARD.id);
+            c.setInteger("StateID", State.FOLLOW.id);
 
             if (!saveProgress)
             {

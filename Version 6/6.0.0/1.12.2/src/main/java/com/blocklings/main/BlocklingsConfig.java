@@ -16,10 +16,7 @@ import scala.Int;
 import scala.collection.mutable.MultiMap;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Stream;
 
 public class BlocklingsConfig
@@ -36,6 +33,14 @@ public class BlocklingsConfig
 
 		Property spawn_rate = config.get(CATEGORY_BLOCKLINGS, "spawn rate",10);
 		spawn_rate.setComment("Higher = more often");
+		int[] bids = new int[EntityHelper.biomes.size()]; int i = 0;
+		for (int id : EntityHelper.biomes)
+		{
+			bids[i] = id;
+			i++;
+		}
+		Property biomes = config.get(CATEGORY_BLOCKLINGS, "biomes", bids);
+		biomes.setComment("List of all biome ids blocklings can spawn in (they still need grass to spawn on)");
 
 		Property xp_multiplier = config.get(CATEGORY_BLOCKLINGS, "xp multiplier",1.0);
 		xp_multiplier.setComment("Multiplies gained xp by the given value");
@@ -49,6 +54,7 @@ public class BlocklingsConfig
 
 		List<String> properties = new ArrayList<>();
 		properties.add(spawn_rate.getName());
+		properties.add(biomes.getName());
 		properties.add(xp_multiplier.getName());
 		properties.add(ores.getName());
 		properties.add(logs.getName());
@@ -56,6 +62,7 @@ public class BlocklingsConfig
 		config.setCategoryPropertyOrder(CATEGORY_BLOCKLINGS, properties);
 
 		spawn_rate.set(spawn_rate.getInt());
+		biomes.set(biomes.getIntList());
 		xp_multiplier.set(xp_multiplier.getDouble());
 		ores.set(ores.getIntList());
 		logs.set(logs.getStringList());
@@ -65,9 +72,21 @@ public class BlocklingsConfig
 		SPAWN_RATE = spawn_rate.getInt();
 		EntityHelper.XP_MULTIPLIER = xp_multiplier.getDouble();
 
+		getBiomes(biomes.getIntList());
 		getOres(ores.getIntList());
 		getLogs(logs.getStringList());
 		getLeaves(leaves.getIntList());
+	}
+
+	public static void getBiomes(int[] biomeList)
+	{
+		for (int id : biomeList)
+		{
+			if (id >= 0)
+			{
+				EntityHelper.biomes.add(id);
+			}
+		}
 	}
 
 	public static void getOres(int[] oreList)

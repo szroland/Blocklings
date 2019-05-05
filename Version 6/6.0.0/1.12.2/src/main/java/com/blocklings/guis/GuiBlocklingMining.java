@@ -1,6 +1,6 @@
 package com.blocklings.guis;
 
-import com.blocklings.entities.EntityBlockling;
+import com.blocklings.entity.entities.EntityBlockling;
 import com.blocklings.util.ResourceLocationBlocklings;
 import com.blocklings.util.helpers.GuiHelper;
 import net.minecraft.entity.player.EntityPlayer;

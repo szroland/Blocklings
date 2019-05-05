@@ -1,7 +1,8 @@
 package com.blocklings.util.helpers;
 
 import com.blocklings.abilities.AbilityHelper;
-import com.blocklings.entities.EntityBlockling;
+import com.blocklings.entity.entities.EntityBlockling;
+import com.blocklings.entity.enums.Task;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.Item;
@@ -29,8 +30,8 @@ public class DropHelper
         int fortuneLevel = 0;
         boolean silkTouch = false;
 
-        boolean toolMatchesTaskMain = (blockling.isUsingPickaxeRight() && blockling.getTask() == EntityHelper.Task.MINE) || (blockling.isUsingAxeRight() && blockling.getTask() == EntityHelper.Task.CHOP);
-        boolean toolMatchesTaskOff = (blockling.isUsingPickaxeLeft() && blockling.getTask() == EntityHelper.Task.MINE) || (blockling.isUsingAxeLeft() && blockling.getTask() == EntityHelper.Task.CHOP);
+        boolean toolMatchesTaskMain = (blockling.isUsingPickaxeRight() && blockling.getTask() == Task.MINE) || (blockling.isUsingAxeRight() && blockling.getTask() == Task.CHOP);
+        boolean toolMatchesTaskOff = (blockling.isUsingPickaxeLeft() && blockling.getTask() == Task.MINE) || (blockling.isUsingAxeLeft() && blockling.getTask() == Task.CHOP);
 
         if (toolMatchesTaskMain)
         {

@@ -1,6 +1,6 @@
 package com.blocklings.abilities;
 
-import com.blocklings.entities.EntityBlockling;
+import com.blocklings.entity.entities.EntityBlockling;
 import io.netty.buffer.ByteBuf;
 
 import java.awt.*;

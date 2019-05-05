@@ -1,6 +1,6 @@
 package com.blocklings.guis;
 
-import com.blocklings.entities.EntityBlockling;
+import com.blocklings.entity.entities.EntityBlockling;
 import com.blocklings.util.helpers.GuiHelper;
 import com.blocklings.util.helpers.GuiHelper.Tab;
 import net.minecraft.client.gui.GuiScreen;
@@ -8,7 +8,6 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
-import net.minecraftforge.client.event.sound.SoundEvent;
 
 import java.io.IOException;
 

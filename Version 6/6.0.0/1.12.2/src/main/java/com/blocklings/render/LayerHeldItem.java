@@ -1,6 +1,6 @@
 package com.blocklings.render;
 
-import com.blocklings.entities.EntityBlockling;
+import com.blocklings.entity.entities.EntityBlockling;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
@@ -212,6 +212,11 @@ public class LayerHeldItem implements LayerRenderer<EntityLivingBase>
             }
 
             GlStateManager.translate(0.0F, -0.14f, -0.31F);
+
+            if (blockling.isSitting())
+            {
+                GlStateManager.translate(0.0F, -0.05f, 0.0F);
+            }
 
             Minecraft.getMinecraft().getItemRenderer().renderItemSide(entity, stack, transform, flag);
             GlStateManager.popMatrix();

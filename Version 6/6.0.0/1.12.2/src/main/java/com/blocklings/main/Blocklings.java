@@ -5,7 +5,7 @@ import com.blocklings.guis.GuiHandler;
 import com.blocklings.items.BlocklingsItems;
 import com.blocklings.proxy.IProxy;
 import com.blocklings.util.helpers.EntityHelper;
-import com.blocklings.util.helpers.NetworkHelper;
+import com.blocklings.network.NetworkHelper;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
